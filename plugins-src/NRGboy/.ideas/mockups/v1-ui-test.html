@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NRGboy — Vocal Processor v1</title>
+  <style>
+    /* ============================================================
+       WEBVIEW CONSTRAINTS (REQUIRED — DO NOT REMOVE)
+       ============================================================ */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: default;
+      overflow: hidden;
+      background: #111;
+      color: #ffc864;
+      font-family: "Arial Narrow", Arial, sans-serif;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
+    /* ============================================================
+       CSS VARIABLES
+       ============================================================ */
+    :root {
+      --bg-main:          #1a1a1a;
+      --bg-surface:       #1e1e1e;
+      --bg-header:        #202020;
+      --accent-primary:   #ffc864;
+      --accent-secondary: #e6b050;
+      --led-green:        #44ff44;
+      --led-yellow:       #ffff44;
+      --led-red:          #ff4444;
+      --text-primary:     #ffc864;
+      --text-inactive:    #555555;
+      --control-base:     #1a1a1a;
+      --control-rim:      #2e2e2e;
+      --separator:        #0a0a0a;
+    }
+
+    /* ============================================================
+       PLUGIN FRAME
+       ============================================================ */
+    #plugin-frame {
+      width: 700px;
+      height: 400px;
+      position: relative;
+      background: repeating-linear-gradient(
+        0deg,
+        #1a1a1a,
+        #1e1e1e 1px,
+        #1a1a1a 2px
+      );
+      border: 2px solid #0a0a0a;
+      box-shadow:
+        0 0 0 1px #2a2a2a,
+        inset 0 1px 0 rgba(255,255,255,0.04),
+        0 8px 40px rgba(0,0,0,0.9);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       HEADER BAR
+       ============================================================ */
+    #header {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 48px;
+      background: linear-gradient(180deg, #252525 0%, #1c1c1c 100%);
+      border-bottom: 2px solid #0a0a0a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 10px;
+      z-index: 5;
+    }
+
+    #plugin-title-block {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    #plugin-title {
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--accent-primary);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(255,200,100,0.4), 0 1px 2px rgba(0,0,0,0.9);
+    }
+
+    #plugin-subtitle {
+      font-size: 8px;
+      color: #555;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    .header-sep {
+      width: 1px;
+      height: 28px;
+      background: linear-gradient(180deg, transparent, #333 40%, transparent);
+      flex-shrink: 0;
+    }
+
+    /* Mode selector in header */
+    #mode-group {
+      display: flex;
+      gap: 2px;
+      background: #111;
+      padding: 3px;
+      border: 1px solid #1e1e1e;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .mode-btn {
+      padding: 5px 14px;
+      font-size: 10px;
+      font-family: "Arial Narrow", Arial, sans-serif;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background: #1a1a1a;
+      color: #555;
+      border: 1px solid #222;
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .mode-btn.active {
+      background: #1e1800;
+      color: var(--accent-primary);
+      border-color: #443200;
+      box-shadow: 0 0 8px rgba(255,200,100,0.25), inset 0 1px 0 rgba(255,200,100,0.08);
+    }
+
+    .mode-btn::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #222;
+      margin-right: 6px;
+      vertical-align: middle;
+      margin-bottom: 1px;
+    }
+
+    .mode-btn.active::before {
+      background: var(--accent-primary);
+      box-shadow: 0 0 4px var(--accent-primary);
+    }
+
+    .header-flex-space { flex: 1; }
+
+    /* Mix knob in header */
+    .header-knob-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+
+    .header-knob-label {
+      font-size: 8px;
+      color: var(--accent-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .header-knob-value {
+      font-family: "Courier New", monospace;
+      font-size: 9px;
+      color: var(--led-green);
+      min-width: 36px;
+      text-align: center;
+    }
+
+    /* ============================================================
+       I/O METER COLUMNS
+       ============================================================ */
+    .io-meter-column {
+      position: absolute;
+      top: 48px;
+      width: 28px;
+      bottom: 0;
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 4px 8px;
+      gap: 4px;
+      z-index: 3;
+    }
+
+    #meter-input  { left: 0;    border-right: 2px solid #0a0a0a; }
+    #meter-output { right: 0;   border-left:  2px solid #0a0a0a; }
+
+    .io-meter-label {
+      font-size: 7px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #444;
+      writing-mode: vertical-lr;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      flex-shrink: 0;
+    }
+
+    .io-meter-body {
+      flex: 1;
+      width: 14px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 2px;
+    }
+
+    .io-led-seg {
+      height: 100%;
+      flex: 1;
+      border-radius: 1px;
+      background: #0d0d0d;
+      border: 1px solid #0a0a0a;
+    }
+
+    /* ============================================================
+       MAIN CONTENT AREA (between meters)
+       ============================================================ */
+    #main-content {
+      position: absolute;
+      top: 48px;
+      left: 28px;
+      right: 28px;
+      bottom: 0;
+      display: flex;
+    }
+
+    /* ============================================================
+       SECTION PANELS
+       ============================================================ */
+    .section-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #section-pitch-formant {
+      width: 226px;
+      border-right: 1px solid #0a0a0a;
+      box-shadow: 1px 0 4px rgba(0,0,0,0.5);
+    }
+
+    #section-robot {
+      width: 196px;
+      border-right: 1px solid #0a0a0a;
+      box-shadow: 1px 0 4px rgba(0,0,0,0.5);
+    }
+
+    #section-harmony {
+      flex: 1;
+    }
+
+    .section-header {
+      height: 22px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      background: linear-gradient(180deg, #202020 0%, #1a1a1a 100%);
+      border-bottom: 1px solid #111;
+      flex-shrink: 0;
+    }
+
+    .section-label {
+      font-size: 8px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    .section-accent-bar {
+      width: 3px;
+      height: 10px;
+      background: var(--accent-primary);
+      border-radius: 1px;
+      margin-right: 7px;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+
+    /* Robot section: gold top accent */
+    #section-robot .section-header {
+      border-top: 2px solid #443200;
+    }
+
+    #section-harmony .section-header {
+      border-top: 2px solid transparent;
+    }
+
+    /* ============================================================
+       KNOB COMPONENT
+       ============================================================ */
+    .knob-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .knob-label {
+      font-size: 8px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent-secondary);
+      text-align: center;
+    }
+
+    .knob {
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 32% 28%, #2e2e2e 0%, #1c1c1c 45%, #0e0e0e 100%);
+      border: 2px solid #0a0a0a;
+      box-shadow:
+        0 4px 10px rgba(0,0,0,0.95),
+        0 1px 0 rgba(255,255,255,0.04) inset,
+        0 0 0 1px #1e1e1e,
+        0 0 0 3px #141414;
+      position: relative;
+      cursor: ns-resize;
+    }
+
+    .knob::after {
+      /* machined texture ring */
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg, rgba(255,255,255,0.012) 8deg,
+        transparent 16deg, rgba(255,255,255,0.012) 24deg,
+        transparent 32deg, rgba(255,255,255,0.012) 40deg,
+        transparent 48deg, rgba(255,255,255,0.012) 56deg,
+        transparent 64deg, rgba(255,255,255,0.012) 72deg,
+        transparent 80deg, rgba(255,255,255,0.012) 88deg,
+        transparent 96deg, rgba(255,255,255,0.012) 104deg,
+        transparent 112deg, rgba(255,255,255,0.012) 120deg,
+        transparent 128deg, rgba(255,255,255,0.012) 136deg,
+        transparent 144deg, rgba(255,255,255,0.012) 152deg,
+        transparent 160deg, rgba(255,255,255,0.012) 168deg,
+        transparent 176deg, rgba(255,255,255,0.012) 184deg,
+        transparent 192deg, rgba(255,255,255,0.012) 200deg,
+        transparent 208deg, rgba(255,255,255,0.012) 216deg,
+        transparent 224deg, rgba(255,255,255,0.012) 232deg,
+        transparent 240deg, rgba(255,255,255,0.012) 248deg,
+        transparent 256deg, rgba(255,255,255,0.012) 264deg,
+        transparent 272deg, rgba(255,255,255,0.012) 280deg,
+        transparent 288deg, rgba(255,255,255,0.012) 296deg,
+        transparent 304deg, rgba(255,255,255,0.012) 312deg,
+        transparent 320deg, rgba(255,255,255,0.012) 328deg,
+        transparent 336deg, rgba(255,255,255,0.012) 344deg,
+        transparent 352deg
+      );
+    }
+
+    .knob-pointer {
+      position: absolute;
+      top: 14%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 28%;
+      background: linear-gradient(180deg, var(--accent-primary) 0%, #aa7a00 100%);
+      border-radius: 1px;
+      box-shadow: 0 0 4px rgba(255,200,100,0.6);
+      transform-origin: bottom center;
+    }
+
+    .knob-readout {
+      font-family: "Courier New", monospace;
+      font-size: 9px;
+      color: var(--led-green);
+      text-align: center;
+      min-width: 42px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Large knobs (pitch/formant — 60px) */
+    .knob-lg {
+      width: 60px;
+      height: 60px;
+    }
+
+    /* Medium knobs (voice — 48px) */
+    .knob-md {
+      width: 48px;
+      height: 48px;
+    }
+
+    /* Small knobs (mix — 32px) */
+    .knob-sm {
+      width: 32px;
+      height: 32px;
+    }
+
+    .knob-sm .knob-pointer {
+      height: 26%;
+      top: 12%;
+    }
+
+    /* ============================================================
+       LED BUTTON
+       ============================================================ */
+    .led-btn {
+      padding: 4px 8px;
+      font-size: 8px;
+      font-family: "Arial Narrow", Arial, sans-serif;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      background: #1a1a1a;
+      color: #555;
+      border: 1px solid #222;
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .led-btn .led-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #222;
+      border: 1px solid #111;
+      flex-shrink: 0;
+    }
+
+    .led-btn.active {
+      background: #1e1800;
+      color: var(--accent-primary);
+      border-color: #443200;
+      box-shadow: 0 0 6px rgba(255,200,100,0.2), inset 0 1px 0 rgba(255,200,100,0.06);
+    }
+
+    .led-btn.active .led-dot {
+      background: var(--accent-primary);
+      box-shadow: 0 0 4px var(--accent-primary);
+      border-color: #aa7a00;
+    }
+
+    /* LED button group (horizontal row) */
+    .led-btn-group {
+      display: flex;
+      gap: 2px;
+      background: #111;
+      padding: 2px;
+      border: 1px solid #1a1a1a;
+      border-radius: 3px;
+    }
+
+    /* Power / toggle button */
+    .power-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      background: linear-gradient(180deg, #242424, #161616);
+      border: 1px solid #111;
+      border-radius: 3px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.8) inset, 0 1px 0 #2e2e2e;
+      cursor: pointer;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    .power-btn .power-led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      border: 1px solid #111;
+      flex-shrink: 0;
+    }
+
+    .power-btn.active {
+      color: var(--accent-primary);
+      background: linear-gradient(180deg, #1e1800, #141000);
+      border-color: #332200;
+      box-shadow: 0 0 8px rgba(255,200,100,0.15) inset, 0 1px 0 #2a1a00;
+    }
+
+    .power-btn.active .power-led {
+      background: var(--led-green);
+      box-shadow: 0 0 5px var(--led-green);
+      border-color: #004400;
+    }
+
+    /* ============================================================
+       PITCH / FORMANT SECTION LAYOUT
+       ============================================================ */
+    #section-pitch-formant .section-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 12px 10px;
+      gap: 8px;
+    }
+
+    .pf-knobs-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding-top: 8px;
+    }
+
+    .pf-tracking-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding-top: 4px;
+      border-top: 1px solid #111;
+      margin-top: 4px;
+    }
+
+    .tracking-label {
+      font-size: 7px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #444;
+    }
+
+    /* ============================================================
+       ROBOT SECTION LAYOUT
+       ============================================================ */
+    #section-robot .section-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 7px 10px;
+      gap: 8px;
+      transition: opacity 0.15s ease;
+    }
+
+    #section-robot.dimmed .section-body {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .robot-sub-label {
+      font-size: 7px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 2px;
+    }
+
+    /* Root note grid: 2 rows of 6 */
+    .root-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 2px;
+    }
+
+    .root-btn {
+      padding: 4px 2px;
+      font-size: 8px;
+      font-family: "Courier New", monospace;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      background: #1a1a1a;
+      color: #555;
+      border: 1px solid #222;
+      border-radius: 2px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .root-btn.active {
+      background: #1e1800;
+      color: var(--accent-primary);
+      border-color: #443200;
+      box-shadow: 0 0 5px rgba(255,200,100,0.2);
+    }
+
+    /* ============================================================
+       HARMONY SECTION LAYOUT
+       ============================================================ */
+    #section-harmony .section-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 12px 10px;
+      gap: 8px;
+    }
+
+    .harmony-toggle-row {
+      display: flex;
+      justify-content: center;
+    }
+
+    .harmony-voices {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding: 6px 0 6px;
+      transition: opacity 0.15s ease;
+    }
+
+    .harmony-voices.dimmed {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .harmony-midi-row {
+      display: flex;
+      justify-content: center;
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid #111;
+    }
+
+    /* ============================================================
+       KNOB DRAG CURSOR OVERRIDE
+       ============================================================ */
+    body.knob-dragging { cursor: ns-resize !important; }
+  </style>
+</head>
+<body>
+
+  <!-- ================================================================
+       PLUGIN FRAME (700 × 400)
+       ================================================================ -->
+  <div id="plugin-frame">
+
+    <!-- ── HEADER ─────────────────────────────────────────────────── -->
+    <div id="header">
+      <!-- Title -->
+      <div id="plugin-title-block">
+        <div id="plugin-title">NRGboy</div>
+        <div id="plugin-subtitle">Vocal Processor</div>
+      </div>
+
+      <div class="header-sep"></div>
+
+      <!-- Mode selector -->
+      <div id="mode-group">
+        <button class="mode-btn active" data-mode="Pitch">Pitch</button>
+        <button class="mode-btn" data-mode="Formant">Formant</button>
+        <button class="mode-btn" data-mode="Robot">Robot</button>
+      </div>
+
+      <div class="header-flex-space"></div>
+
+      <!-- Mix knob -->
+      <div class="header-knob-group">
+        <div class="header-knob-label">Mix</div>
+        <div class="knob-group">
+          <div
+            class="knob knob-sm"
+            id="mix-knob"
+            data-param="mix"
+            data-value="1.0"
+            data-min="0.0"
+            data-max="1.0"
+            title="Mix"
+          >
+            <div class="knob-pointer" id="mix-pointer"></div>
+          </div>
+        </div>
+        <div class="knob-readout header-knob-value" id="mix-readout">100%</div>
+      </div>
+    </div><!-- /header -->
+
+    <!-- ── I/O METERS ────────────────────────────────────────────── -->
+    <div class="io-meter-column" id="meter-input">
+      <div class="io-meter-label">IN</div>
+      <div class="io-meter-body" id="meter-in-body">
+        <!-- 12 segments, built by JS -->
+      </div>
+    </div>
+
+    <div class="io-meter-column" id="meter-output">
+      <div class="io-meter-label">OUT</div>
+      <div class="io-meter-body" id="meter-out-body">
+        <!-- 12 segments, built by JS -->
+      </div>
+    </div>
+
+    <!-- ── MAIN CONTENT ───────────────────────────────────────────── -->
+    <div id="main-content">
+
+      <!-- ============================================================
+           SECTION 1: PITCH / FORMANT
+           ============================================================ -->
+      <div class="section-panel" id="section-pitch-formant">
+        <div class="section-header">
+          <div class="section-accent-bar"></div>
+          <div class="section-label">Pitch / Formant</div>
+        </div>
+        <div class="section-body">
+
+          <!-- Knobs row -->
+          <div class="pf-knobs-row">
+            <!-- Pitch -->
+            <div class="knob-group">
+              <div class="knob-label">Pitch</div>
+              <div
+                class="knob knob-lg"
+                id="pitch-knob"
+                data-param="pitch"
+                data-value="0.5"
+                data-min="-24.0"
+                data-max="24.0"
+                title="Pitch"
+              >
+                <div class="knob-pointer" id="pitch-pointer"></div>
+              </div>
+              <div class="knob-readout" id="pitch-readout">0.0 st</div>
+            </div>
+
+            <!-- Formant -->
+            <div class="knob-group">
+              <div class="knob-label">Formant</div>
+              <div
+                class="knob knob-lg"
+                id="formant-knob"
+                data-param="formant"
+                data-value="0.5"
+                data-min="-12.0"
+                data-max="12.0"
+                title="Formant"
+              >
+                <div class="knob-pointer" id="formant-pointer"></div>
+              </div>
+              <div class="knob-readout" id="formant-readout">0.0 st</div>
+            </div>
+          </div><!-- /pf-knobs-row -->
+
+          <!-- Formant Mode tracking -->
+          <div class="pf-tracking-row">
+            <div class="tracking-label">Formant Tracking</div>
+            <div class="led-btn-group" id="formant-mode-group">
+              <button class="led-btn" data-param="formantMode" data-option="Linked">
+                <span class="led-dot"></span>Linked
+              </button>
+              <button class="led-btn active" data-param="formantMode" data-option="Independent">
+                <span class="led-dot"></span>Indep
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /section-pitch-formant -->
+
+      <!-- ============================================================
+           SECTION 2: ROBOT
+           ============================================================ -->
+      <div class="section-panel" id="section-robot">
+        <div class="section-header">
+          <div class="section-accent-bar" style="background: var(--accent-primary);"></div>
+          <div class="section-label" style="color: #664400;">Robot</div>
+        </div>
+        <div class="section-body">
+
+          <!-- Root note -->
+          <div>
+            <div class="robot-sub-label">Root Note</div>
+            <div class="root-grid" id="root-grid">
+              <!-- Built by JS: C C# D D# E F / F# G G# A A# B -->
+            </div>
+          </div>
+
+          <!-- Scale -->
+          <div>
+            <div class="robot-sub-label">Scale</div>
+            <div class="led-btn-group" id="scale-group" style="flex-wrap: wrap; gap: 2px;">
+              <button class="led-btn" data-param="robotScale" data-option="Chromatic">
+                <span class="led-dot"></span>Chrom
+              </button>
+              <button class="led-btn active" data-param="robotScale" data-option="Major">
+                <span class="led-dot"></span>Major
+              </button>
+              <button class="led-btn" data-param="robotScale" data-option="Minor">
+                <span class="led-dot"></span>Minor
+              </button>
+              <button class="led-btn" data-param="robotScale" data-option="Pentatonic">
+                <span class="led-dot"></span>Penta
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /section-robot -->
+
+      <!-- ============================================================
+           SECTION 3: HARMONY
+           ============================================================ -->
+      <div class="section-panel" id="section-harmony">
+        <div class="section-header">
+          <div class="section-accent-bar"></div>
+          <div class="section-label">Harmony</div>
+        </div>
+        <div class="section-body">
+
+          <!-- Harmony on toggle -->
+          <div class="harmony-toggle-row">
+            <button class="power-btn" id="harmony-on-btn" data-param="harmonyOn" data-value="false">
+              <span class="power-led"></span>Harmony On
+            </button>
+          </div>
+
+          <!-- Voice knobs -->
+          <div class="harmony-voices dimmed" id="harmony-voices">
+            <div class="knob-group">
+              <div class="knob-label">Voice 1</div>
+              <div
+                class="knob knob-md"
+                id="harmony1-knob"
+                data-param="harmony1"
+                data-value="0.5625"
+                data-min="-24.0"
+                data-max="24.0"
+                title="Voice 1"
+              >
+                <div class="knob-pointer" id="harmony1-pointer"></div>
+              </div>
+              <div class="knob-readout" id="harmony1-readout">+3.0 st</div>
+            </div>
+
+            <div class="knob-group">
+              <div class="knob-label">Voice 2</div>
+              <div
+                class="knob knob-md"
+                id="harmony2-knob"
+                data-param="harmony2"
+                data-value="0.6458"
+                data-min="-24.0"
+                data-max="24.0"
+                title="Voice 2"
+              >
+                <div class="knob-pointer" id="harmony2-pointer"></div>
+              </div>
+              <div class="knob-readout" id="harmony2-readout">+7.0 st</div>
+            </div>
+          </div><!-- /harmony-voices -->
+
+          <!-- MIDI pitch toggle -->
+          <div class="harmony-midi-row">
+            <button class="power-btn" id="midi-pitch-btn" data-param="midiPitch" data-value="false">
+              <span class="power-led"></span>MIDI Pitch
+            </button>
+          </div>
+
+        </div>
+      </div><!-- /section-harmony -->
+
+    </div><!-- /main-content -->
+
+  </div><!-- /plugin-frame -->
+
+  <!-- ================================================================
+       JAVASCRIPT
+       ================================================================ -->
+  <script>
+    "use strict";
+
+    /* ------------------------------------------------------------------
+       MOCK JUCE BACKEND
+       ------------------------------------------------------------------ */
+    const _paramState = {};
+
+    window.Juce = {
+      getSliderState(id) {
+        if (!_paramState[id]) _paramState[id] = { normalisedValue: 0.5, listeners: [] };
+        return {
+          get normalisedValue() { return _paramState[id].normalisedValue; },
+          set normalisedValue(v) {
+            _paramState[id].normalisedValue = v;
+            _paramState[id].listeners.forEach(fn => fn(v));
+          },
+          valueChangedEvent: {
+            addListener(fn) { _paramState[id].listeners.push(fn); }
+          }
+        };
+      },
+      getToggleState(id) {
+        if (!_paramState[id]) _paramState[id] = { value: false, listeners: [] };
+        return {
+          get value() { return _paramState[id].value; },
+          set value(v) {
+            _paramState[id].value = v;
+            _paramState[id].listeners.forEach(fn => fn(v));
+          },
+          valueChangedEvent: {
+            addListener(fn) { _paramState[id].listeners.push(fn); }
+          }
+        };
+      },
+      getComboBoxState(id) {
+        if (!_paramState[id]) _paramState[id] = { selectedId: 0, listeners: [] };
+        return {
+          get selectedId() { return _paramState[id].selectedId; },
+          set selectedId(v) {
+            _paramState[id].selectedId = v;
+            _paramState[id].listeners.forEach(fn => fn(v));
+          },
+          valueChangedEvent: {
+            addListener(fn) { _paramState[id].listeners.push(fn); }
+          }
+        };
+      }
+    };
+
+    window.sendToPlugin = function(msg) {
+      console.log('[NRGboy]', msg.type, msg.id, msg.value);
+    };
+
+    /* ------------------------------------------------------------------
+       DISABLE CONTEXT MENU (REQUIRED)
+       ------------------------------------------------------------------ */
+    document.addEventListener("contextmenu", function(e) {
+      e.preventDefault();
+      return false;
+    });
+
+    /* ------------------------------------------------------------------
+       KNOB DRAG SYSTEM
+       ------------------------------------------------------------------ */
+    const KNOB_SENSITIVITY = 220; // px drag = full range
+
+    function normToAngle(norm) {
+      // -135deg (bottom-left) → +135deg (bottom-right)
+      return -135 + norm * 270;
+    }
+
+    function updateKnobVisual(knobEl, norm) {
+      if (norm === undefined) norm = parseFloat(knobEl.dataset.value || '0.5');
+      const pointer = knobEl.querySelector('.knob-pointer');
+      if (pointer) {
+        pointer.style.transform = `translateX(-50%) rotate(${normToAngle(norm)}deg)`;
+      }
+    }
+
+    function initKnob(knobEl) {
+      let dragStartY = 0;
+      let dragStartNorm = 0;
+      let isDragging = false;
+
+      function getNorm() {
+        return parseFloat(knobEl.dataset.value || '0.5');
+      }
+
+      function setNorm(v) {
+        v = Math.max(0, Math.min(1, v));
+        knobEl.dataset.value = v.toFixed(6);
+        updateKnobVisual(knobEl);
+
+        const paramId = knobEl.dataset.param;
+        const min = parseFloat(knobEl.dataset.min);
+        const max = parseFloat(knobEl.dataset.max);
+        const real = min + v * (max - min);
+
+        // Update readout
+        updateReadout(paramId, real);
+
+        // Send parameter change
+        window.sendToPlugin({ type: 'parameterChange', id: paramId, value: real });
+      }
+
+      knobEl.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        isDragging = true;
+        dragStartY = e.clientY;
+        dragStartNorm = getNorm();
+        document.body.classList.add('knob-dragging');
+
+        function onMove(ev) {
+          if (!isDragging) return;
+          const delta = dragStartY - ev.clientY;
+          const newNorm = dragStartNorm + delta / KNOB_SENSITIVITY;
+          setNorm(newNorm);
+        }
+
+        function onUp() {
+          isDragging = false;
+          document.body.classList.remove('knob-dragging');
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      // Set initial visual
+      updateKnobVisual(knobEl);
+    }
+
+    function updateReadout(paramId, realValue) {
+      const readoutEl = document.getElementById(paramId + '-readout');
+      if (!readoutEl) return;
+
+      let text;
+      if (paramId === 'mix') {
+        text = Math.round(realValue * 100) + '%';
+        // Also update header readout
+        const hdr = document.getElementById('mix-readout');
+        if (hdr) hdr.textContent = text;
+        return;
+      }
+      if (paramId === 'pitch' || paramId === 'formant') {
+        const sign = realValue >= 0 ? '+' : '';
+        text = sign + realValue.toFixed(1) + ' st';
+      } else if (paramId === 'harmony1' || paramId === 'harmony2') {
+        const sign = realValue >= 0 ? '+' : '';
+        text = sign + realValue.toFixed(1) + ' st';
+      } else {
+        text = realValue.toFixed(2);
+      }
+      readoutEl.textContent = text;
+    }
+
+    /* ------------------------------------------------------------------
+       BUILD ROOT NOTE GRID
+       ------------------------------------------------------------------ */
+    const ROOT_NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    let currentRoot = 'C';
+
+    function buildRootGrid() {
+      const grid = document.getElementById('root-grid');
+      ROOT_NOTES.forEach(function(note) {
+        const btn = document.createElement('button');
+        btn.className = 'root-btn' + (note === currentRoot ? ' active' : '');
+        btn.textContent = note;
+        btn.addEventListener('click', function() {
+          currentRoot = note;
+          grid.querySelectorAll('.root-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          window.sendToPlugin({ type: 'parameterChange', id: 'robotRoot', value: note });
+        });
+        grid.appendChild(btn);
+      });
+    }
+
+    /* ------------------------------------------------------------------
+       LED BUTTON GROUPS (mode, formantMode, robotScale)
+       ------------------------------------------------------------------ */
+    function initLedButtonGroup(groupEl, paramId) {
+      const btns = groupEl.querySelectorAll('[data-param="' + paramId + '"]');
+      btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          btns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const val = btn.dataset.option || btn.dataset.mode;
+          window.sendToPlugin({ type: 'parameterChange', id: paramId, value: val });
+
+          // Mode change: dim/undim robot section
+          if (paramId === 'mode' || btn.classList.contains('mode-btn')) {
+            updateModeState(val || btn.dataset.mode);
+          }
+        });
+      });
+    }
+
+    /* ------------------------------------------------------------------
+       MODE BUTTON GROUP (header)
+       ------------------------------------------------------------------ */
+    let currentMode = 'Pitch';
+
+    function updateModeState(mode) {
+      currentMode = mode;
+      const robotSection = document.getElementById('section-robot');
+      if (mode === 'Robot') {
+        robotSection.classList.remove('dimmed');
+      } else {
+        robotSection.classList.add('dimmed');
+      }
+    }
+
+    document.querySelectorAll('.mode-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const mode = btn.dataset.mode;
+        window.sendToPlugin({ type: 'parameterChange', id: 'mode', value: mode });
+        updateModeState(mode);
+      });
+    });
+
+    // Initial state: Pitch mode → robot dimmed
+    updateModeState('Pitch');
+
+    /* ------------------------------------------------------------------
+       FORMANT MODE GROUP
+       ------------------------------------------------------------------ */
+    initLedButtonGroup(document.getElementById('formant-mode-group'), 'formantMode');
+
+    /* ------------------------------------------------------------------
+       SCALE GROUP
+       ------------------------------------------------------------------ */
+    initLedButtonGroup(document.getElementById('scale-group'), 'robotScale');
+
+    /* ------------------------------------------------------------------
+       HARMONY ON TOGGLE
+       ------------------------------------------------------------------ */
+    let harmonyOn = false;
+
+    document.getElementById('harmony-on-btn').addEventListener('click', function() {
+      harmonyOn = !harmonyOn;
+      this.classList.toggle('active', harmonyOn);
+      this.dataset.value = String(harmonyOn);
+      const voices = document.getElementById('harmony-voices');
+      voices.classList.toggle('dimmed', !harmonyOn);
+      window.sendToPlugin({ type: 'parameterChange', id: 'harmonyOn', value: harmonyOn });
+    });
+
+    /* ------------------------------------------------------------------
+       MIDI PITCH TOGGLE
+       ------------------------------------------------------------------ */
+    let midiPitchOn = false;
+
+    document.getElementById('midi-pitch-btn').addEventListener('click', function() {
+      midiPitchOn = !midiPitchOn;
+      this.classList.toggle('active', midiPitchOn);
+      this.dataset.value = String(midiPitchOn);
+      window.sendToPlugin({ type: 'parameterChange', id: 'midiPitch', value: midiPitchOn });
+    });
+
+    /* ------------------------------------------------------------------
+       I/O METER ANIMATION
+       ------------------------------------------------------------------ */
+    const METER_SEGS = 12;
+    // Segment colors: bottom 7 green, next 3 yellow, top 2 red
+    const SEG_COLORS = ['#44ff44','#44ff44','#44ff44','#44ff44','#44ff44','#44ff44','#44ff44','#ffff44','#ffff44','#ffff44','#ff4444','#ff4444'];
+
+    function buildMeter(bodyEl) {
+      const segs = [];
+      for (let i = 0; i < METER_SEGS; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'io-led-seg';
+        bodyEl.appendChild(seg);
+        segs.push(seg);
+      }
+      return segs;
+    }
+
+    const inSegs  = buildMeter(document.getElementById('meter-in-body'));
+    const outSegs = buildMeter(document.getElementById('meter-out-body'));
+
+    // Simulated audio signal with noise + decay
+    let inLevel  = 0;
+    let outLevel = 0;
+    let inPeak   = 0;
+    let outPeak  = 0;
+
+    function updateMeter(segs, level) {
+      const lit = Math.round(level * METER_SEGS);
+      segs.forEach(function(seg, i) {
+        if (i < lit) {
+          seg.style.background = SEG_COLORS[i];
+          seg.style.boxShadow  = '0 0 3px ' + SEG_COLORS[i] + '66';
+        } else {
+          seg.style.background = '#0d0d0d';
+          seg.style.boxShadow  = 'none';
+        }
+      });
+    }
+
+    let frameCount = 0;
+
+    function animateMeter() {
+      frameCount++;
+
+      // Simulate input signal: random bursts
+      if (frameCount % 7 === 0) {
+        inPeak = 0.45 + Math.random() * 0.5;
+      }
+      inLevel += (inPeak - inLevel) * 0.18;
+      inPeak  *= 0.94;
+
+      // Output tracks input with slight variation
+      outPeak = inPeak * (0.9 + Math.random() * 0.15);
+      outLevel += (outPeak - outLevel) * 0.16;
+      outPeak *= 0.93;
+
+      updateMeter(inSegs,  Math.max(0, Math.min(1, inLevel)));
+      updateMeter(outSegs, Math.max(0, Math.min(1, outLevel)));
+
+      requestAnimationFrame(animateMeter);
+    }
+
+    /* ------------------------------------------------------------------
+       INIT ALL KNOBS
+       ------------------------------------------------------------------ */
+    document.querySelectorAll('.knob').forEach(function(knob) {
+      initKnob(knob);
+    });
+
+    // Set initial pointer angles from dataset values
+    document.querySelectorAll('.knob').forEach(function(knob) {
+      updateKnobVisual(knob);
+    });
+
+    // Build root note grid
+    buildRootGrid();
+
+    // Start meter animation
+    animateMeter();
+
+  </script>
+</body>
+</html>

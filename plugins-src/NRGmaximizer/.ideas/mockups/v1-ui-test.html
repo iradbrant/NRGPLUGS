@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NRGmaximizer - UI Mockup v1</title>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+    overflow: hidden;
+    background: #1a1a1a;
+    color: #ffc864;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    width: 1200px;
+    height: 750px;
+  }
+
+  /* ===================== ROOT LAYOUT ===================== */
+  .plugin-root {
+    width: 1200px;
+    height: 750px;
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid #0a0a0a;
+  }
+
+  /* ===================== HEADER BAR ===================== */
+  .header-bar {
+    height: 36px;
+    background: repeating-linear-gradient(0deg, #111111, #161616 1px, #111111 2px);
+    border-bottom: 2px solid #0a0a0a;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    flex-shrink: 0;
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+  }
+  .plugin-title {
+    font-family: Impact, 'Arial Black', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ffc864;
+    text-shadow: 0 0 10px rgba(255,200,100,0.4), 0 1px 0 #000;
+    margin-right: 20px;
+  }
+  .header-subtitle {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #555555;
+    margin-top: 2px;
+  }
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .power-led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #44ff44;
+    box-shadow: 0 0 6px #44ff44, 0 0 12px rgba(68,255,68,0.4);
+  }
+  .version-label {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    color: #555555;
+    letter-spacing: 1px;
+  }
+
+  /* ===================== TOP PANEL ===================== */
+  .top-panel {
+    height: 312px;
+    display: flex;
+    flex-shrink: 0;
+    border-bottom: 1px solid #0a0a0a;
+  }
+
+  /* --- Compression Curve Editor --- */
+  .curve-editor {
+    width: 420px;
+    height: 312px;
+    background: #0d0d10;
+    border-right: 1px solid #0a0a0a;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .curve-editor-label {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #333344;
+    z-index: 2;
+  }
+  .curve-editor canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* --- Waveform Monitor --- */
+  .waveform-monitor {
+    flex: 1;
+    height: 312px;
+    background: #0d0d10;
+    position: relative;
+    overflow: hidden;
+  }
+  .waveform-monitor-label {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #333344;
+    z-index: 2;
+  }
+  .waveform-monitor canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* dB scale on right edge of waveform */
+  .waveform-db-scale {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 28px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 18px 4px 8px;
+    pointer-events: none;
+  }
+  .waveform-db-scale span {
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    color: #333355;
+    text-align: right;
+  }
+
+  /* ===================== TOOLBAR ===================== */
+  .toolbar {
+    height: 34px;
+    background: repeating-linear-gradient(0deg, #141414, #181818 1px, #141414 2px);
+    border-bottom: 1px solid #0a0a0a;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 6px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.6) inset;
+  }
+  .toolbar-label {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #444444;
+    margin-right: 2px;
+  }
+  .curve-shape-btn {
+    width: 26px;
+    height: 22px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    transition: none;
+  }
+  .curve-shape-btn.active {
+    background: #1e1800;
+    border-color: #ffc864;
+    box-shadow: 0 0 4px rgba(255,200,100,0.3);
+  }
+  .curve-shape-btn svg {
+    width: 16px;
+    height: 14px;
+  }
+  .toolbar-divider {
+    width: 1px;
+    height: 20px;
+    background: #2a2a2a;
+    margin: 0 4px;
+  }
+  .toolbar-control-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .toolbar-select {
+    background: #111111;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    color: #ffc864;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    padding: 2px 4px;
+    height: 22px;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    min-width: 50px;
+    text-align: center;
+  }
+  .toolbar-btn {
+    height: 22px;
+    padding: 0 8px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    color: #555555;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  }
+  .toolbar-btn.active {
+    background: #1e1800;
+    border-color: #ffc864;
+    color: #ffc864;
+  }
+  .toolbar-btn .btn-led {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #333333;
+  }
+  .toolbar-btn.active .btn-led {
+    background: #ffc864;
+    box-shadow: 0 0 4px rgba(255,200,100,0.6);
+  }
+  .toolbar-spacer { flex: 1; }
+
+  /* ===================== BOTTOM PANEL ===================== */
+  .bottom-panel {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* --- Band Controls Section --- */
+  .band-controls-section {
+    width: 820px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #0a0a0a;
+    flex-shrink: 0;
+  }
+
+  /* Tab bar */
+  .band-tabs {
+    height: 30px;
+    display: flex;
+    background: #111111;
+    border-bottom: 1px solid #0a0a0a;
+  }
+  .band-tab {
+    flex: 1;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    cursor: pointer;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #444444;
+    background: #111111;
+    border-right: 1px solid #0a0a0a;
+    border-bottom: 2px solid transparent;
+    position: relative;
+  }
+  .band-tab:last-child { border-right: none; }
+  .band-tab.active {
+    color: #ffc864;
+    border-bottom-color: currentColor;
+    background: #161616;
+  }
+  .band-tab.active[data-band="low"] { border-bottom-color: #4488ff; color: #4488ff; }
+  .band-tab.active[data-band="mid"] { border-bottom-color: #44cc44; color: #44cc44; }
+  .band-tab.active[data-band="high"] { border-bottom-color: #ff8844; color: #ff8844; }
+  .band-tab.active[data-band="master"] { border-bottom-color: #ffc864; color: #ffc864; }
+  .tab-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #2a2a2a;
+  }
+  .band-tab[data-band="low"] .tab-dot { background: #4488ff; box-shadow: 0 0 5px rgba(68,136,255,0.5); }
+  .band-tab[data-band="mid"] .tab-dot { background: #44cc44; box-shadow: 0 0 5px rgba(68,204,68,0.5); }
+  .band-tab[data-band="high"] .tab-dot { background: #ff8844; box-shadow: 0 0 5px rgba(255,136,68,0.5); }
+  .band-tab[data-band="master"] .tab-dot { background: #ffc864; box-shadow: 0 0 5px rgba(255,200,100,0.5); }
+
+  /* Band panel */
+  .band-panel {
+    display: none;
+    flex: 1;
+    padding: 14px 16px 12px;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .band-panel.active { display: flex; }
+
+  .band-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  /* ===================== CONTROLS ===================== */
+
+  /* State selector */
+  .state-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-right: 14px;
+    flex-shrink: 0;
+  }
+  .state-label-header {
+    font-size: 7px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #444444;
+    margin-bottom: 2px;
+  }
+  .state-btn {
+    width: 72px;
+    height: 20px;
+    background: #141414;
+    border: 1px solid #222222;
+    border-radius: 2px;
+    color: #444444;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.7) inset;
+  }
+  .state-btn.active {
+    background: #1e1800;
+    border-color: #ffc864;
+    color: #ffc864;
+    box-shadow: 0 0 4px rgba(255,200,100,0.2);
+  }
+  .state-btn .s-led {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #222222;
+    flex-shrink: 0;
+  }
+  .state-btn.active .s-led {
+    background: #ffc864;
+    box-shadow: 0 0 5px rgba(255,200,100,0.8);
+  }
+
+  /* Knob cluster */
+  .knob-cluster {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+  }
+  .knob-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .knob-label {
+    font-size: 7px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #555555;
+    text-align: center;
+  }
+  .knob {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 225deg,
+      #0e0e0e 0deg,
+      #1a1a1a 20deg,
+      #222222 40deg,
+      #1a1a1a 60deg,
+      #141414 80deg,
+      #1e1e1e 100deg,
+      #141414 120deg,
+      #1a1a1a 140deg,
+      #222222 160deg,
+      #1a1a1a 180deg,
+      #0e0e0e 200deg,
+      #141414 220deg,
+      #0e0e0e 240deg,
+      #1a1a1a 260deg,
+      #222222 280deg,
+      #1a1a1a 300deg,
+      #141414 320deg,
+      #0e0e0e 340deg,
+      #141414 360deg
+    );
+    border: 1px solid #2e2e2e;
+    box-shadow:
+      0 0 0 1px #0a0a0a,
+      0 3px 8px rgba(0,0,0,0.9),
+      0 1px 2px rgba(0,0,0,0.8) inset;
+    position: relative;
+    cursor: ns-resize;
+    flex-shrink: 0;
+  }
+  .knob::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3px;
+    height: 18px;
+    background: linear-gradient(to bottom, #ffc864, #e6a840);
+    border-radius: 2px;
+    transform-origin: top center;
+    transform: translateX(-50%) translateY(-100%);
+    box-shadow: 0 0 4px rgba(255,200,100,0.6);
+  }
+  .knob-value {
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    color: #44ff44;
+    text-align: center;
+    min-width: 44px;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 1px 2px;
+    border-radius: 1px;
+  }
+
+  /* Button controls (solo, peak/rms) */
+  .ctrl-btn {
+    height: 24px;
+    min-width: 62px;
+    padding: 0 8px;
+    background: #141414;
+    border: 1px solid #222222;
+    border-radius: 2px;
+    color: #444444;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.7) inset;
+    flex-shrink: 0;
+    align-self: flex-end;
+    margin-bottom: 14px;
+  }
+  .ctrl-btn.active {
+    background: #1e1800;
+    border-color: #ffc864;
+    color: #ffc864;
+  }
+  .ctrl-btn .btn-led {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #222222;
+  }
+  .ctrl-btn.active .btn-led {
+    background: #ffc864;
+    box-shadow: 0 0 5px rgba(255,200,100,0.8);
+  }
+
+  /* Curve number select */
+  .curve-num-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    align-self: flex-end;
+    margin-bottom: 2px;
+  }
+  .curve-num-label {
+    font-size: 7px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #555555;
+  }
+  .curve-num-select {
+    width: 44px;
+    height: 24px;
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    color: #44ff44;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  /* Row separator */
+  .row-sep {
+    height: 1px;
+    background: #1e1e1e;
+    margin: 0;
+  }
+
+  /* ===================== CROSSOVER SECTION ===================== */
+  .crossover-section {
+    flex: 1;
+    padding: 14px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: repeating-linear-gradient(0deg, #1a1a1a, #1e1e1e 1px, #1a1a1a 2px);
+  }
+  .crossover-section-label {
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #333333;
+    border-bottom: 1px solid #222222;
+    padding-bottom: 5px;
+  }
+  .crossover-knob-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .crossover-btn-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* ===================== LED METERS ===================== */
+  .meters-bar {
+    position: absolute;
+    top: 36px;
+    right: 0;
+    width: 16px;
+    height: 312px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 6px;
+    gap: 2px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .led-segment {
+    width: 8px;
+    height: 5px;
+    border-radius: 1px;
+    background: #111111;
+    transition: background 0.04s;
+  }
+  .led-segment.green { background: #44ff44; box-shadow: 0 0 3px rgba(68,255,68,0.6); }
+  .led-segment.yellow { background: #ffff44; box-shadow: 0 0 3px rgba(255,255,68,0.6); }
+  .led-segment.red { background: #ff4444; box-shadow: 0 0 3px rgba(255,68,68,0.6); }
+
+  /* ===================== SLOPE / LIN BUTTONS IN CROSSOVER ===================== */
+  .slope-btn {
+    height: 22px;
+    padding: 0 9px;
+    background: #141414;
+    border: 1px solid #222222;
+    border-radius: 2px;
+    color: #444444;
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.7) inset;
+  }
+  .slope-btn.active {
+    background: #1e1800;
+    border-color: #ffc864;
+    color: #ffc864;
+  }
+  .slope-btn .btn-led {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #222222;
+  }
+  .slope-btn.active .btn-led {
+    background: #ffc864;
+    box-shadow: 0 0 4px rgba(255,200,100,0.7);
+  }
+</style>
+</head>
+<body>
+
+<div class="plugin-root">
+
+  <!-- HEADER -->
+  <div class="header-bar">
+    <div>
+      <div class="plugin-title">NRGmaximizer</div>
+      <div class="header-subtitle">Multiband Dynamics Processor</div>
+    </div>
+    <div class="header-right">
+      <div class="power-led"></div>
+      <div class="version-label">v1.0.0</div>
+    </div>
+  </div>
+
+  <!-- TOP PANEL: Curve Editor + Waveform Monitor -->
+  <div class="top-panel">
+
+    <!-- Compression Curve Editor -->
+    <div class="curve-editor">
+      <div class="curve-editor-label">TRANSFER CURVE</div>
+      <canvas id="curveCanvas" width="420" height="312"></canvas>
+    </div>
+
+    <!-- Waveform Monitor -->
+    <div class="waveform-monitor">
+      <div class="waveform-monitor-label">WAVEFORM MONITOR</div>
+      <canvas id="waveformCanvas" width="764" height="312"></canvas>
+      <div class="waveform-db-scale">
+        <span>0</span>
+        <span>-3</span>
+        <span>-6</span>
+        <span>-9</span>
+        <span>-12</span>
+        <span>-18</span>
+      </div>
+      <!-- LED meters on right edge -->
+      <div class="meters-bar" id="ledMeters"></div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <span class="toolbar-label">SHAPE</span>
+
+    <!-- Curve shape buttons with SVG icons -->
+    <button class="curve-shape-btn active" data-shape="hard" title="Hard Knee">
+      <svg viewBox="0 0 16 14" fill="none">
+        <polyline points="2,12 8,12 8,2 14,2" stroke="#ffc864" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="curve-shape-btn" data-shape="soft" title="Soft Knee">
+      <svg viewBox="0 0 16 14" fill="none">
+        <path d="M2,12 Q8,12 8,7 Q8,2 14,2" stroke="#888" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button class="curve-shape-btn" data-shape="scurve" title="S-Curve">
+      <svg viewBox="0 0 16 14" fill="none">
+        <path d="M2,12 C4,12 6,8 8,7 C10,6 12,2 14,2" stroke="#888" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button class="curve-shape-btn" data-shape="stairs" title="Stairs">
+      <svg viewBox="0 0 16 14" fill="none">
+        <polyline points="2,12 5,12 5,9 8,9 8,6 11,6 11,3 14,3" stroke="#888" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="curve-shape-btn" data-shape="wave" title="Wave">
+      <svg viewBox="0 0 16 14" fill="none">
+        <path d="M2,12 Q4,4 6,8 Q8,12 10,6 Q12,2 14,4" stroke="#888" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button class="curve-shape-btn" data-shape="flat" title="Flat">
+      <svg viewBox="0 0 16 14" fill="none">
+        <line x1="2" y1="7" x2="14" y2="7" stroke="#888" stroke-width="1.5"/>
+      </svg>
+    </button>
+
+    <div class="toolbar-divider"></div>
+    <span class="toolbar-label">SPEED</span>
+    <select class="toolbar-select" id="monitorSpeed">
+      <option value="1">1x</option>
+      <option value="2">2x</option>
+      <option value="4" selected>4x</option>
+      <option value="8">8x</option>
+    </select>
+
+    <div class="toolbar-spacer"></div>
+
+    <button class="toolbar-btn" id="monitorViewBtn" data-view="monitor">
+      <span class="btn-led"></span>MONITOR
+    </button>
+    <button class="toolbar-btn active" id="bandsViewBtn" data-view="bands">
+      <span class="btn-led"></span>BANDS
+    </button>
+  </div>
+
+  <!-- BOTTOM PANEL -->
+  <div class="bottom-panel">
+
+    <!-- Band Controls Section -->
+    <div class="band-controls-section">
+
+      <!-- Band Tabs -->
+      <div class="band-tabs">
+        <div class="band-tab active" data-band="low">
+          <span class="tab-dot"></span>LOW
+        </div>
+        <div class="band-tab" data-band="mid">
+          <span class="tab-dot"></span>MID
+        </div>
+        <div class="band-tab" data-band="high">
+          <span class="tab-dot"></span>HIGH
+        </div>
+        <div class="band-tab" data-band="master">
+          <span class="tab-dot"></span>MASTER
+        </div>
+      </div>
+
+      <!-- LOW Band Panel -->
+      <div class="band-panel active" id="panel-low">
+        <div class="band-row">
+          <!-- State selector -->
+          <div class="state-selector">
+            <div class="state-label-header">State</div>
+            <button class="state-btn active" data-param="low_band_state" data-val="0">
+              <span class="s-led"></span>ON
+            </button>
+            <button class="state-btn" data-param="low_band_state" data-val="1">
+              <span class="s-led"></span>COM OFF
+            </button>
+            <button class="state-btn" data-param="low_band_state" data-val="2">
+              <span class="s-led"></span>MUTED
+            </button>
+            <button class="state-btn" data-param="low_band_state" data-val="3">
+              <span class="s-led"></span>OFF
+            </button>
+          </div>
+          <!-- Top row knobs: PRE, GAIN, POST, ATT, ENV, REL, SUSTAIN -->
+          <div class="knob-cluster">
+            <div class="knob-wrap">
+              <div class="knob-label">PRE</div>
+              <div class="knob" data-param="low_pre_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB" style="--rot: 0deg;"></div>
+              <div class="knob-value" id="val-low_pre_gain">0.0dB</div>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob-label">GAIN</div>
+              <div class="knob" data-param="low_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div>
+              <div class="knob-value" id="val-low_gain">0.0dB</div>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob-label">POST</div>
+              <div class="knob" data-param="low_post_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div>
+              <div class="knob-value" id="val-low_post_gain">0.0dB</div>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob-label">ATT</div>
+              <div class="knob" data-param="low_attack" data-min="0.01" data-max="500" data-val="5" data-unit="ms"></div>
+              <div class="knob-value" id="val-low_attack">5ms</div>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob-label">ENV</div>
+              <div class="knob" data-param="low_envelope" data-min="0.01" data-max="500" data-val="20" data-unit="ms"></div>
+              <div class="knob-value" id="val-low_envelope">20ms</div>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob-label">REL</div>
+              <div class="knob" data-param="low_release" data-min="1" data-max="5000" data-val="100" data-unit="ms"></div>
+              <div class="knob-value" id="val-low_release">100ms</div>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob-label">SUSTAIN</div>
+              <div class="knob" data-param="low_sustain" data-min="0" data-max="100" data-val="0" data-unit="%"></div>
+              <div class="knob-value" id="val-low_sustain">0%</div>
+            </div>
+          </div>
+        </div>
+        <div class="row-sep"></div>
+        <div class="band-row">
+          <div style="margin-right:14px; display:flex; flex-direction:column; gap:6px; flex-shrink:0;">
+            <button class="ctrl-btn" data-param="low_solo" data-toggle="true">
+              <span class="btn-led"></span>SOLO
+            </button>
+            <button class="ctrl-btn" data-param="low_peak_rms" data-toggle="true">
+              <span class="btn-led"></span>PEAK
+            </button>
+          </div>
+          <div class="knob-cluster">
+            <div class="knob-wrap">
+              <div class="knob-label">THRES</div>
+              <div class="knob" data-param="low_threshold" data-min="-60" data-max="0" data-val="-6" data-unit="dB"></div>
+              <div class="knob-value" id="val-low_threshold">-6dB</div>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob-label">SAT</div>
+              <div class="knob" data-param="low_saturation" data-min="0" data-max="100" data-val="0" data-unit="%"></div>
+              <div class="knob-value" id="val-low_saturation">0%</div>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob-label">CEIL</div>
+              <div class="knob" data-param="low_ceiling" data-min="-12" data-max="0" data-val="-0.3" data-unit="dB"></div>
+              <div class="knob-value" id="val-low_ceiling">-0.3dB</div>
+            </div>
+            <div class="curve-num-wrap">
+              <div class="curve-num-label">CURVE</div>
+              <select class="curve-num-select" data-param="low_curve_amount">
+                <option>1</option><option>2</option><option selected>3</option>
+                <option>4</option><option>5</option><option>6</option>
+                <option>7</option><option>8</option><option>9</option><option>10</option>
+              </select>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob-label">REL 2</div>
+              <div class="knob" data-param="low_release2" data-min="1" data-max="5000" data-val="300" data-unit="ms"></div>
+              <div class="knob-value" id="val-low_release2">300ms</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MID Band Panel -->
+      <div class="band-panel" id="panel-mid">
+        <div class="band-row">
+          <div class="state-selector">
+            <div class="state-label-header">State</div>
+            <button class="state-btn active" data-param="mid_band_state" data-val="0"><span class="s-led"></span>ON</button>
+            <button class="state-btn" data-param="mid_band_state" data-val="1"><span class="s-led"></span>COM OFF</button>
+            <button class="state-btn" data-param="mid_band_state" data-val="2"><span class="s-led"></span>MUTED</button>
+            <button class="state-btn" data-param="mid_band_state" data-val="3"><span class="s-led"></span>OFF</button>
+          </div>
+          <div class="knob-cluster">
+            <div class="knob-wrap"><div class="knob-label">PRE</div><div class="knob" data-param="mid_pre_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div><div class="knob-value" id="val-mid_pre_gain">0.0dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">GAIN</div><div class="knob" data-param="mid_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div><div class="knob-value" id="val-mid_gain">0.0dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">POST</div><div class="knob" data-param="mid_post_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div><div class="knob-value" id="val-mid_post_gain">0.0dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">ATT</div><div class="knob" data-param="mid_attack" data-min="0.01" data-max="500" data-val="5" data-unit="ms"></div><div class="knob-value" id="val-mid_attack">5ms</div></div>
+            <div class="knob-wrap"><div class="knob-label">ENV</div><div class="knob" data-param="mid_envelope" data-min="0.01" data-max="500" data-val="20" data-unit="ms"></div><div class="knob-value" id="val-mid_envelope">20ms</div></div>
+            <div class="knob-wrap"><div class="knob-label">REL</div><div class="knob" data-param="mid_release" data-min="1" data-max="5000" data-val="100" data-unit="ms"></div><div class="knob-value" id="val-mid_release">100ms</div></div>
+            <div class="knob-wrap"><div class="knob-label">SUSTAIN</div><div class="knob" data-param="mid_sustain" data-min="0" data-max="100" data-val="0" data-unit="%"></div><div class="knob-value" id="val-mid_sustain">0%</div></div>
+          </div>
+        </div>
+        <div class="row-sep"></div>
+        <div class="band-row">
+          <div style="margin-right:14px; display:flex; flex-direction:column; gap:6px; flex-shrink:0;">
+            <button class="ctrl-btn" data-param="mid_solo" data-toggle="true"><span class="btn-led"></span>SOLO</button>
+            <button class="ctrl-btn" data-param="mid_peak_rms" data-toggle="true"><span class="btn-led"></span>PEAK</button>
+          </div>
+          <div class="knob-cluster">
+            <div class="knob-wrap"><div class="knob-label">THRES</div><div class="knob" data-param="mid_threshold" data-min="-60" data-max="0" data-val="-6" data-unit="dB"></div><div class="knob-value" id="val-mid_threshold">-6dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">SAT</div><div class="knob" data-param="mid_saturation" data-min="0" data-max="100" data-val="0" data-unit="%"></div><div class="knob-value" id="val-mid_saturation">0%</div></div>
+            <div class="knob-wrap"><div class="knob-label">CEIL</div><div class="knob" data-param="mid_ceiling" data-min="-12" data-max="0" data-val="-0.3" data-unit="dB"></div><div class="knob-value" id="val-mid_ceiling">-0.3dB</div></div>
+            <div class="curve-num-wrap"><div class="curve-num-label">CURVE</div><select class="curve-num-select" data-param="mid_curve_amount"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
+            <div class="knob-wrap"><div class="knob-label">REL 2</div><div class="knob" data-param="mid_release2" data-min="1" data-max="5000" data-val="300" data-unit="ms"></div><div class="knob-value" id="val-mid_release2">300ms</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HIGH Band Panel -->
+      <div class="band-panel" id="panel-high">
+        <div class="band-row">
+          <div class="state-selector">
+            <div class="state-label-header">State</div>
+            <button class="state-btn active" data-param="high_band_state" data-val="0"><span class="s-led"></span>ON</button>
+            <button class="state-btn" data-param="high_band_state" data-val="1"><span class="s-led"></span>COM OFF</button>
+            <button class="state-btn" data-param="high_band_state" data-val="2"><span class="s-led"></span>MUTED</button>
+            <button class="state-btn" data-param="high_band_state" data-val="3"><span class="s-led"></span>OFF</button>
+          </div>
+          <div class="knob-cluster">
+            <div class="knob-wrap"><div class="knob-label">PRE</div><div class="knob" data-param="high_pre_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div><div class="knob-value" id="val-high_pre_gain">0.0dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">GAIN</div><div class="knob" data-param="high_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div><div class="knob-value" id="val-high_gain">0.0dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">POST</div><div class="knob" data-param="high_post_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div><div class="knob-value" id="val-high_post_gain">0.0dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">ATT</div><div class="knob" data-param="high_attack" data-min="0.01" data-max="500" data-val="5" data-unit="ms"></div><div class="knob-value" id="val-high_attack">5ms</div></div>
+            <div class="knob-wrap"><div class="knob-label">ENV</div><div class="knob" data-param="high_envelope" data-min="0.01" data-max="500" data-val="20" data-unit="ms"></div><div class="knob-value" id="val-high_envelope">20ms</div></div>
+            <div class="knob-wrap"><div class="knob-label">REL</div><div class="knob" data-param="high_release" data-min="1" data-max="5000" data-val="100" data-unit="ms"></div><div class="knob-value" id="val-high_release">100ms</div></div>
+            <div class="knob-wrap"><div class="knob-label">SUSTAIN</div><div class="knob" data-param="high_sustain" data-min="0" data-max="100" data-val="0" data-unit="%"></div><div class="knob-value" id="val-high_sustain">0%</div></div>
+          </div>
+        </div>
+        <div class="row-sep"></div>
+        <div class="band-row">
+          <div style="margin-right:14px; display:flex; flex-direction:column; gap:6px; flex-shrink:0;">
+            <button class="ctrl-btn" data-param="high_solo" data-toggle="true"><span class="btn-led"></span>SOLO</button>
+            <button class="ctrl-btn" data-param="high_peak_rms" data-toggle="true"><span class="btn-led"></span>PEAK</button>
+          </div>
+          <div class="knob-cluster">
+            <div class="knob-wrap"><div class="knob-label">THRES</div><div class="knob" data-param="high_threshold" data-min="-60" data-max="0" data-val="-6" data-unit="dB"></div><div class="knob-value" id="val-high_threshold">-6dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">SAT</div><div class="knob" data-param="high_saturation" data-min="0" data-max="100" data-val="0" data-unit="%"></div><div class="knob-value" id="val-high_saturation">0%</div></div>
+            <div class="knob-wrap"><div class="knob-label">CEIL</div><div class="knob" data-param="high_ceiling" data-min="-12" data-max="0" data-val="-0.3" data-unit="dB"></div><div class="knob-value" id="val-high_ceiling">-0.3dB</div></div>
+            <div class="curve-num-wrap"><div class="curve-num-label">CURVE</div><select class="curve-num-select" data-param="high_curve_amount"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
+            <div class="knob-wrap"><div class="knob-label">REL 2</div><div class="knob" data-param="high_release2" data-min="1" data-max="5000" data-val="300" data-unit="ms"></div><div class="knob-value" id="val-high_release2">300ms</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MASTER Band Panel -->
+      <div class="band-panel" id="panel-master">
+        <div class="band-row">
+          <div class="state-selector">
+            <div class="state-label-header">State</div>
+            <button class="state-btn active" data-param="master_band_state" data-val="0"><span class="s-led"></span>ON</button>
+            <button class="state-btn" data-param="master_band_state" data-val="1"><span class="s-led"></span>COM OFF</button>
+            <button class="state-btn" data-param="master_band_state" data-val="2"><span class="s-led"></span>MUTED</button>
+            <button class="state-btn" data-param="master_band_state" data-val="3"><span class="s-led"></span>OFF</button>
+          </div>
+          <div class="knob-cluster">
+            <div class="knob-wrap"><div class="knob-label">PRE</div><div class="knob" data-param="master_pre_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div><div class="knob-value" id="val-master_pre_gain">0.0dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">GAIN</div><div class="knob" data-param="master_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div><div class="knob-value" id="val-master_gain">0.0dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">POST</div><div class="knob" data-param="master_post_gain" data-min="-18" data-max="18" data-val="0" data-unit="dB"></div><div class="knob-value" id="val-master_post_gain">0.0dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">ATT</div><div class="knob" data-param="master_attack" data-min="0.01" data-max="500" data-val="5" data-unit="ms"></div><div class="knob-value" id="val-master_attack">5ms</div></div>
+            <div class="knob-wrap"><div class="knob-label">ENV</div><div class="knob" data-param="master_envelope" data-min="0.01" data-max="500" data-val="20" data-unit="ms"></div><div class="knob-value" id="val-master_envelope">20ms</div></div>
+            <div class="knob-wrap"><div class="knob-label">REL</div><div class="knob" data-param="master_release" data-min="1" data-max="5000" data-val="100" data-unit="ms"></div><div class="knob-value" id="val-master_release">100ms</div></div>
+            <div class="knob-wrap"><div class="knob-label">SUSTAIN</div><div class="knob" data-param="master_sustain" data-min="0" data-max="100" data-val="0" data-unit="%"></div><div class="knob-value" id="val-master_sustain">0%</div></div>
+          </div>
+        </div>
+        <div class="row-sep"></div>
+        <div class="band-row">
+          <div style="margin-right:14px; display:flex; flex-direction:column; gap:6px; flex-shrink:0;">
+            <button class="ctrl-btn" data-param="master_solo" data-toggle="true"><span class="btn-led"></span>SOLO</button>
+            <button class="ctrl-btn" data-param="master_peak_rms" data-toggle="true"><span class="btn-led"></span>PEAK</button>
+          </div>
+          <div class="knob-cluster">
+            <div class="knob-wrap"><div class="knob-label">THRES</div><div class="knob" data-param="master_threshold" data-min="-60" data-max="0" data-val="-6" data-unit="dB"></div><div class="knob-value" id="val-master_threshold">-6dB</div></div>
+            <div class="knob-wrap"><div class="knob-label">SAT</div><div class="knob" data-param="master_saturation" data-min="0" data-max="100" data-val="0" data-unit="%"></div><div class="knob-value" id="val-master_saturation">0%</div></div>
+            <div class="knob-wrap"><div class="knob-label">CEIL</div><div class="knob" data-param="master_ceiling" data-min="-12" data-max="0" data-val="-0.3" data-unit="dB"></div><div class="knob-value" id="val-master_ceiling">-0.3dB</div></div>
+            <div class="curve-num-wrap"><div class="curve-num-label">CURVE</div><select class="curve-num-select" data-param="master_curve_amount"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
+            <div class="knob-wrap"><div class="knob-label">REL 2</div><div class="knob" data-param="master_release2" data-min="1" data-max="5000" data-val="300" data-unit="ms"></div><div class="knob-value" id="val-master_release2">300ms</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /band-controls-section -->
+
+    <!-- Crossover Section -->
+    <div class="crossover-section">
+      <div class="crossover-section-label">CROSSOVER &amp; MIX</div>
+
+      <div class="crossover-knob-row">
+        <div class="knob-wrap">
+          <div class="knob-label">LMH DEL</div>
+          <div class="knob" data-param="lmh_delay" data-min="0" data-max="50" data-val="0" data-unit="ms"></div>
+          <div class="knob-value" id="val-lmh_delay">0ms</div>
+        </div>
+        <div class="knob-wrap">
+          <div class="knob-label">LMH MIX</div>
+          <div class="knob" data-param="lmh_mix" data-min="0" data-max="100" data-val="100" data-unit="%"></div>
+          <div class="knob-value" id="val-lmh_mix">100%</div>
+        </div>
+        <div class="knob-wrap">
+          <div class="knob-label">LOW XO</div>
+          <div class="knob" data-param="low_crossover" data-min="20" data-max="2000" data-val="120" data-unit="Hz"></div>
+          <div class="knob-value" id="val-low_crossover">120Hz</div>
+        </div>
+        <div class="knob-wrap">
+          <div class="knob-label">HIGH XO</div>
+          <div class="knob" data-param="high_crossover" data-min="500" data-max="20000" data-val="5000" data-unit="Hz"></div>
+          <div class="knob-value" id="val-high_crossover">5.0kHz</div>
+        </div>
+        <div class="knob-wrap">
+          <div class="knob-label">LOW CUT</div>
+          <div class="knob" data-param="low_cut" data-min="20" data-max="500" data-val="20" data-unit="Hz"></div>
+          <div class="knob-value" id="val-low_cut">20Hz</div>
+        </div>
+      </div>
+
+      <div class="crossover-btn-row">
+        <button class="slope-btn active" data-param="low_slope" data-toggle="true">
+          <span class="btn-led"></span>24dB LO
+        </button>
+        <button class="slope-btn active" data-param="high_slope" data-toggle="true">
+          <span class="btn-led"></span>24dB HI
+        </button>
+        <button class="slope-btn" data-param="linear_phase" data-toggle="true">
+          <span class="btn-led"></span>LIN
+        </button>
+      </div>
+    </div><!-- /crossover-section -->
+
+  </div><!-- /bottom-panel -->
+
+</div><!-- /plugin-root -->
+
+<script>
+"use strict";
+
+/* ===================== MOCK JUCE BACKEND ===================== */
+window.__JUCE__ = {
+  backend: {
+    emitEvent: function(eventName, data) {
+      console.log('[JUCE]', eventName, data);
+    }
+  }
+};
+
+/* ===================== DISABLE CONTEXT MENU ===================== */
+document.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+  return false;
+});
+
+/* ===================== PARAMETER STATE ===================== */
+const paramState = {};
+
+function emitParam(id, value) {
+  paramState[id] = value;
+  if (window.__JUCE__ && window.__JUCE__.backend) {
+    window.__JUCE__.backend.emitEvent("parameterChanged", JSON.stringify({ id: id, value: value }));
+  }
+}
+
+/* ===================== FORMAT VALUE ===================== */
+function formatValue(val, unit, param) {
+  val = parseFloat(val);
+  if (unit === 'dB') {
+    return val.toFixed(1) + 'dB';
+  } else if (unit === 'ms') {
+    if (val >= 1000) return (val / 1000).toFixed(1) + 's';
+    return val.toFixed(val < 10 ? 2 : 0) + 'ms';
+  } else if (unit === 'Hz') {
+    if (val >= 1000) return (val / 1000).toFixed(1) + 'kHz';
+    return Math.round(val) + 'Hz';
+  } else if (unit === '%') {
+    return Math.round(val) + '%';
+  }
+  return val.toFixed(1);
+}
+
+/* ===================== KNOB INTERACTION ===================== */
+function initKnobs() {
+  const knobs = document.querySelectorAll('.knob');
+  knobs.forEach(function(knob) {
+    const paramId = knob.dataset.param;
+    const min = parseFloat(knob.dataset.min);
+    const max = parseFloat(knob.dataset.max);
+    let val = parseFloat(knob.dataset.val);
+    const unit = knob.dataset.unit || '';
+    const valueEl = document.getElementById('val-' + paramId);
+
+    // Normalize 0..1
+    let norm = (val - min) / (max - min);
+    norm = Math.max(0, Math.min(1, norm));
+    paramState[paramId] = val;
+
+    function setNorm(n) {
+      n = Math.max(0, Math.min(1, n));
+      norm = n;
+      val = min + n * (max - min);
+      // Rotate indicator: -135deg (min) to +135deg (max)
+      const deg = -135 + n * 270;
+      knob.style.setProperty('--indicator-rot', deg + 'deg');
+      knob.style.transform = 'rotate(' + deg + 'deg)';
+      if (valueEl) valueEl.textContent = formatValue(val, unit, paramId);
+      emitParam(paramId, val);
+    }
+
+    // Initial position
+    setNorm(norm);
+
+    let startY = 0;
+    let startNorm = 0;
+    let dragging = false;
+
+    function onMouseDown(e) {
+      e.preventDefault();
+      dragging = true;
+      startY = e.clientY;
+      startNorm = norm;
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function onMouseMove(e) {
+      if (!dragging) return;
+      const dy = startY - e.clientY;
+      const sensitivity = e.shiftKey ? 0.003 : 0.008;
+      setNorm(startNorm + dy * sensitivity);
+    }
+
+    function onMouseUp(e) {
+      dragging = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    }
+
+    knob.addEventListener('mousedown', onMouseDown);
+
+    // Double-click to reset
+    knob.addEventListener('dblclick', function(e) {
+      const defaults = {
+        low_pre_gain: 0, low_gain: 0, low_post_gain: 0, low_attack: 5,
+        low_envelope: 20, low_release: 100, low_sustain: 0, low_threshold: -6,
+        low_saturation: 0, low_ceiling: -0.3, low_release2: 300,
+        mid_pre_gain: 0, mid_gain: 0, mid_post_gain: 0, mid_attack: 5,
+        mid_envelope: 20, mid_release: 100, mid_sustain: 0, mid_threshold: -6,
+        mid_saturation: 0, mid_ceiling: -0.3, mid_release2: 300,
+        high_pre_gain: 0, high_gain: 0, high_post_gain: 0, high_attack: 5,
+        high_envelope: 20, high_release: 100, high_sustain: 0, high_threshold: -6,
+        high_saturation: 0, high_ceiling: -0.3, high_release2: 300,
+        master_pre_gain: 0, master_gain: 0, master_post_gain: 0, master_attack: 5,
+        master_envelope: 20, master_release: 100, master_sustain: 0, master_threshold: -6,
+        master_saturation: 0, master_ceiling: -0.3, master_release2: 300,
+        lmh_delay: 0, lmh_mix: 100, low_crossover: 120, high_crossover: 5000, low_cut: 20
+      };
+      const def = defaults[paramId] !== undefined ? defaults[paramId] : 0;
+      setNorm((def - min) / (max - min));
+    });
+  });
+}
+
+/* ===================== BAND TABS ===================== */
+function initBandTabs() {
+  const tabs = document.querySelectorAll('.band-tab');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      const band = tab.dataset.band;
+      document.querySelectorAll('.band-panel').forEach(function(p) {
+        p.classList.remove('active');
+      });
+      const panel = document.getElementById('panel-' + band);
+      if (panel) panel.classList.add('active');
+      console.log('[TAB] Active band:', band);
+    });
+  });
+}
+
+/* ===================== STATE SELECTOR BUTTONS ===================== */
+function initStateSelectors() {
+  const stateBtns = document.querySelectorAll('.state-btn');
+  stateBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const param = btn.dataset.param;
+      const val = parseInt(btn.dataset.val);
+      // Deactivate siblings with same param
+      document.querySelectorAll('.state-btn[data-param="' + param + '"]').forEach(function(b) {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+      emitParam(param, val);
+    });
+  });
+}
+
+/* ===================== TOGGLE BUTTONS ===================== */
+function initToggleButtons() {
+  // ctrl-btn toggles (SOLO, PEAK/RMS)
+  document.querySelectorAll('.ctrl-btn[data-toggle]').forEach(function(btn) {
+    let active = false;
+    btn.addEventListener('click', function() {
+      active = !active;
+      btn.classList.toggle('active', active);
+      const param = btn.dataset.param;
+      // Update label for PEAK/RMS
+      if (param && param.endsWith('_peak_rms')) {
+        const led = btn.querySelector('.btn-led');
+        btn.childNodes[1].textContent = active ? 'RMS' : 'PEAK';
+      }
+      if (param) emitParam(param, active ? 1 : 0);
+    });
+  });
+
+  // slope-btn and toolbar-btn toggles
+  document.querySelectorAll('.slope-btn[data-toggle]').forEach(function(btn) {
+    let active = btn.classList.contains('active');
+    btn.addEventListener('click', function() {
+      active = !active;
+      btn.classList.toggle('active', active);
+      const param = btn.dataset.param;
+      // Update label for slope buttons
+      if (param === 'low_slope' || param === 'high_slope') {
+        const prefix = param === 'low_slope' ? 'LO' : 'HI';
+        btn.childNodes[1].textContent = (active ? '24dB ' : '12dB ') + prefix;
+      }
+      if (param) emitParam(param, active ? 1 : 0);
+    });
+  });
+}
+
+/* ===================== CURVE SHAPE BUTTONS ===================== */
+function initCurveShapeButtons() {
+  const shapeBtns = document.querySelectorAll('.curve-shape-btn');
+  shapeBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      shapeBtns.forEach(function(b) {
+        b.classList.remove('active');
+        b.querySelector('polyline, path, line') && (b.querySelector('polyline, path, line').setAttribute('stroke', '#888'));
+      });
+      btn.classList.add('active');
+      const svgEl = btn.querySelector('polyline, path, line');
+      if (svgEl) svgEl.setAttribute('stroke', '#ffc864');
+      emitParam('curve_shape', btn.dataset.shape);
+      drawCurveEditor(btn.dataset.shape);
+    });
+  });
+  // Color initial active button's path
+  const activeSvgEl = document.querySelector('.curve-shape-btn.active polyline, .curve-shape-btn.active path, .curve-shape-btn.active line');
+  if (activeSvgEl) activeSvgEl.setAttribute('stroke', '#ffc864');
+}
+
+/* ===================== TOOLBAR VIEW BUTTONS ===================== */
+function initToolbarButtons() {
+  const monitorBtn = document.getElementById('monitorViewBtn');
+  const bandsBtn = document.getElementById('bandsViewBtn');
+
+  monitorBtn.addEventListener('click', function() {
+    monitorBtn.classList.add('active');
+    bandsBtn.classList.remove('active');
+    emitParam('monitor_view', 0);
+  });
+  bandsBtn.addEventListener('click', function() {
+    bandsBtn.classList.add('active');
+    monitorBtn.classList.remove('active');
+    emitParam('monitor_view', 1);
+  });
+
+  const speedSel = document.getElementById('monitorSpeed');
+  speedSel.addEventListener('change', function() {
+    emitParam('monitor_speed', parseInt(this.value));
+  });
+}
+
+/* ===================== CURVE SELECT DROPDOWNS ===================== */
+function initCurveSelects() {
+  document.querySelectorAll('.curve-num-select').forEach(function(sel) {
+    sel.addEventListener('change', function() {
+      emitParam(sel.dataset.param, parseInt(this.value));
+    });
+  });
+}
+
+/* ===================== COMPRESSION CURVE EDITOR (CANVAS) ===================== */
+let curvePoints = [
+  { x: 0.05, y: 0.95 },
+  { x: 0.3,  y: 0.7  },
+  { x: 0.6,  y: 0.5  },
+  { x: 0.85, y: 0.35 },
+  { x: 0.98, y: 0.25 }
+];
+
+let draggingPoint = null;
+let currentShape = 'hard';
+
+function drawCurveEditor(shape) {
+  const canvas = document.getElementById('curveCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  const PAD = 30;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#0d0d10';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#161820';
+  ctx.lineWidth = 1;
+  const gridLines = 6;
+  for (let i = 0; i <= gridLines; i++) {
+    const gx = PAD + (i / gridLines) * (W - PAD * 2);
+    const gy = PAD + (i / gridLines) * (H - PAD * 2);
+    ctx.beginPath(); ctx.moveTo(gx, PAD); ctx.lineTo(gx, H - PAD); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD, gy); ctx.lineTo(W - PAD, gy); ctx.stroke();
+  }
+
+  // Diagonal unity line
+  ctx.strokeStyle = '#1e2030';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(PAD, H - PAD);
+  ctx.lineTo(W - PAD, PAD);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Axis labels
+  ctx.fillStyle = '#2a2a40';
+  ctx.font = '8px Arial Narrow';
+  ctx.textAlign = 'right';
+  const dbLabels = ['0', '-6', '-12', '-18'];
+  dbLabels.forEach(function(db, i) {
+    const y = PAD + (i / (dbLabels.length - 1)) * (H - PAD * 2);
+    ctx.fillText(db, PAD - 4, y + 3);
+  });
+  ctx.textAlign = 'center';
+  dbLabels.forEach(function(db, i) {
+    const x = PAD + (i / (dbLabels.length - 1)) * (W - PAD * 2);
+    ctx.fillText(db, x, H - PAD + 12);
+  });
+
+  // Axis labels title
+  ctx.fillStyle = '#2a3050';
+  ctx.font = '7px Arial Narrow';
+  ctx.textAlign = 'left';
+  ctx.save();
+  ctx.translate(8, H / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('OUTPUT (dB)', 0, 0);
+  ctx.restore();
+  ctx.textAlign = 'center';
+  ctx.fillText('INPUT (dB)', W / 2, H - 4);
+
+  // Map curve points to canvas coords
+  function ptToCanvas(p) {
+    return {
+      cx: PAD + p.x * (W - PAD * 2),
+      cy: PAD + (1 - p.y) * (H - PAD * 2)
+    };
+  }
+
+  // Draw filled area under curve
+  const fill = ctx.createLinearGradient(0, PAD, 0, H - PAD);
+  fill.addColorStop(0, 'rgba(68,136,255,0.15)');
+  fill.addColorStop(1, 'rgba(68,136,255,0.03)');
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  const first = ptToCanvas(curvePoints[0]);
+  ctx.moveTo(PAD, H - PAD);
+  ctx.lineTo(first.cx, first.cy);
+
+  if (shape === 'hard') {
+    for (let i = 1; i < curvePoints.length; i++) {
+      const p = ptToCanvas(curvePoints[i]);
+      const prev = ptToCanvas(curvePoints[i - 1]);
+      ctx.lineTo(p.cx, prev.cy);
+      ctx.lineTo(p.cx, p.cy);
+    }
+  } else if (shape === 'stairs') {
+    for (let i = 1; i < curvePoints.length; i++) {
+      const p = ptToCanvas(curvePoints[i]);
+      const prev = ptToCanvas(curvePoints[i - 1]);
+      ctx.lineTo(p.cx, prev.cy);
+      ctx.lineTo(p.cx, p.cy);
+    }
+  } else {
+    for (let i = 1; i < curvePoints.length; i++) {
+      const p = ptToCanvas(curvePoints[i]);
+      const prev = ptToCanvas(curvePoints[i - 1]);
+      const cpx = (prev.cx + p.cx) / 2;
+      ctx.bezierCurveTo(cpx, prev.cy, cpx, p.cy, p.cx, p.cy);
+    }
+  }
+  const last = ptToCanvas(curvePoints[curvePoints.length - 1]);
+  ctx.lineTo(last.cx, H - PAD);
+  ctx.closePath();
+  ctx.fill();
+
+  // Draw curve line
+  ctx.strokeStyle = '#4488ff';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = 'rgba(68,136,255,0.5)';
+  ctx.shadowBlur = 4;
+  ctx.beginPath();
+  ctx.moveTo(first.cx, first.cy);
+
+  if (shape === 'hard' || shape === 'stairs') {
+    for (let i = 1; i < curvePoints.length; i++) {
+      const p = ptToCanvas(curvePoints[i]);
+      const prev = ptToCanvas(curvePoints[i - 1]);
+      ctx.lineTo(p.cx, prev.cy);
+      ctx.lineTo(p.cx, p.cy);
+    }
+  } else if (shape === 'wave') {
+    for (let i = 1; i < curvePoints.length; i++) {
+      const p = ptToCanvas(curvePoints[i]);
+      const prev = ptToCanvas(curvePoints[i - 1]);
+      const cpx1 = prev.cx + (p.cx - prev.cx) * 0.3;
+      const cpx2 = prev.cx + (p.cx - prev.cx) * 0.7;
+      ctx.bezierCurveTo(cpx1, prev.cy + 15, cpx2, p.cy - 15, p.cx, p.cy);
+    }
+  } else if (shape === 'flat') {
+    for (let i = 1; i < curvePoints.length; i++) {
+      const p = ptToCanvas(curvePoints[i]);
+      ctx.lineTo(p.cx, p.cy);
+    }
+  } else {
+    // soft / scurve
+    for (let i = 1; i < curvePoints.length; i++) {
+      const p = ptToCanvas(curvePoints[i]);
+      const prev = ptToCanvas(curvePoints[i - 1]);
+      const cpx = (prev.cx + p.cx) / 2;
+      ctx.bezierCurveTo(cpx, prev.cy, cpx, p.cy, p.cx, p.cy);
+    }
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Threshold line (horizontal dashed line at ~-6dB)
+  const thresY = PAD + (6 / 18) * (H - PAD * 2);
+  ctx.strokeStyle = 'rgba(0, 200, 255, 0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(PAD, thresY);
+  ctx.lineTo(W - PAD, thresY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(0,200,255,0.5)';
+  ctx.font = '7px Courier New';
+  ctx.textAlign = 'left';
+  ctx.fillText('-6dB', PAD + 2, thresY - 3);
+
+  // Draw control points
+  curvePoints.forEach(function(p, i) {
+    const c = ptToCanvas(p);
+    // Outer ring
+    ctx.strokeStyle = 'rgba(255,200,100,0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(c.cx, c.cy, 7, 0, Math.PI * 2);
+    ctx.stroke();
+    // Inner dot
+    ctx.fillStyle = draggingPoint === i ? '#ffc864' : '#4488ff';
+    ctx.shadowColor = draggingPoint === i ? 'rgba(255,200,100,0.8)' : 'rgba(68,136,255,0.6)';
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.arc(c.cx, c.cy, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  });
+}
+
+function initCurveEditor() {
+  const canvas = document.getElementById('curveCanvas');
+  if (!canvas) return;
+  const PAD = 30;
+
+  function getPoint(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const cx = (e.clientX - rect.left) * scaleX;
+    const cy = (e.clientY - rect.top) * scaleY;
+    return {
+      x: (cx - PAD) / (canvas.width - PAD * 2),
+      y: 1 - (cy - PAD) / (canvas.height - PAD * 2)
+    };
+  }
+
+  function findNearestPoint(pt) {
+    let bestDist = 20 / canvas.width;
+    let bestIdx = -1;
+    curvePoints.forEach(function(p, i) {
+      const dx = p.x - pt.x;
+      const dy = p.y - pt.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+    });
+    return bestIdx;
+  }
+
+  canvas.style.cursor = 'crosshair';
+
+  canvas.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    const pt = getPoint(e);
+    const idx = findNearestPoint(pt);
+    if (idx >= 0) {
+      draggingPoint = idx;
+      canvas.style.cursor = 'grabbing';
+    }
+  });
+
+  canvas.addEventListener('mousemove', function(e) {
+    e.preventDefault();
+    if (draggingPoint === null) {
+      const pt = getPoint(e);
+      const idx = findNearestPoint(pt);
+      canvas.style.cursor = idx >= 0 ? 'grab' : 'crosshair';
+      return;
+    }
+    const pt = getPoint(e);
+    curvePoints[draggingPoint].x = Math.max(0, Math.min(1, pt.x));
+    curvePoints[draggingPoint].y = Math.max(0, Math.min(1, pt.y));
+    // Keep points sorted by x
+    curvePoints.sort(function(a, b) { return a.x - b.x; });
+    drawCurveEditor(currentShape);
+    emitParam('curve_points', JSON.stringify(curvePoints));
+  });
+
+  canvas.addEventListener('mouseup', function() {
+    draggingPoint = null;
+    canvas.style.cursor = 'crosshair';
+  });
+
+  canvas.addEventListener('mouseleave', function() {
+    draggingPoint = null;
+  });
+
+  drawCurveEditor('hard');
+}
+
+/* ===================== WAVEFORM DISPLAY (ANIMATED CANVAS) ===================== */
+let wavePhase = 0;
+let speedMultiplier = 4;
+
+function buildLEDMeters() {
+  const container = document.getElementById('ledMeters');
+  if (!container) return;
+  container.innerHTML = '';
+  // 36 segments: bottom 20 green, next 10 yellow, top 6 red
+  for (let i = 0; i < 36; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'led-segment';
+    if (i < 6) seg.dataset.color = 'red';
+    else if (i < 16) seg.dataset.color = 'yellow';
+    else seg.dataset.color = 'green';
+    container.prepend(seg);
+  }
+}
+
+function updateLEDMeters(level) {
+  const segs = document.querySelectorAll('.led-segment');
+  const count = segs.length;
+  const lit = Math.round(level * count);
+  segs.forEach(function(seg, i) {
+    const segIdx = count - 1 - i;
+    if (segIdx < lit) {
+      seg.classList.add(seg.dataset.color);
+    } else {
+      seg.classList.remove('green', 'yellow', 'red');
+    }
+  });
+}
+
+function initWaveformDisplay() {
+  const canvas = document.getElementById('waveformCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  let frameCount = 0;
+  let inputBuffer = new Float32Array(canvas.width);
+  let outputBuffer = new Float32Array(canvas.width);
+
+  // Pre-fill with signal
+  for (let i = 0; i < canvas.width; i++) {
+    const t = i / canvas.width * Math.PI * 8;
+    inputBuffer[i] = 0.6 * Math.sin(t) + 0.15 * Math.sin(t * 3.1) + 0.08 * Math.sin(t * 7.3);
+    outputBuffer[i] = inputBuffer[i] * 0.72;
+  }
+
+  function draw() {
+    const W = canvas.width;
+    const H = canvas.height;
+    const scrollPx = Math.round(speedMultiplier * 1.5);
+    frameCount++;
+
+    // Scroll buffers left
+    for (let i = 0; i < scrollPx; i++) {
+      const t = (frameCount + i) * 0.04;
+      const newSample = 0.55 * Math.sin(t * 1.3) +
+                        0.2  * Math.sin(t * 3.7 + 0.5) +
+                        0.1  * Math.sin(t * 7.1 + 1.2) +
+                        0.05 * (Math.random() - 0.5);
+      // Shift left
+      inputBuffer.copyWithin(0, 1);
+      inputBuffer[W - 1] = newSample;
+      outputBuffer.copyWithin(0, 1);
+      // Compress output: softer knee simulation
+      const compressed = Math.sign(newSample) * Math.pow(Math.abs(newSample), 1.35) * 0.78;
+      outputBuffer[W - 1] = compressed;
+    }
+
+    // Clear
+    ctx.fillStyle = '#0d0d10';
+    ctx.fillRect(0, 0, W, H);
+
+    // Horizontal grid lines (dB)
+    ctx.strokeStyle = '#111118';
+    ctx.lineWidth = 1;
+    const dbLines = [0, -3, -6, -9, -12, -18];
+    dbLines.forEach(function(db) {
+      const amp = Math.pow(10, db / 20);
+      const yPos = H / 2 - amp * (H / 2 - 10);
+      const yNeg = H / 2 + amp * (H / 2 - 10);
+      ctx.beginPath(); ctx.moveTo(0, yPos); ctx.lineTo(W, yPos); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, yNeg); ctx.lineTo(W, yNeg); ctx.stroke();
+    });
+
+    // Center line
+    ctx.strokeStyle = '#181820';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
+
+    // Threshold indicator line
+    const thresAmp = Math.pow(10, -6 / 20);
+    const thresY = H / 2 - thresAmp * (H / 2 - 10);
+    ctx.strokeStyle = 'rgba(0, 200, 255, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(0, thresY); ctx.lineTo(W - 28, thresY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, H - thresY); ctx.lineTo(W - 28, H - thresY); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw input waveform (light gray/white)
+    ctx.strokeStyle = 'rgba(180, 190, 220, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x < W - 28; x++) {
+      const y = H / 2 - inputBuffer[x] * (H / 2 - 10);
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Draw output waveform (pink/magenta — compressed)
+    ctx.strokeStyle = 'rgba(200, 100, 220, 0.75)';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = 'rgba(200,100,220,0.3)';
+    ctx.shadowBlur = 2;
+    ctx.beginPath();
+    for (let x = 0; x < W - 28; x++) {
+      const y = H / 2 - outputBuffer[x] * (H / 2 - 10);
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Gain reduction fill between curves (semi-transparent)
+    ctx.fillStyle = 'rgba(200,100,220,0.06)';
+    ctx.beginPath();
+    for (let x = 0; x < W - 28; x++) {
+      const y = H / 2 - inputBuffer[x] * (H / 2 - 10);
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    for (let x = W - 29; x >= 0; x--) {
+      const y = H / 2 - outputBuffer[x] * (H / 2 - 10);
+      ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Playhead line
+    ctx.strokeStyle = 'rgba(255,200,100,0.2)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(W - 29, 0);
+    ctx.lineTo(W - 29, H);
+    ctx.stroke();
+
+    // Compute RMS for LED meters
+    let rmsSum = 0;
+    for (let i = W - 40; i < W - 28; i++) {
+      rmsSum += outputBuffer[i] * outputBuffer[i];
+    }
+    const rms = Math.sqrt(rmsSum / 12);
+    updateLEDMeters(Math.min(1, rms * 1.8));
+
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+
+  // Update speed from select
+  document.getElementById('monitorSpeed').addEventListener('change', function() {
+    speedMultiplier = parseInt(this.value);
+  });
+}
+
+/* ===================== INIT ===================== */
+document.addEventListener('DOMContentLoaded', function() {
+  buildLEDMeters();
+  initKnobs();
+  initBandTabs();
+  initStateSelectors();
+  initToggleButtons();
+  initCurveShapeButtons();
+  initToolbarButtons();
+  initCurveSelects();
+  initCurveEditor();
+  initWaveformDisplay();
+  console.log('[NRGmaximizer] UI mockup v1 initialized');
+});
+</script>
+</body>
+</html>

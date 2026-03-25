@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NRGspectral UI Mockup v1</title>
+  <style>
+    /* ================================================================
+       WEBVIEW CONSTRAINTS — MANDATORY
+       ================================================================ */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: default;
+      overflow: hidden;
+      background: #1a1a1a;
+      color: #ffc864;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      width: 1000px;
+      height: 550px;
+    }
+
+    /* ================================================================
+       PLUGIN CONTAINER — 1000 x 550
+       ================================================================ */
+    .plugin-root {
+      position: relative;
+      width: 1000px;
+      height: 550px;
+      background: repeating-linear-gradient(
+        0deg,
+        #1a1a1a,
+        #1e1e1e 1px,
+        #1a1a1a 2px
+      );
+      border: 2px solid #0a0a0a;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.9);
+      overflow: hidden;
+    }
+
+    /* ================================================================
+       HEADER BAR — y=0, h=70
+       ================================================================ */
+    .header-bar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1000px;
+      height: 70px;
+      background: linear-gradient(180deg, #242424 0%, #1d1d1d 55%, #181818 100%);
+      border-bottom: 2px solid #0a0a0a;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.75);
+      overflow: hidden;
+    }
+
+    /* Brushed stripe overlay on header */
+    .header-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 3px,
+        rgba(255,255,255,0.012) 3px,
+        rgba(255,255,255,0.012) 4px
+      );
+      pointer-events: none;
+    }
+
+    /* ── Plugin title ─────────────────────────────────────────────── */
+    .plugin-title {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: Impact, 'Arial Black', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #ffc864;
+      text-shadow:
+        0 0 10px rgba(255,200,100,0.6),
+        0 0 22px rgba(255,200,100,0.28);
+      white-space: nowrap;
+    }
+
+    .plugin-subtitle {
+      position: absolute;
+      left: 22px;
+      top: 44px;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 8px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(255,200,100,0.38);
+    }
+
+    /* ── LED Button Groups ─────────────────────────────────────────── */
+    .led-group {
+      position: absolute;
+      top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .led-group-label {
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,200,100,0.42);
+      margin-bottom: 1px;
+    }
+
+    .led-btn-row {
+      display: flex;
+      gap: 2px;
+    }
+
+    .led-btn {
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #2c2c2c 0%, #1e1e1e 100%);
+      border: 1px solid #3a3a3a;
+      border-bottom-color: #111;
+      border-right-color: #111;
+      color: rgba(255,200,100,0.45);
+      padding: 3px 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      border-radius: 2px;
+    }
+
+    .led-btn::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #1c1c1c;
+      border: 1px solid #0d0d0d;
+      flex-shrink: 0;
+    }
+
+    .led-btn.active {
+      background: linear-gradient(180deg, #302818 0%, #201a0e 100%);
+      border-color: #ffc864;
+      color: #ffc864;
+      box-shadow: 0 0 6px rgba(255,200,100,0.3), inset 0 1px 0 rgba(255,200,100,0.08);
+    }
+    .led-btn.active::before {
+      background: #ffc864;
+      box-shadow: 0 0 5px #ffc864, 0 0 10px rgba(255,200,100,0.5);
+    }
+
+    /* Target Curve group: green active */
+    .led-btn.active-target {
+      background: linear-gradient(180deg, #0c2218 0%, #081510 100%);
+      border-color: #44ff88;
+      color: #44ff88;
+      box-shadow: 0 0 6px rgba(68,255,136,0.3), inset 0 1px 0 rgba(68,255,136,0.08);
+    }
+    .led-btn.active-target::before {
+      background: #44ff88;
+      box-shadow: 0 0 5px #44ff88;
+    }
+
+    /* Analyzer mode group: cyan active */
+    .led-btn.active-analyzer {
+      background: linear-gradient(180deg, #0b2228 0%, #071518 100%);
+      border-color: #44dddd;
+      color: #44dddd;
+      box-shadow: 0 0 6px rgba(68,221,221,0.3), inset 0 1px 0 rgba(68,221,221,0.08);
+    }
+    .led-btn.active-analyzer::before {
+      background: #44dddd;
+      box-shadow: 0 0 5px #44dddd;
+    }
+
+    /* ================================================================
+       ANALYZER REGION — y=70, h=310
+       ================================================================ */
+    .analyzer-region {
+      position: absolute;
+      left: 0;
+      top: 70px;
+      width: 1000px;
+      height: 310px;
+      background: #0d0d10;
+      border-bottom: 2px solid #0a0a0a;
+      box-shadow:
+        inset 0 3px 16px rgba(0,0,0,0.95),
+        inset 0 -1px 6px rgba(0,0,0,0.5),
+        0 2px 8px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+
+    /* Subtle grid lines behind the canvas */
+    .analyzer-region::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,200,100,0.025) 0px,
+          rgba(255,200,100,0.025) 1px,
+          transparent 1px,
+          transparent 78px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,200,100,0.03) 0px,
+          rgba(255,200,100,0.03) 1px,
+          transparent 1px,
+          transparent 62px
+        );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Left / Right flank columns ─────────────────────────────── */
+    .flank {
+      position: absolute;
+      top: 70px;
+      width: 108px;
+      height: 310px;
+      background: linear-gradient(180deg, #141414 0%, #121212 100%);
+      border-top: 2px solid #0a0a0a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      z-index: 5;
+    }
+    .flank.flank-left {
+      left: 0;
+      border-right: 1px solid #0a0a0a;
+      box-shadow: inset -2px 0 8px rgba(0,0,0,0.5);
+    }
+    .flank.flank-right {
+      right: 0;
+      border-left: 1px solid #0a0a0a;
+      box-shadow: inset 2px 0 8px rgba(0,0,0,0.5);
+    }
+
+    /* Large knob parameter name */
+    .flank-param-name {
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,200,100,0.65);
+      text-align: center;
+    }
+
+    /* ── Spectrum canvas ─────────────────────────────────────────── */
+    #spectrum-canvas {
+      position: absolute;
+      left: 108px;
+      top: 0;
+      display: block;
+      z-index: 1;
+    }
+
+    /* Frequency label strip along bottom of analyzer */
+    .freq-labels {
+      position: absolute;
+      left: 108px;
+      bottom: 0;
+      width: 784px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .freq-label {
+      position: absolute;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 8px;
+      letter-spacing: 0.5px;
+      color: rgba(255,200,100,0.4);
+      transform: translateX(-50%);
+    }
+
+    /* Amplitude label strip on left edge of canvas */
+    .amp-labels {
+      position: absolute;
+      left: 108px;
+      top: 0;
+      width: 26px;
+      height: 310px;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .amp-label {
+      position: absolute;
+      right: 2px;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 8px;
+      color: rgba(255,200,100,0.38);
+      transform: translateY(-50%);
+    }
+
+    /* ================================================================
+       BOTTOM STRIP — y=380, h=170
+       ================================================================ */
+    .bottom-strip {
+      position: absolute;
+      left: 0;
+      top: 380px;
+      width: 1000px;
+      height: 170px;
+      background: linear-gradient(180deg, #1c1c1c 0%, #1a1a1a 40%, #181818 100%);
+      background-image:
+        linear-gradient(180deg, #1c1c1c 0%, #1a1a1a 40%, #181818 100%),
+        repeating-linear-gradient(0deg, #1a1a1a, #1e1e1e 1px, #1a1a1a 2px);
+      background-blend-mode: normal;
+    }
+
+    /* Separator line between left and right halves (visual grouping) */
+    .bottom-sep {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: 170px;
+      background: linear-gradient(180deg,
+        transparent 0%,
+        #0d0d0d 20%,
+        #0d0d0d 80%,
+        transparent 100%
+      );
+    }
+
+    /* Section label for bottom strip groups */
+    .strip-section-label {
+      position: absolute;
+      top: 8px;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 8px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(255,200,100,0.3);
+    }
+
+    /* ================================================================
+       KNOB COMPONENT
+       ================================================================ */
+    .knob-wrap {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .knob-label {
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,200,100,0.65);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .knob-body {
+      border-radius: 50%;
+      position: relative;
+      cursor: ns-resize;
+      flex-shrink: 0;
+    }
+
+    /* Gold pointer needle */
+    .knob-body::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;
+      border-radius: 1px;
+      background: #ffc864;
+      box-shadow: 0 0 4px rgba(255,200,100,0.8);
+      transform-origin: bottom center;
+      transform: translate(-50%, -100%) rotate(0deg);
+      pointer-events: none;
+    }
+
+    /* 68px large knob (Recover / Tame) */
+    .knob-68 {
+      width: 68px;
+      height: 68px;
+      background: conic-gradient(
+        from 195deg,
+        #3c3c3c 0deg,
+        #4e4e4e 28deg,
+        #2c2c2c 56deg,
+        #454545 84deg,
+        #292929 112deg,
+        #4a4a4a 140deg,
+        #313131 168deg,
+        #4c4c4c 196deg,
+        #272727 224deg,
+        #414141 252deg,
+        #2b2b2b 280deg,
+        #474747 308deg,
+        #3c3c3c 336deg,
+        #3c3c3c 360deg
+      );
+      box-shadow:
+        0 5px 14px rgba(0,0,0,0.85),
+        0 2px 4px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.09),
+        inset 0 -1px 0 rgba(0,0,0,0.6),
+        inset 0 0 12px rgba(0,0,0,0.4);
+    }
+    .knob-68::after { height: 26px; }
+
+    /* 50px small knob (Amount, Brightness, Boost, Mix) */
+    .knob-50 {
+      width: 50px;
+      height: 50px;
+      background: conic-gradient(
+        from 195deg,
+        #393939 0deg,
+        #4c4c4c 30deg,
+        #2a2a2a 60deg,
+        #424242 90deg,
+        #272727 120deg,
+        #484848 150deg,
+        #2f2f2f 180deg,
+        #4a4a4a 210deg,
+        #252525 240deg,
+        #3e3e3e 270deg,
+        #292929 300deg,
+        #444444 330deg,
+        #393939 360deg
+      );
+      box-shadow:
+        0 4px 10px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        inset 0 -1px 0 rgba(0,0,0,0.55),
+        inset 0 0 8px rgba(0,0,0,0.35);
+    }
+    .knob-50::after { height: 19px; }
+
+    /* Digital readout below knob */
+    .knob-readout {
+      font-family: 'Courier New', monospace;
+      font-size: 9px;
+      color: #44ff44;
+      text-align: center;
+      min-width: 46px;
+      background: rgba(0,0,0,0.45);
+      padding: 2px 4px;
+      border-radius: 2px;
+      border: 1px solid rgba(68,255,68,0.12);
+      letter-spacing: 0.5px;
+    }
+
+    /* Bipolar center mark: thin tick at 12 o'clock position ring */
+    .knob-center-dot {
+      position: absolute;
+      top: -3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255,200,100,0.35);
+    }
+
+    /* ================================================================
+       SEPARATOR LINE between header and analyzer
+       ================================================================ */
+    .section-sep {
+      position: absolute;
+      left: 0;
+      width: 1000px;
+      height: 1px;
+      background: #0a0a0a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    /* ================================================================
+       ANALYZER LEGEND
+       ================================================================ */
+    .analyzer-legend {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      z-index: 6;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .legend-swatch {
+      width: 18px;
+      height: 2px;
+      border-radius: 1px;
+    }
+    .legend-swatch.input  { background: rgba(255,200,100,0.4); }
+    .legend-swatch.output { background: rgba(255,200,100,0.9); }
+    .legend-label { color: rgba(255,200,100,0.5); }
+
+  </style>
+</head>
+<body>
+<div class="plugin-root">
+
+  <!-- ================================================================
+       HEADER BAR
+       ================================================================ -->
+  <div class="header-bar">
+
+    <div class="plugin-title">NRGspectral</div>
+    <div class="plugin-subtitle">Spectral Compressor</div>
+
+    <!-- TARGET CURVE group — x=220, y=15 -->
+    <div class="led-group" style="left:220px;">
+      <div class="led-group-label">Target</div>
+      <div class="led-btn-row" id="group-target">
+        <button class="led-btn active-target" data-group="target" data-value="0">Flat</button>
+        <button class="led-btn" data-group="target" data-value="1">Warm</button>
+        <button class="led-btn" data-group="target" data-value="2">Bright</button>
+        <button class="led-btn" data-group="target" data-value="3">Custom</button>
+      </div>
+    </div>
+
+    <!-- MID/SIDE MODE group — x=500, y=15 -->
+    <div class="led-group" style="left:500px;">
+      <div class="led-group-label">Channel</div>
+      <div class="led-btn-row" id="group-midside">
+        <button class="led-btn active" data-group="midside" data-value="0">Off</button>
+        <button class="led-btn" data-group="midside" data-value="1">Mid</button>
+        <button class="led-btn" data-group="midside" data-value="2">Side</button>
+        <button class="led-btn" data-group="midside" data-value="3">M+S</button>
+      </div>
+    </div>
+
+    <!-- ANALYZER MODE group — x=730, y=15 -->
+    <div class="led-group" style="left:730px;">
+      <div class="led-group-label">Analyzer</div>
+      <div class="led-btn-row" id="group-analyzer">
+        <button class="led-btn" data-group="analyzer" data-value="0">Off</button>
+        <button class="led-btn" data-group="analyzer" data-value="1">Pre</button>
+        <button class="led-btn active-analyzer" data-group="analyzer" data-value="2">Post</button>
+        <button class="led-btn" data-group="analyzer" data-value="3">Delta</button>
+      </div>
+    </div>
+
+  </div><!-- /header-bar -->
+
+  <!-- ================================================================
+       ANALYZER REGION — y=70, h=310
+       ================================================================ -->
+  <div class="analyzer-region">
+
+    <!-- Left flank — Recover knob -->
+    <div class="flank flank-left">
+      <div class="flank-param-name">Recover</div>
+      <div class="knob-wrap" id="wrap-recover" style="position:relative; left:auto; top:auto;">
+        <div class="knob-body knob-68" id="knob-recover" data-id="recover" data-min="0" data-max="100" data-default="0" data-bipolar="false"></div>
+        <div class="knob-readout" id="readout-recover">0.0%</div>
+      </div>
+    </div>
+
+    <!-- Right flank — Tame knob -->
+    <div class="flank flank-right">
+      <div class="flank-param-name">Tame</div>
+      <div class="knob-wrap" id="wrap-tame" style="position:relative; left:auto; top:auto;">
+        <div class="knob-body knob-68" id="knob-tame" data-id="tame" data-min="0" data-max="100" data-default="0" data-bipolar="false"></div>
+        <div class="knob-readout" id="readout-tame">0.0%</div>
+      </div>
+    </div>
+
+    <!-- Spectrum canvas: x=108 relative to analyzer (absolute offset handled by left:108px) -->
+    <canvas id="spectrum-canvas" width="784" height="292"></canvas>
+
+    <!-- Amplitude labels (left side of canvas) -->
+    <div class="amp-labels">
+      <div class="amp-label" style="top:10px;">0</div>
+      <div class="amp-label" style="top:58px;">-20</div>
+      <div class="amp-label" style="top:117px;">-40</div>
+      <div class="amp-label" style="top:175px;">-60</div>
+      <div class="amp-label" style="top:233px;">-80</div>
+    </div>
+
+    <!-- Frequency labels (bottom of canvas) -->
+    <div class="freq-labels">
+      <div class="freq-label" style="left:0px;">20</div>
+      <div class="freq-label" style="left:78px;">50</div>
+      <div class="freq-label" style="left:157px;">100</div>
+      <div class="freq-label" style="left:235px;">200</div>
+      <div class="freq-label" style="left:314px;">500</div>
+      <div class="freq-label" style="left:392px;">1k</div>
+      <div class="freq-label" style="left:471px;">2k</div>
+      <div class="freq-label" style="left:549px;">5k</div>
+      <div class="freq-label" style="left:627px;">10k</div>
+      <div class="freq-label" style="left:706px;">20k</div>
+    </div>
+
+    <!-- Legend (inside analyzer, top-right corner relative to canvas area) -->
+    <div class="analyzer-legend" style="right:10px;">
+      <div class="legend-item">
+        <div class="legend-swatch input"></div>
+        <div class="legend-label">Input</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch output"></div>
+        <div class="legend-label">Output</div>
+      </div>
+    </div>
+
+  </div><!-- /analyzer-region -->
+
+  <!-- ================================================================
+       BOTTOM STRIP — y=380, h=170
+       Four knobs: Amount, Brightness | Boost, Mix
+       ================================================================ -->
+  <div class="bottom-strip">
+
+    <!-- Visual grouping labels -->
+    <div class="strip-section-label" style="left:120px;">Dynamics</div>
+    <div class="strip-section-label" style="left:590px;">Output</div>
+
+    <!-- Center divider -->
+    <div class="bottom-sep"></div>
+
+    <!-- AMOUNT knob — x=175, y=408 (relative to page = bottom-strip top 380 + offset 28) -->
+    <div class="knob-wrap" style="left:175px; top:28px;">
+      <div class="knob-label">Amount</div>
+      <div class="knob-body knob-50" id="knob-amount" data-id="amount" data-min="0" data-max="100" data-default="50" data-bipolar="false"></div>
+      <div class="knob-readout" id="readout-amount">50.0%</div>
+    </div>
+
+    <!-- BRIGHTNESS knob — x=325, y=408 (strip offset 28) -->
+    <div class="knob-wrap" style="left:325px; top:28px;">
+      <div class="knob-label">Brightness</div>
+      <div class="knob-body knob-50" id="knob-brightness" data-id="brightness" data-min="-100" data-max="100" data-default="0" data-bipolar="true"></div>
+      <div class="knob-readout" id="readout-brightness">0.0%</div>
+    </div>
+
+    <!-- BOOST knob — x=625, y=408 (strip offset 28) -->
+    <div class="knob-wrap" style="left:625px; top:28px;">
+      <div class="knob-label">Boost</div>
+      <div class="knob-body knob-50" id="knob-boost" data-id="boost" data-min="-12" data-max="12" data-default="0" data-bipolar="true"></div>
+      <div class="knob-readout" id="readout-boost">0.0 dB</div>
+    </div>
+
+    <!-- MIX knob — x=775, y=408 (strip offset 28) -->
+    <div class="knob-wrap" style="left:775px; top:28px;">
+      <div class="knob-label">Mix</div>
+      <div class="knob-body knob-50" id="knob-mix" data-id="mix" data-min="0" data-max="100" data-default="100" data-bipolar="false"></div>
+      <div class="knob-readout" id="readout-mix">100.0%</div>
+    </div>
+
+  </div><!-- /bottom-strip -->
+
+</div><!-- /plugin-root -->
+
+<script>
+  /* ================================================================
+     CONTEXT MENU DISABLED (WebView constraint)
+     ================================================================ */
+  document.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+    return false;
+  });
+
+  /* ================================================================
+     MOCK JUCE BACKEND
+     ================================================================ */
+  window.__JUCE__ = {
+    postMessage: function(type, data) {
+      console.log("[JUCE postMessage]", type, JSON.stringify(data));
+    }
+  };
+
+  window.Juce = {
+    getSliderState: function(id) {
+      var val = parseFloat(document.getElementById('knob-' + id).dataset.default) || 0;
+      return {
+        normalisedValue: 0.5,
+        value: val,
+        valueChangedEvent: {
+          addListener: function(fn) { console.log("Listener added for " + id); }
+        }
+      };
+    },
+    getComboBoxState: function(id) {
+      return {
+        selectedId: 0,
+        valueChangedEvent: {
+          addListener: function(fn) { console.log("Combo listener for " + id); }
+        }
+      };
+    }
+  };
+
+  /* ================================================================
+     PARAMETER STATE
+     ================================================================ */
+  var paramState = {
+    recover:    { value: 0,   min: 0,    max: 100,  unit: "%",  bipolar: false },
+    tame:       { value: 0,   min: 0,    max: 100,  unit: "%",  bipolar: false },
+    amount:     { value: 50,  min: 0,    max: 100,  unit: "%",  bipolar: false },
+    brightness: { value: 0,   min: -100, max: 100,  unit: "%",  bipolar: true  },
+    boost:      { value: 0,   min: -12,  max: 12,   unit: " dB", bipolar: true },
+    mix:        { value: 100, min: 0,    max: 100,  unit: "%",  bipolar: false }
+  };
+
+  function getNormalized(id) {
+    var s = paramState[id];
+    return (s.value - s.min) / (s.max - s.min);
+  }
+
+  function setFromNormalized(id, norm) {
+    var s = paramState[id];
+    norm = Math.max(0, Math.min(1, norm));
+    s.value = s.min + norm * (s.max - s.min);
+    updateKnobVisual(id);
+    updateReadout(id);
+    window.__JUCE__.postMessage("parameterChanged", { id: id, value: s.value });
+  }
+
+  /* ================================================================
+     KNOB VISUAL UPDATE
+     Rotation range: -150deg (min) to +150deg (max)
+     For bipolar: center=0deg, range ±150deg
+     ================================================================ */
+  function updateKnobVisual(id) {
+    var s = paramState[id];
+    var norm = getNormalized(id);
+    var deg = -150 + norm * 300;
+    var needle = document.querySelector('#knob-' + id + '::after');
+    var knobEl = document.getElementById('knob-' + id);
+    if (knobEl) {
+      knobEl.style.setProperty('--rotation', deg + 'deg');
+      // Use CSS custom property driven by inline transform on a child element
+      // We'll use a data attribute and update a pseudo-element via JS trick
+      knobEl.dataset.rotation = deg;
+      // Re-render using the needle approach with a visible div
+      updateNeedle(knobEl, deg);
+    }
+  }
+
+  function updateNeedle(knobEl, deg) {
+    var needle = knobEl.querySelector('.needle');
+    if (!needle) {
+      needle = document.createElement('div');
+      needle.className = 'needle';
+      needle.style.cssText = [
+        'position:absolute',
+        'top:50%',
+        'left:50%',
+        'width:2px',
+        'border-radius:1px',
+        'background:#ffc864',
+        'box-shadow:0 0 4px rgba(255,200,100,0.8)',
+        'transform-origin:bottom center',
+        'pointer-events:none'
+      ].join(';');
+      knobEl.appendChild(needle);
+    }
+    // height depends on knob size
+    var h = knobEl.classList.contains('knob-68') ? 26 : 19;
+    needle.style.height = h + 'px';
+    needle.style.transform = 'translate(-50%, -100%) rotate(' + deg + 'deg)';
+  }
+
+  function updateReadout(id) {
+    var s = paramState[id];
+    var el = document.getElementById('readout-' + id);
+    if (!el) return;
+    var val = s.value;
+    var display;
+    if (s.unit === " dB") {
+      display = (val >= 0 ? "+" : "") + val.toFixed(1) + " dB";
+    } else {
+      display = val.toFixed(1) + s.unit;
+    }
+    el.textContent = display;
+  }
+
+  /* ================================================================
+     KNOB DRAG INTERACTION
+     ================================================================ */
+  var dragState = null;
+
+  function initKnobDrag(knobEl) {
+    var id = knobEl.dataset.id;
+
+    knobEl.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      dragState = {
+        id: id,
+        startY: e.clientY,
+        startNorm: getNormalized(id)
+      };
+    });
+  }
+
+  document.addEventListener('mousemove', function(e) {
+    if (!dragState) return;
+    var dy = dragState.startY - e.clientY;
+    var sensitivity = e.shiftKey ? 0.002 : 0.008;
+    var newNorm = dragState.startNorm + dy * sensitivity;
+    setFromNormalized(dragState.id, newNorm);
+  });
+
+  document.addEventListener('mouseup', function() {
+    dragState = null;
+  });
+
+  /* ================================================================
+     LED BUTTON GROUPS
+     ================================================================ */
+  var groupActiveClass = {
+    target:   'active-target',
+    midside:  'active',
+    analyzer: 'active-analyzer'
+  };
+
+  var groupState = {
+    target:   0,
+    midside:  0,
+    analyzer: 2
+  };
+
+  document.querySelectorAll('.led-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var group = btn.dataset.group;
+      var val = parseInt(btn.dataset.value);
+      var activeClass = groupActiveClass[group];
+
+      // Deactivate all in group
+      document.querySelectorAll('[data-group="' + group + '"]').forEach(function(b) {
+        b.classList.remove('active', 'active-target', 'active-analyzer');
+      });
+
+      // Activate clicked
+      btn.classList.add(activeClass);
+      groupState[group] = val;
+
+      // Map to param IDs
+      var paramId = { target: 'target_curve', midside: 'mid_side_mode', analyzer: 'analyzer_mode' }[group];
+      window.__JUCE__.postMessage("parameterChanged", { id: paramId, value: val });
+      console.log("[LED] " + paramId + " = " + val);
+    });
+  });
+
+  /* ================================================================
+     SPECTRUM ANALYZER — animated canvas
+     ================================================================ */
+  (function() {
+    var canvas = document.getElementById('spectrum-canvas');
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width;   // 784
+    var H = canvas.height;  // 292
+
+    // Frequency axis: logarithmic map of [20, 20000] → [0, W]
+    function freqToX(f) {
+      return (Math.log10(f / 20) / Math.log10(20000 / 20)) * W;
+    }
+
+    // Amplitude: dB range [-90, 0] → [H, 0]
+    function dbToY(db) {
+      return H - ((db + 90) / 90) * H;
+    }
+
+    // Noise-seeded smooth spectrum simulation
+    var NUM_BANDS = 256;
+    var phase = new Float32Array(NUM_BANDS);
+    var phaseSpeed = new Float32Array(NUM_BANDS);
+    var baseLevel = new Float32Array(NUM_BANDS);
+
+    for (var i = 0; i < NUM_BANDS; i++) {
+      phase[i] = Math.random() * Math.PI * 2;
+      phaseSpeed[i] = 0.008 + Math.random() * 0.012;
+      // Pink-noise-ish slope: -3dB/oct starting from 0dB at 20Hz
+      var norm = i / NUM_BANDS;
+      baseLevel[i] = -5 - norm * 35 - Math.random() * 8;
+    }
+
+    // Recover / Tame effect amplitudes
+    function getRecoverShape(i) {
+      // Boosts mid-high frequencies more
+      var norm = i / NUM_BANDS;
+      return Math.pow(norm, 0.5) * 8;
+    }
+
+    function getTameShape(i) {
+      // Cuts peaks — randomly distributed resonances
+      var norm = i / NUM_BANDS;
+      var peak1 = Math.exp(-Math.pow((norm - 0.25) * 10, 2)) * 6;
+      var peak2 = Math.exp(-Math.pow((norm - 0.55) * 10, 2)) * 5;
+      var peak3 = Math.exp(-Math.pow((norm - 0.75) * 8, 2)) * 4;
+      return peak1 + peak2 + peak3;
+    }
+
+    var lastTime = 0;
+
+    function render(ts) {
+      if (ts - lastTime < 33) { requestAnimationFrame(render); return; }
+      lastTime = ts;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Get current param values
+      var recoverVal = paramState.recover.value / 100;
+      var tameVal    = paramState.tame.value / 100;
+      var amountVal  = paramState.amount.value / 100;
+      var brightVal  = paramState.brightness.value / 100;
+      var analyzerMode = groupState.analyzer; // 0=off 1=pre 2=post 3=delta
+
+      // Update phases
+      for (var i = 0; i < NUM_BANDS; i++) {
+        phase[i] += phaseSpeed[i];
+      }
+
+      // Build input and output spectra
+      var inputDb  = new Float32Array(NUM_BANDS);
+      var outputDb = new Float32Array(NUM_BANDS);
+
+      for (var i = 0; i < NUM_BANDS; i++) {
+        var wobble = Math.sin(phase[i]) * 2.5 + Math.sin(phase[i] * 1.7) * 1.2;
+        inputDb[i] = baseLevel[i] + wobble;
+
+        var processing = 0;
+        processing += recoverVal * getRecoverShape(i) * amountVal;
+        processing -= tameVal   * getTameShape(i)    * amountVal;
+        // Brightness: tilt — positive = high boost/low cut
+        var norm = i / NUM_BANDS;
+        processing += brightVal * (norm - 0.5) * 12 * amountVal;
+
+        outputDb[i] = Math.max(-90, Math.min(0, inputDb[i] + processing));
+      }
+
+      // Helper: build X coordinates for each band
+      function bandX(i) {
+        var fMin = 20, fMax = 20000;
+        var logFMin = Math.log10(fMin);
+        var logFMax = Math.log10(fMax);
+        var logF = logFMin + (i / NUM_BANDS) * (logFMax - logFMin);
+        return (logF - logFMin) / (logFMax - logFMin) * W;
+      }
+
+      // Draw grid lines (frequency verticals)
+      ctx.strokeStyle = 'rgba(255,200,100,0.06)';
+      ctx.lineWidth = 1;
+      [20,50,100,200,500,1000,2000,5000,10000,20000].forEach(function(f) {
+        var x = freqToX(f);
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+      });
+
+      // Draw amplitude grid lines
+      ctx.strokeStyle = 'rgba(255,200,100,0.05)';
+      [-20,-40,-60,-80].forEach(function(db) {
+        var y = dbToY(db);
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+      });
+
+      if (analyzerMode === 0) {
+        // Off — just draw a flat line
+        ctx.strokeStyle = 'rgba(255,200,100,0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, H * 0.5);
+        ctx.lineTo(W, H * 0.5);
+        ctx.stroke();
+        requestAnimationFrame(render);
+        return;
+      }
+
+      // Determine what to show
+      var showInput  = (analyzerMode === 1 || analyzerMode === 2);
+      var showOutput = (analyzerMode === 2);
+      var showDelta  = (analyzerMode === 3);
+
+      if (analyzerMode === 1) {
+        // Pre: show only input
+        showInput = true; showOutput = false; showDelta = false;
+      } else if (analyzerMode === 2) {
+        // Post: show both
+        showInput = true; showOutput = true; showDelta = false;
+      } else if (analyzerMode === 3) {
+        // Delta: show delta fill only
+        showInput = false; showOutput = false; showDelta = true;
+      }
+
+      // ── Delta fill (Post mode: between input and output curves) ──
+      if (analyzerMode === 2 || analyzerMode === 3) {
+        // Draw delta fill between input and output
+        for (var i = 0; i < NUM_BANDS - 1; i++) {
+          var x0 = bandX(i),     x1 = bandX(i + 1);
+          var iy0 = dbToY(inputDb[i]),  iy1 = dbToY(inputDb[i + 1]);
+          var oy0 = dbToY(outputDb[i]), oy1 = dbToY(outputDb[i + 1]);
+
+          ctx.beginPath();
+          ctx.moveTo(x0, iy0);
+          ctx.lineTo(x1, iy1);
+          ctx.lineTo(x1, oy1);
+          ctx.lineTo(x0, oy0);
+          ctx.closePath();
+
+          var delta = outputDb[i] - inputDb[i];
+          if (delta > 0.5) {
+            ctx.fillStyle = 'rgba(68,220,100,0.22)';
+          } else if (delta < -0.5) {
+            ctx.fillStyle = 'rgba(255,100,50,0.18)';
+          } else {
+            ctx.fillStyle = 'transparent';
+          }
+          ctx.fill();
+        }
+      }
+
+      // ── Input curve (dim gold, filled) ──
+      if (showInput) {
+        ctx.beginPath();
+        ctx.moveTo(bandX(0), H);
+        for (var i = 0; i < NUM_BANDS; i++) {
+          ctx.lineTo(bandX(i), dbToY(inputDb[i]));
+        }
+        ctx.lineTo(bandX(NUM_BANDS - 1), H);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(255,200,100,0.06)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(bandX(0), dbToY(inputDb[0]));
+        for (var i = 1; i < NUM_BANDS; i++) {
+          ctx.lineTo(bandX(i), dbToY(inputDb[i]));
+        }
+        ctx.strokeStyle = 'rgba(255,200,100,0.38)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // ── Output curve (bright gold, filled) ──
+      if (showOutput) {
+        ctx.beginPath();
+        ctx.moveTo(bandX(0), H);
+        for (var i = 0; i < NUM_BANDS; i++) {
+          ctx.lineTo(bandX(i), dbToY(outputDb[i]));
+        }
+        ctx.lineTo(bandX(NUM_BANDS - 1), H);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(255,200,100,0.10)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(bandX(0), dbToY(outputDb[0]));
+        for (var i = 1; i < NUM_BANDS; i++) {
+          ctx.lineTo(bandX(i), dbToY(outputDb[i]));
+        }
+        ctx.strokeStyle = 'rgba(255,200,100,0.88)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // ── Delta mode: show delta as filled area around zero line ──
+      if (showDelta) {
+        var zeroY = dbToY(-45); // visual midpoint for delta display
+        for (var i = 0; i < NUM_BANDS - 1; i++) {
+          var x0 = bandX(i), x1 = bandX(i + 1);
+          var delta0 = outputDb[i] - inputDb[i];
+          var delta1 = outputDb[i + 1] - inputDb[i + 1];
+          var scale = H / 40;
+          var dy0 = -delta0 * scale;
+          var dy1 = -delta1 * scale;
+
+          ctx.beginPath();
+          ctx.moveTo(x0, zeroY);
+          ctx.lineTo(x0, zeroY + dy0);
+          ctx.lineTo(x1, zeroY + dy1);
+          ctx.lineTo(x1, zeroY);
+          ctx.closePath();
+
+          if (delta0 > 0.5) {
+            ctx.fillStyle = 'rgba(68,220,100,0.5)';
+          } else if (delta0 < -0.5) {
+            ctx.fillStyle = 'rgba(255,100,50,0.45)';
+          } else {
+            ctx.fillStyle = 'rgba(255,200,100,0.08)';
+          }
+          ctx.fill();
+        }
+
+        // Zero line
+        ctx.strokeStyle = 'rgba(255,200,100,0.3)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(0, zeroY);
+        ctx.lineTo(W, zeroY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+  })();
+
+  /* ================================================================
+     INIT ALL KNOBS
+     ================================================================ */
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.knob-body').forEach(function(knobEl) {
+      var id = knobEl.dataset.id;
+      if (id) {
+        initKnobDrag(knobEl);
+        updateKnobVisual(id);
+        updateReadout(id);
+      }
+    });
+  });
+
+  // Also run immediately in case DOMContentLoaded already fired
+  (function() {
+    document.querySelectorAll('.knob-body').forEach(function(knobEl) {
+      var id = knobEl.dataset.id;
+      if (id) {
+        initKnobDrag(knobEl);
+        updateKnobVisual(id);
+        updateReadout(id);
+      }
+    });
+  })();
+
+</script>
+</body>
+</html>

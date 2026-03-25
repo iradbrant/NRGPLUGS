@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NRGmodular UI Mockup v2</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: default;
+      overflow: hidden;
+      background: #0d0d0d;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      color: #ffc864;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ═══════════════════════════════════════════
+       RACK PANEL — 1100 x 750 fixed canvas
+    ═══════════════════════════════════════════ */
+    #rack {
+      width: 1100px;
+      height: 750px;
+      position: relative;
+      background: #1a1a1a;
+      background-image:
+        repeating-linear-gradient(90deg,
+          transparent, transparent 3px,
+          rgba(255,255,255,0.013) 3px, rgba(255,255,255,0.013) 4px),
+        repeating-linear-gradient(0deg,
+          transparent, transparent 3px,
+          rgba(255,255,255,0.008) 3px, rgba(255,255,255,0.008) 4px);
+      box-shadow:
+        inset 0 0 80px rgba(0,0,0,0.7),
+        inset 0 2px 0 rgba(255,255,255,0.05),
+        0 0 60px rgba(0,0,0,0.95);
+      border: 1px solid #2a2a2a;
+      overflow: hidden;
+    }
+
+    /* ═══════════════════════════════════════════
+       MOUNTING SCREWS
+    ═══════════════════════════════════════════ */
+    .screw {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 35%, #3c3c3c, #111);
+      border: 1px solid #333;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 1px 4px rgba(0,0,0,0.9);
+      z-index: 10;
+    }
+    .screw::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%) rotate(40deg);
+      width: 8px; height: 1.5px;
+      background: rgba(255,255,255,0.14);
+    }
+    .screw::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%) rotate(-50deg);
+      width: 8px; height: 1.5px;
+      background: rgba(255,255,255,0.14);
+    }
+
+    /* ═══════════════════════════════════════════
+       TOP BAR
+    ═══════════════════════════════════════════ */
+    #top-bar {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1100px;
+      height: 110px;
+      background: linear-gradient(180deg, #262621 0%, #1e1e1a 55%, #181815 100%);
+      border-bottom: 2px solid #e6b050;
+      box-shadow:
+        0 2px 14px rgba(230,176,80,0.28),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      gap: 14px;
+    }
+
+    #plugin-title {
+      font-family: Impact, 'Arial Black', sans-serif;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #ffc864;
+      text-shadow: 0 0 20px rgba(255,200,100,0.55), 0 1px 0 rgba(0,0,0,0.95);
+      white-space: nowrap;
+      flex-shrink: 0;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    #title-sub {
+      font-size: 7.5px;
+      letter-spacing: 2.5px;
+      color: #7a5e18;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+
+    .title-block { flex-shrink: 0; }
+
+    .v-sep {
+      width: 1px;
+      height: 64px;
+      background: linear-gradient(180deg, transparent, #3a3520, transparent);
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       KNOB COMPONENT
+       70px body, conic machined gradient,
+       gold arc ring, seven-segment readout below
+    ═══════════════════════════════════════════ */
+    .knob-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      gap: 0;
+    }
+
+    .knob-cell .k-label {
+      font-size: 7.5px;
+      letter-spacing: 1.5px;
+      color: #a07820;
+      text-transform: uppercase;
+      white-space: nowrap;
+      margin-bottom: 3px;
+      font-weight: bold;
+    }
+
+    .knob-ring {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+    }
+
+    .knob-ring svg.arc-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 80px; height: 80px;
+      pointer-events: none;
+    }
+
+    .knob-body {
+      position: absolute;
+      top: 5px; left: 5px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background:
+        conic-gradient(from 180deg at 50% 50%,
+          #3f3f3f   0deg,
+          #555550  45deg,
+          #3a3a36  90deg,
+          #252522 160deg,
+          #1e1e1c 220deg,
+          #262623 285deg,
+          #3f3f3f 360deg
+        );
+      border: 2px solid #4a4a44;
+      box-shadow:
+        0 5px 16px rgba(0,0,0,0.85),
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        inset 0 -2px 4px rgba(0,0,0,0.6),
+        0 0 0 1px #0f0f0f;
+      cursor: ns-resize;
+    }
+
+    /* Indicator dot on knob */
+    .knob-body::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #ffc864;
+      box-shadow: 0 0 5px rgba(255,200,100,0.9), 0 0 10px rgba(255,200,100,0.4);
+    }
+
+    /* Knob highlight ring */
+    .knob-body::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.05);
+      pointer-events: none;
+    }
+
+    .k-seg {
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      color: #ffc864;
+      background: #060400;
+      border: 1px solid #2a1e00;
+      border-radius: 2px;
+      padding: 1px 5px;
+      min-width: 58px;
+      text-align: center;
+      text-shadow: 0 0 7px rgba(255,200,100,0.75);
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* Smaller variant for top bar (55px body) */
+    .knob-cell.sm .knob-ring  { width: 65px; height: 65px; }
+    .knob-cell.sm .knob-ring svg.arc-svg { width: 65px; height: 65px; }
+    .knob-cell.sm .knob-body  { width: 55px; height: 55px; top: 5px; left: 5px; }
+    .knob-cell.sm .k-seg      { min-width: 50px; font-size: 9px; }
+    .knob-cell.sm .k-label    { font-size: 7px; }
+
+    /* ═══════════════════════════════════════════
+       LFO SHAPE BUTTON STRIP
+    ═══════════════════════════════════════════ */
+    .shape-strip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .shape-strip-label {
+      font-size: 7px;
+      letter-spacing: 1.5px;
+      color: #7a5e18;
+      text-transform: uppercase;
+      margin-bottom: 1px;
+    }
+
+    .shape-btns {
+      display: flex;
+      gap: 2px;
+    }
+
+    .shape-btn {
+      width: 36px;
+      height: 26px;
+      background: #111110;
+      border: 1px solid #2e2818;
+      border-radius: 2px;
+      color: #6a5830;
+      font-size: 7.5px;
+      letter-spacing: 0.8px;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 24px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.7);
+      transition: color 0.08s, background 0.08s;
+    }
+
+    .shape-btn.active {
+      background: linear-gradient(180deg, #2a2408, #1a1604);
+      border-color: #ffc864;
+      color: #ffc864;
+      box-shadow:
+        inset 0 1px 3px rgba(0,0,0,0.7),
+        0 0 6px rgba(255,200,100,0.3);
+    }
+
+    /* ═══════════════════════════════════════════
+       LED TOGGLE BUTTON
+    ═══════════════════════════════════════════ */
+    .led-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #111110;
+      border: 1px solid #2e2818;
+      border-radius: 3px;
+      padding: 5px 9px;
+      cursor: pointer;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.04);
+      flex-shrink: 0;
+    }
+
+    .led-btn:active { box-shadow: inset 0 2px 5px rgba(0,0,0,0.9); }
+
+    .led {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #1a4a1a;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
+      transition: background 0.1s, box-shadow 0.1s;
+      flex-shrink: 0;
+    }
+
+    .led.on {
+      background: #44ff44;
+      box-shadow:
+        0 0 6px rgba(68,255,68,0.85),
+        0 0 14px rgba(68,255,68,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    .led.yellow.on {
+      background: #ffff44;
+      box-shadow:
+        0 0 6px rgba(255,255,68,0.85),
+        0 0 14px rgba(255,255,68,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    .led-btn-label {
+      font-size: 8.5px;
+      letter-spacing: 1px;
+      color: #a07820;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .led-btn.active .led-btn-label { color: #ffc864; }
+
+    /* ═══════════════════════════════════════════
+       RACK DROPDOWN
+    ═══════════════════════════════════════════ */
+    .rack-select {
+      -webkit-appearance: none;
+      appearance: none;
+      background: #0d0b07;
+      border: 1px solid #3a2e14;
+      border-radius: 2px;
+      color: #ffc864;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 3px 22px 3px 7px;
+      cursor: pointer;
+      outline: none;
+      min-width: 72px;
+      text-shadow: 0 0 6px rgba(255,200,100,0.5);
+      box-shadow: inset 0 1px 5px rgba(0,0,0,0.85), 0 1px 0 rgba(255,255,255,0.04);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23a07820'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 5px center;
+    }
+
+    .rack-select option { background: #100e06; color: #ffc864; }
+
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .ctrl-group-label {
+      font-size: 7px;
+      letter-spacing: 1.5px;
+      color: #6a5018;
+      text-transform: uppercase;
+    }
+
+    /* ═══════════════════════════════════════════
+       LFO OSCILLOSCOPE
+    ═══════════════════════════════════════════ */
+    #lfo-scope {
+      width: 200px;
+      height: 70px;
+      flex-shrink: 0;
+      background: #050402;
+      border: 1px solid #2a2010;
+      border-radius: 3px;
+      box-shadow:
+        inset 0 0 24px rgba(0,0,0,0.95),
+        0 0 8px rgba(255,200,100,0.08),
+        inset 0 0 8px rgba(0,0,0,0.9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #lfo-scope::before {
+      content: 'LFO';
+      position: absolute;
+      top: 4px; left: 6px;
+      font-size: 7px;
+      letter-spacing: 1.5px;
+      color: #3a2c08;
+      z-index: 2;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      text-transform: uppercase;
+    }
+
+    #lfo-scope::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(255,200,100,0.038) 0px, transparent 1px, transparent 14px),
+        repeating-linear-gradient(90deg, rgba(255,200,100,0.038) 0px, transparent 1px, transparent 20px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #lfo-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 3;
+    }
+
+    /* ═══════════════════════════════════════════
+       TAB STRIP
+    ═══════════════════════════════════════════ */
+    #tab-strip {
+      position: absolute;
+      top: 110px; left: 0;
+      width: 1100px;
+      height: 36px;
+      background: #121210;
+      border-bottom: 1px solid #2a2010;
+      display: flex;
+      align-items: flex-end;
+      padding: 0 10px;
+      gap: 3px;
+    }
+
+    .tab-btn {
+      height: 30px;
+      padding: 0 13px;
+      background: #1c1c16;
+      border: 1px solid #2a2010;
+      border-bottom: none;
+      border-radius: 3px 3px 0 0;
+      color: #5a4a24;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 9px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tab-btn .tab-led {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #1a3a1a;
+      flex-shrink: 0;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(180deg, #302808, #241e06);
+      border-color: #e6b050;
+      color: #ffc864;
+      box-shadow:
+        0 0 12px rgba(255,200,100,0.25),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    .tab-btn.active .tab-led {
+      background: #44ff44;
+      box-shadow: 0 0 5px rgba(68,255,68,0.8);
+    }
+
+    /* ═══════════════════════════════════════════
+       MAIN PANEL
+    ═══════════════════════════════════════════ */
+    #main-panel {
+      position: absolute;
+      top: 146px; left: 0;
+      width: 1100px;
+      height: 484px;
+      background: linear-gradient(180deg, #181814 0%, #141411 100%);
+      display: flex;
+    }
+
+    /* ─── Left: Shared Parameters ─── */
+    #shared-col {
+      width: 590px;
+      flex-shrink: 0;
+      padding: 18px 20px 14px;
+      border-right: 1px solid #262210;
+      background: #131310;
+    }
+
+    .section-title {
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 7.5px;
+      letter-spacing: 2.5px;
+      color: #4a3810;
+      text-transform: uppercase;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #282010;
+      margin-bottom: 14px;
+    }
+
+    /* 4-column knob grid */
+    #shared-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 130px);
+      grid-template-rows: repeat(2, auto);
+      gap: 14px 10px;
+    }
+
+    /* Knob cell inside grid: centered with label + ring + seg */
+    .grid-knob-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #0f0f0c;
+      border: 1px solid #232008;
+      border-radius: 4px;
+      padding: 10px 6px 8px;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+    }
+
+    .grid-knob-cell .k-label {
+      font-size: 7.5px;
+      letter-spacing: 1.8px;
+      color: #8a6818;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-weight: bold;
+    }
+
+    /* Use-global-LFO toggle cell */
+    .grid-toggle-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f0c;
+      border: 1px solid #232008;
+      border-radius: 4px;
+      padding: 10px 6px;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+      gap: 8px;
+    }
+
+    .grid-toggle-cell .k-label {
+      font-size: 7px;
+      letter-spacing: 1.5px;
+      color: #8a6818;
+      text-transform: uppercase;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /* Spacer cell for grid alignment */
+    .grid-empty-cell {
+      background: transparent;
+      border: none;
+    }
+
+    /* ─── Right: Effect-Specific ─── */
+    #effect-col {
+      flex: 1;
+      padding: 18px 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: #141411;
+    }
+
+    .effect-title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #282010;
+      margin-bottom: 14px;
+    }
+
+    .effect-title {
+      font-family: Impact, 'Arial Black', sans-serif;
+      font-size: 17px;
+      letter-spacing: 3px;
+      color: #ffc864;
+      text-transform: uppercase;
+      text-shadow: 0 0 14px rgba(255,200,100,0.28);
+      line-height: 1;
+    }
+
+    .effect-badge {
+      font-size: 7.5px;
+      letter-spacing: 1.5px;
+      color: #4a3810;
+      border: 1px solid #2a2010;
+      border-radius: 2px;
+      padding: 1px 5px;
+      text-transform: uppercase;
+    }
+
+    /* Effect controls: 2-column grid */
+    .effect-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px 14px;
+      align-content: start;
+    }
+
+    /* Effect knob cell — same visual weight as shared */
+    .effect-knob-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #0f0f0c;
+      border: 1px solid #232008;
+      border-radius: 4px;
+      padding: 10px 6px 8px;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+    }
+
+    .effect-knob-cell .k-label {
+      font-size: 7.5px;
+      letter-spacing: 1.8px;
+      color: #8a6818;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-weight: bold;
+    }
+
+    /* Button strip for waveform/direction selectors */
+    .btn-selector {
+      display: flex;
+      gap: 3px;
+    }
+
+    .sel-btn {
+      padding: 5px 12px;
+      background: #111110;
+      border: 1px solid #2e2818;
+      border-radius: 2px;
+      color: #5a4820;
+      font-size: 8px;
+      letter-spacing: 1px;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.75);
+    }
+
+    .sel-btn.active {
+      background: linear-gradient(180deg, #2a2208, #1a1604);
+      border-color: #ffc864;
+      color: #ffc864;
+      box-shadow:
+        inset 0 1px 3px rgba(0,0,0,0.6),
+        0 0 5px rgba(255,200,100,0.25);
+    }
+
+    /* Effect LED toggle button */
+    .effect-toggle-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f0c;
+      border: 1px solid #232008;
+      border-radius: 4px;
+      padding: 10px 6px;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+      gap: 8px;
+    }
+
+    .effect-toggle-cell .k-label {
+      font-size: 7.5px;
+      letter-spacing: 1.5px;
+      color: #8a6818;
+      text-transform: uppercase;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-weight: bold;
+    }
+
+    /* Effect combo in cell */
+    .effect-combo-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f0c;
+      border: 1px solid #232008;
+      border-radius: 4px;
+      padding: 14px 10px;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+      gap: 8px;
+    }
+
+    .effect-combo-cell .k-label {
+      font-size: 7.5px;
+      letter-spacing: 1.8px;
+      color: #8a6818;
+      text-transform: uppercase;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-weight: bold;
+    }
+
+    /* Effect btn-selector cell */
+    .effect-btnsel-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f0c;
+      border: 1px solid #232008;
+      border-radius: 4px;
+      padding: 10px 6px;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.6);
+      gap: 8px;
+    }
+
+    .effect-btnsel-cell .k-label {
+      font-size: 7.5px;
+      letter-spacing: 1.8px;
+      color: #8a6818;
+      text-transform: uppercase;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-weight: bold;
+    }
+
+    /* ═══════════════════════════════════════════
+       BOTTOM MIXER STRIP
+    ═══════════════════════════════════════════ */
+    #mixer-strip {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 1100px;
+      height: 120px;
+      background: linear-gradient(180deg, #141410 0%, #101010 100%);
+      border-top: 2px solid #e6b050;
+      box-shadow:
+        0 -2px 14px rgba(230,176,80,0.22),
+        inset 0 1px 0 rgba(255,200,100,0.09);
+      display: flex;
+      align-items: stretch;
+      padding: 0 8px;
+    }
+
+    .mixer-channel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 7px 3px 5px;
+      border-right: 1px solid #201e0a;
+      position: relative;
+    }
+
+    .mixer-channel:last-child { border-right: none; }
+
+    .mix-ch-name {
+      font-size: 6.5px;
+      letter-spacing: 0.7px;
+      color: #5a4a22;
+      text-transform: uppercase;
+      text-align: center;
+      white-space: nowrap;
+      margin-bottom: 5px;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+    }
+
+    .mix-fader-area {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      flex: 1;
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Vertical fader */
+    .v-fader {
+      -webkit-appearance: none;
+      appearance: none;
+      writing-mode: vertical-lr;
+      direction: rtl;
+      width: 26px;
+      height: 72px;
+      background: transparent;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .v-fader::-webkit-slider-runnable-track {
+      width: 5px;
+      background: linear-gradient(180deg, #0a0900, #181510);
+      border-radius: 2px;
+      border: 1px solid #2a2010;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.95);
+    }
+
+    .v-fader::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 12px;
+      background: linear-gradient(90deg, #3a3a36 0%, #505048 40%, #3a3a36 100%);
+      border: 1px solid #555548;
+      border-radius: 2px;
+      box-shadow:
+        0 2px 6px rgba(0,0,0,0.85),
+        inset 0 1px 0 rgba(255,255,255,0.14),
+        inset 0 -1px 0 rgba(0,0,0,0.4);
+      cursor: pointer;
+    }
+
+    /* 12-segment LED meter */
+    .led-meter {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 1.5px;
+      height: 72px;
+      justify-content: flex-start;
+    }
+
+    .meter-seg {
+      width: 6px;
+      height: 4px;
+      border-radius: 1px;
+    }
+
+    .meter-seg.green  { background: #0e3a0e; }
+    .meter-seg.yellow { background: #3a3a00; }
+    .meter-seg.red    { background: #3a0a0a; }
+
+    .meter-seg.green.lit  { background: #44ff44; box-shadow: 0 0 3px rgba(68,255,68,0.7); }
+    .meter-seg.yellow.lit { background: #ffff44; box-shadow: 0 0 3px rgba(255,255,68,0.7); }
+    .meter-seg.red.lit    { background: #ff4444; box-shadow: 0 0 3px rgba(255,68,68,0.7); }
+
+    /* ═══════════════════════════════════════════
+       DRAGGABLE KNOB ACTIVE STATE
+    ═══════════════════════════════════════════ */
+    .knob-body.dragging {
+      box-shadow:
+        0 5px 16px rgba(0,0,0,0.85),
+        0 0 0 2px rgba(255,200,100,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        inset 0 -2px 4px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+
+<div id="rack">
+  <!-- Mounting screws -->
+  <div class="screw" style="top:10px; left:10px;"></div>
+  <div class="screw" style="top:10px; right:10px;"></div>
+  <div class="screw" style="bottom:10px; left:10px;"></div>
+  <div class="screw" style="bottom:10px; right:10px;"></div>
+
+  <!-- ════════════════════════════════════════
+       TOP BAR
+  ════════════════════════════════════════ -->
+  <div id="top-bar">
+    <!-- Title -->
+    <div class="title-block">
+      <div id="plugin-title">NRGmodular</div>
+      <div id="title-sub">Parallel Multi-FX Modulation Processor</div>
+    </div>
+
+    <div class="v-sep"></div>
+
+    <!-- Global LFO Rate knob -->
+    <div class="knob-cell sm" data-param="global_lfo_rate" data-min="0.01" data-max="20" data-val="1.0" data-unit="Hz">
+      <div class="k-label">LFO RATE</div>
+      <div class="knob-ring">
+        <svg class="arc-svg" viewBox="0 0 65 65"><circle cx="32.5" cy="32.5" r="28" fill="none" stroke="#2a2010" stroke-width="3" stroke-dasharray="176" stroke-dashoffset="44" stroke-linecap="round" transform="rotate(135 32.5 32.5)"/><circle class="arc-fill" cx="32.5" cy="32.5" r="28" fill="none" stroke="#ffc864" stroke-width="3" stroke-dasharray="176" stroke-dashoffset="132" stroke-linecap="round" transform="rotate(135 32.5 32.5)" style="filter:drop-shadow(0 0 3px rgba(255,200,100,0.7))"/></svg>
+        <div class="knob-body"></div>
+      </div>
+      <div class="k-seg">1.00Hz</div>
+    </div>
+
+    <!-- LFO shape buttons -->
+    <div class="shape-strip">
+      <div class="shape-strip-label">SHAPE</div>
+      <div class="shape-btns" id="lfo-shapes">
+        <div class="shape-btn active" data-shape="sine">SIN</div>
+        <div class="shape-btn" data-shape="tri">TRI</div>
+        <div class="shape-btn" data-shape="saw">SAW</div>
+        <div class="shape-btn" data-shape="sq">SQ</div>
+        <div class="shape-btn" data-shape="sh">S&amp;H</div>
+      </div>
+    </div>
+
+    <div class="v-sep"></div>
+
+    <!-- Tempo Sync LED button -->
+    <div class="ctrl-group">
+      <div class="ctrl-group-label">SYNC</div>
+      <div class="led-btn active" id="tempo-sync-btn">
+        <div class="led on" id="tempo-sync-led"></div>
+        <div class="led-btn-label">TEMPO</div>
+      </div>
+    </div>
+
+    <!-- Sync Division dropdown -->
+    <div class="ctrl-group">
+      <div class="ctrl-group-label">DIVISION</div>
+      <select class="rack-select" id="sync-div">
+        <option>1/1</option>
+        <option>1/2</option>
+        <option selected>1/4</option>
+        <option>1/8</option>
+        <option>1/16</option>
+        <option>1/32</option>
+      </select>
+    </div>
+
+    <div class="v-sep"></div>
+
+    <!-- Dry/Wet knob -->
+    <div class="knob-cell sm" data-param="dry_wet" data-min="0" data-max="100" data-val="50" data-unit="%">
+      <div class="k-label">DRY/WET</div>
+      <div class="knob-ring">
+        <svg class="arc-svg" viewBox="0 0 65 65"><circle cx="32.5" cy="32.5" r="28" fill="none" stroke="#2a2010" stroke-width="3" stroke-dasharray="176" stroke-dashoffset="44" stroke-linecap="round" transform="rotate(135 32.5 32.5)"/><circle class="arc-fill" cx="32.5" cy="32.5" r="28" fill="none" stroke="#ffc864" stroke-width="3" stroke-dasharray="176" stroke-dashoffset="88" stroke-linecap="round" transform="rotate(135 32.5 32.5)" style="filter:drop-shadow(0 0 3px rgba(255,200,100,0.7))"/></svg>
+        <div class="knob-body"></div>
+      </div>
+      <div class="k-seg">50%</div>
+    </div>
+
+    <!-- Output Level knob -->
+    <div class="knob-cell sm" data-param="output_level" data-min="-12" data-max="12" data-val="0" data-unit="dB">
+      <div class="k-label">LEVEL</div>
+      <div class="knob-ring">
+        <svg class="arc-svg" viewBox="0 0 65 65"><circle cx="32.5" cy="32.5" r="28" fill="none" stroke="#2a2010" stroke-width="3" stroke-dasharray="176" stroke-dashoffset="44" stroke-linecap="round" transform="rotate(135 32.5 32.5)"/><circle class="arc-fill" cx="32.5" cy="32.5" r="28" fill="none" stroke="#ffc864" stroke-width="3" stroke-dasharray="176" stroke-dashoffset="88" stroke-linecap="round" transform="rotate(135 32.5 32.5)" style="filter:drop-shadow(0 0 3px rgba(255,200,100,0.7))"/></svg>
+        <div class="knob-body"></div>
+      </div>
+      <div class="k-seg">0.0dB</div>
+    </div>
+
+    <div class="v-sep"></div>
+
+    <!-- LFO Oscilloscope -->
+    <div id="lfo-scope">
+      <canvas id="lfo-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       TAB STRIP
+  ════════════════════════════════════════ -->
+  <div id="tab-strip">
+    <div class="tab-btn active" data-tab="chorus"><div class="tab-led"></div>Chorus</div>
+    <div class="tab-btn" data-tab="phaser"><div class="tab-led"></div>Phaser</div>
+    <div class="tab-btn" data-tab="resonator"><div class="tab-led"></div>Resonator</div>
+    <div class="tab-btn" data-tab="flanger"><div class="tab-led"></div>Flanger</div>
+    <div class="tab-btn" data-tab="ensemble"><div class="tab-led"></div>Ensemble</div>
+    <div class="tab-btn" data-tab="ring_mod"><div class="tab-led"></div>Ring Mod</div>
+    <div class="tab-btn" data-tab="freq_shifter"><div class="tab-led"></div>Freq Shifter</div>
+    <div class="tab-btn" data-tab="tremolo"><div class="tab-led"></div>Tremolo</div>
+    <div class="tab-btn" data-tab="rotary"><div class="tab-led"></div>Rotary</div>
+    <div class="tab-btn" data-tab="comb_filter"><div class="tab-led"></div>Comb Filter</div>
+    <div class="tab-btn" data-tab="doubler"><div class="tab-led"></div>Doubler</div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       MAIN PANEL
+  ════════════════════════════════════════ -->
+  <div id="main-panel">
+
+    <!-- LEFT: Shared Parameters -->
+    <div id="shared-col">
+      <div class="section-title">Shared Parameters — <span id="shared-effect-name">Chorus</span></div>
+      <div id="shared-grid">
+
+        <!-- Row 1: Level, Rate, Depth, Feedback -->
+        <div class="grid-knob-cell">
+          <div class="k-label">Level</div>
+          <div class="knob-ring" data-param="level" data-min="0" data-max="100" data-val="0" data-unit="%">
+            <svg class="arc-svg" viewBox="0 0 80 80"><circle cx="40" cy="40" r="33" fill="none" stroke="#2a2010" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="52" stroke-linecap="round" transform="rotate(135 40 40)"/><circle class="arc-fill" cx="40" cy="40" r="33" fill="none" stroke="#ffc864" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="207" stroke-linecap="round" transform="rotate(135 40 40)" style="filter:drop-shadow(0 0 4px rgba(255,200,100,0.7))"/></svg>
+            <div class="knob-body"></div>
+          </div>
+          <div class="k-seg">0%</div>
+        </div>
+
+        <div class="grid-knob-cell">
+          <div class="k-label">Rate</div>
+          <div class="knob-ring" data-param="rate" data-min="0.01" data-max="20" data-val="1.0" data-unit="Hz">
+            <svg class="arc-svg" viewBox="0 0 80 80"><circle cx="40" cy="40" r="33" fill="none" stroke="#2a2010" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="52" stroke-linecap="round" transform="rotate(135 40 40)"/><circle class="arc-fill" cx="40" cy="40" r="33" fill="none" stroke="#ffc864" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="166" stroke-linecap="round" transform="rotate(135 40 40)" style="filter:drop-shadow(0 0 4px rgba(255,200,100,0.7))"/></svg>
+            <div class="knob-body"></div>
+          </div>
+          <div class="k-seg">1.00Hz</div>
+        </div>
+
+        <div class="grid-knob-cell">
+          <div class="k-label">Depth</div>
+          <div class="knob-ring" data-param="depth" data-min="0" data-max="100" data-val="50" data-unit="%">
+            <svg class="arc-svg" viewBox="0 0 80 80"><circle cx="40" cy="40" r="33" fill="none" stroke="#2a2010" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="52" stroke-linecap="round" transform="rotate(135 40 40)"/><circle class="arc-fill" cx="40" cy="40" r="33" fill="none" stroke="#ffc864" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="104" stroke-linecap="round" transform="rotate(135 40 40)" style="filter:drop-shadow(0 0 4px rgba(255,200,100,0.7))"/></svg>
+            <div class="knob-body"></div>
+          </div>
+          <div class="k-seg">50%</div>
+        </div>
+
+        <div class="grid-knob-cell">
+          <div class="k-label">Feedback</div>
+          <div class="knob-ring" data-param="feedback" data-min="-100" data-max="100" data-val="0" data-unit="%">
+            <svg class="arc-svg" viewBox="0 0 80 80"><circle cx="40" cy="40" r="33" fill="none" stroke="#2a2010" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="52" stroke-linecap="round" transform="rotate(135 40 40)"/><circle class="arc-fill" cx="40" cy="40" r="33" fill="none" stroke="#ffc864" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="104" stroke-linecap="round" transform="rotate(135 40 40)" style="filter:drop-shadow(0 0 4px rgba(255,200,100,0.7))"/></svg>
+            <div class="knob-body"></div>
+          </div>
+          <div class="k-seg">0%</div>
+        </div>
+
+        <!-- Row 2: Phase Offset, Stereo Width, Global LFO toggle, (empty) -->
+        <div class="grid-knob-cell">
+          <div class="k-label">Phase</div>
+          <div class="knob-ring" data-param="phase_offset" data-min="0" data-max="360" data-val="0" data-unit="°">
+            <svg class="arc-svg" viewBox="0 0 80 80"><circle cx="40" cy="40" r="33" fill="none" stroke="#2a2010" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="52" stroke-linecap="round" transform="rotate(135 40 40)"/><circle class="arc-fill" cx="40" cy="40" r="33" fill="none" stroke="#ffc864" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="207" stroke-linecap="round" transform="rotate(135 40 40)" style="filter:drop-shadow(0 0 4px rgba(255,200,100,0.7))"/></svg>
+            <div class="knob-body"></div>
+          </div>
+          <div class="k-seg">0°</div>
+        </div>
+
+        <div class="grid-knob-cell">
+          <div class="k-label">St.Width</div>
+          <div class="knob-ring" data-param="stereo_width" data-min="0" data-max="200" data-val="100" data-unit="%">
+            <svg class="arc-svg" viewBox="0 0 80 80"><circle cx="40" cy="40" r="33" fill="none" stroke="#2a2010" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="52" stroke-linecap="round" transform="rotate(135 40 40)"/><circle class="arc-fill" cx="40" cy="40" r="33" fill="none" stroke="#ffc864" stroke-width="3.5" stroke-dasharray="207" stroke-dashoffset="104" stroke-linecap="round" transform="rotate(135 40 40)" style="filter:drop-shadow(0 0 4px rgba(255,200,100,0.7))"/></svg>
+            <div class="knob-body"></div>
+          </div>
+          <div class="k-seg">100%</div>
+        </div>
+
+        <!-- Use Global LFO toggle cell -->
+        <div class="grid-toggle-cell" id="global-lfo-cell" style="grid-column: span 2;">
+          <div class="k-label">Use Global LFO</div>
+          <div class="led-btn active" id="use-global-lfo-btn">
+            <div class="led on" id="use-global-lfo-led"></div>
+            <div class="led-btn-label">GLOBAL LFO</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Effect-Specific Parameters -->
+    <div id="effect-col">
+      <div class="effect-title-row">
+        <div class="effect-title" id="effect-title">Chorus</div>
+        <div class="effect-badge" id="effect-badge">Modulation</div>
+      </div>
+      <div class="effect-grid" id="effect-grid">
+        <!-- Populated by JS per active tab -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════════
+       BOTTOM MIXER STRIP
+  ════════════════════════════════════════ -->
+  <div id="mixer-strip" id="mixer">
+    <!-- Channels generated by JS -->
+  </div>
+
+</div><!-- #rack -->
+
+<script>
+  // ─────────────────────────────────────────────────
+  //  Mock JUCE Backend
+  // ─────────────────────────────────────────────────
+  window.Juce = {
+    getSliderState: (id) => ({
+      normalisedValue: 0.5,
+      valueChangedEvent: { addListener: () => {} }
+    }),
+    getToggleState: (id) => ({
+      value: false,
+      valueChangedEvent: { addListener: () => {} }
+    }),
+    getComboBoxState: (id) => ({
+      selectedId: 0,
+      valueChangedEvent: { addListener: () => {} }
+    })
+  };
+
+  document.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
+
+  // ─────────────────────────────────────────────────
+  //  Knob Drag System
+  //  Vertical drag: drag up = increase, down = decrease
+  //  300px drag = full range
+  // ─────────────────────────────────────────────────
+  let activeKnob = null;
+  let dragStartY = 0;
+  let dragStartVal = 0;
+
+  function normalise(val, min, max) {
+    return (val - min) / (max - min);
+  }
+
+  function lerp(norm, min, max) {
+    return min + norm * (max - min);
+  }
+
+  function clamp(v, lo, hi) {
+    return Math.max(lo, Math.min(hi, v));
+  }
+
+  function formatVal(val, unit, min, max) {
+    if (unit === 'Hz') {
+      if (Math.abs(val) >= 1000) return (val / 1000).toFixed(2) + 'kHz';
+      return val.toFixed(2) + 'Hz';
+    }
+    if (unit === 'dB') return (val >= 0 ? '+' : '') + val.toFixed(1) + 'dB';
+    if (unit === 'ms') return val.toFixed(1) + 'ms';
+    if (unit === 'cents') return val.toFixed(1) + 'c';
+    if (unit === 's') return val.toFixed(2) + 's';
+    if (unit === '°' || unit === 'deg') return Math.round(val) + '°';
+    if (unit === '%') return Math.round(val) + '%';
+    return parseFloat(val.toFixed(2)).toString();
+  }
+
+  // Update knob arc and indicator rotation, and seg display
+  function updateKnob(ring, val) {
+    const min = parseFloat(ring.dataset.min);
+    const max = parseFloat(ring.dataset.max);
+    const unit = ring.dataset.unit || '';
+    const norm = normalise(val, min, max);
+
+    // Arc: total arc span = 270deg mapped to dasharray 207 (for 80px viewBox, r=33)
+    // dashoffset = total - filled = 207 - norm * 207
+    const totalDash = ring.closest('.knob-ring')
+      ? (ring.closest('.knob-cell.sm') ? 176 : 207)
+      : 207;
+
+    // Work out which arc-fill to update
+    const arcFill = ring.querySelector('.arc-fill');
+    if (arcFill) {
+      const filled = norm * totalDash;
+      arcFill.style.strokeDashoffset = (totalDash - filled);
+    }
+
+    // Rotate knob body indicator dot: -135deg (min) to +135deg (max)
+    const body = ring.querySelector('.knob-body');
+    if (body) {
+      const rotDeg = -135 + norm * 270;
+      body.style.transform = `rotate(${rotDeg}deg)`;
+    }
+
+    // Update seg display if inside a cell
+    const cell = ring.closest('[data-param]') || ring.closest('.knob-cell');
+    const seg = (ring.closest('.grid-knob-cell') || ring.closest('.effect-knob-cell') || ring.closest('.knob-cell'))
+      ?.querySelector('.k-seg');
+    if (seg) {
+      seg.textContent = formatVal(val, unit, min, max);
+    }
+
+    ring.dataset.val = val;
+  }
+
+  // Also handle .knob-cell.sm knob rings (top bar)
+  document.querySelectorAll('.knob-cell[data-param]').forEach(cell => {
+    const ring = cell.querySelector('.knob-ring');
+    if (!ring) return;
+    // copy dataset from cell to ring for drag handling
+    ring.dataset.min = cell.dataset.min;
+    ring.dataset.max = cell.dataset.max;
+    ring.dataset.val = cell.dataset.val;
+    ring.dataset.unit = cell.dataset.unit || '';
+    ring.dataset.param = cell.dataset.param;
+
+    const totalDash = cell.classList.contains('sm') ? 176 : 207;
+    const arcFill = ring.querySelector('.arc-fill');
+    const body = ring.querySelector('.knob-body');
+    const norm = normalise(parseFloat(cell.dataset.val), parseFloat(cell.dataset.min), parseFloat(cell.dataset.max));
+    if (arcFill) arcFill.style.strokeDashoffset = totalDash - norm * totalDash;
+    if (body) body.style.transform = `rotate(${-135 + norm * 270}deg)`;
+    updateKnob(ring, parseFloat(cell.dataset.val));
+  });
+
+  function attachKnobDrag(ring) {
+    ring.querySelector('.knob-body').addEventListener('mousedown', e => {
+      e.preventDefault();
+      activeKnob = ring;
+      dragStartY = e.clientY;
+      dragStartVal = parseFloat(ring.dataset.val);
+      ring.querySelector('.knob-body').classList.add('dragging');
+      document.body.style.cursor = 'ns-resize';
+    });
+  }
+
+  document.addEventListener('mousemove', e => {
+    if (!activeKnob) return;
+    const dy = dragStartY - e.clientY; // up = positive
+    const min = parseFloat(activeKnob.dataset.min);
+    const max = parseFloat(activeKnob.dataset.max);
+    const range = max - min;
+    const delta = (dy / 280) * range;
+    const newVal = clamp(dragStartVal + delta, min, max);
+    updateKnob(activeKnob, newVal);
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (activeKnob) {
+      activeKnob.querySelector('.knob-body').classList.remove('dragging');
+      activeKnob = null;
+      document.body.style.cursor = 'default';
+    }
+  });
+
+  // ─────────────────────────────────────────────────
+  //  Attach drag to all knob-rings in main grid
+  // ─────────────────────────────────────────────────
+  function initGridKnobs() {
+    document.querySelectorAll('.knob-ring[data-param]').forEach(ring => {
+      if (ring.querySelector('.knob-body')) {
+        const norm = normalise(parseFloat(ring.dataset.val), parseFloat(ring.dataset.min), parseFloat(ring.dataset.max));
+        const body = ring.querySelector('.knob-body');
+        body.style.transform = `rotate(${-135 + norm * 270}deg)`;
+        const arcFill = ring.querySelector('.arc-fill');
+        if (arcFill) arcFill.style.strokeDashoffset = 207 - norm * 207;
+        attachKnobDrag(ring);
+      }
+    });
+    // Also top bar small knobs
+    document.querySelectorAll('.knob-cell.sm .knob-ring').forEach(ring => {
+      if (ring.querySelector('.knob-body') && ring.dataset.min !== undefined) {
+        attachKnobDrag(ring);
+      }
+    });
+  }
+
+  initGridKnobs();
+
+  // ─────────────────────────────────────────────────
+  //  LFO Shape buttons
+  // ─────────────────────────────────────────────────
+  let lfoShape = 'sine';
+  document.querySelectorAll('#lfo-shapes .shape-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#lfo-shapes .shape-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      lfoShape = btn.dataset.shape;
+    });
+  });
+
+  // ─────────────────────────────────────────────────
+  //  Tempo Sync toggle
+  // ─────────────────────────────────────────────────
+  let tempoSync = true;
+  const tempoBtn = document.getElementById('tempo-sync-btn');
+  const tempoLed = document.getElementById('tempo-sync-led');
+  tempoBtn.addEventListener('click', () => {
+    tempoSync = !tempoSync;
+    tempoLed.classList.toggle('on', tempoSync);
+    tempoBtn.classList.toggle('active', tempoSync);
+  });
+
+  // ─────────────────────────────────────────────────
+  //  Use Global LFO toggle
+  // ─────────────────────────────────────────────────
+  let useGlobalLfo = true;
+  const globalLfoBtn = document.getElementById('use-global-lfo-btn');
+  const globalLfoLed = document.getElementById('use-global-lfo-led');
+  globalLfoBtn.addEventListener('click', () => {
+    useGlobalLfo = !useGlobalLfo;
+    globalLfoLed.classList.toggle('on', useGlobalLfo);
+    globalLfoBtn.classList.toggle('active', useGlobalLfo);
+  });
+
+  // ─────────────────────────────────────────────────
+  //  Tab switching + Effect panel generation
+  // ─────────────────────────────────────────────────
+  const EFFECTS = {
+    chorus:      { name: 'Chorus',        badge: 'Modulation' },
+    phaser:      { name: 'Phaser',        badge: 'Modulation' },
+    resonator:   { name: 'Resonator',     badge: 'Spectral'   },
+    flanger:     { name: 'Flanger',       badge: 'Modulation' },
+    ensemble:    { name: 'Ensemble',      badge: 'Modulation' },
+    ring_mod:    { name: 'Ring Mod',      badge: 'Spectral'   },
+    freq_shifter:{ name: 'Freq Shifter',  badge: 'Spectral'   },
+    tremolo:     { name: 'Tremolo',       badge: 'Amplitude'  },
+    rotary:      { name: 'Rotary',        badge: 'Modulation' },
+    comb_filter: { name: 'Comb Filter',   badge: 'Spectral'   },
+    doubler:     { name: 'Doubler',       badge: 'Spatial'    }
+  };
+
+  // Build a knob cell for the effect grid
+  function makeKnobCell(id, label, min, max, val, unit) {
+    const norm = normalise(val, min, max);
+    const totalDash = 207;
+    const filled = norm * totalDash;
+    const offset = totalDash - filled;
+    const rot = -135 + norm * 270;
+    const seg = formatVal(val, unit, min, max);
+    const div = document.createElement('div');
+    div.className = 'effect-knob-cell';
+    div.innerHTML = `
+      <div class="k-label">${label}</div>
+      <div class="knob-ring" data-param="${id}" data-min="${min}" data-max="${max}" data-val="${val}" data-unit="${unit}">
+        <svg class="arc-svg" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="33" fill="none" stroke="#2a2010" stroke-width="3.5"
+            stroke-dasharray="207" stroke-dashoffset="52" stroke-linecap="round" transform="rotate(135 40 40)"/>
+          <circle class="arc-fill" cx="40" cy="40" r="33" fill="none" stroke="#ffc864" stroke-width="3.5"
+            stroke-dasharray="207" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(135 40 40)"
+            style="filter:drop-shadow(0 0 4px rgba(255,200,100,0.7))"/>
+        </svg>
+        <div class="knob-body" style="transform:rotate(${rot}deg)"></div>
+      </div>
+      <div class="k-seg">${seg}</div>
+    `;
+    return div;
+  }
+
+  function makeToggleCell(id, label, defaultOn) {
+    const on = defaultOn || false;
+    const div = document.createElement('div');
+    div.className = 'effect-toggle-cell';
+    div.innerHTML = `
+      <div class="k-label">${label}</div>
+      <div class="led-btn ${on ? 'active' : ''}" data-toggle="${id}">
+        <div class="led ${on ? 'on' : ''}"></div>
+        <div class="led-btn-label">${label}</div>
+      </div>
+    `;
+    div.querySelector('.led-btn').addEventListener('click', function() {
+      const isOn = this.classList.toggle('active');
+      this.querySelector('.led').classList.toggle('on', isOn);
+    });
+    return div;
+  }
+
+  function makeComboCell(id, label, options, defaultVal) {
+    const div = document.createElement('div');
+    div.className = 'effect-combo-cell';
+    const opts = options.map(o => `<option${o===defaultVal?' selected':''}>${o}</option>`).join('');
+    div.innerHTML = `
+      <div class="k-label">${label}</div>
+      <select class="rack-select" id="${id}">${opts}</select>
+    `;
+    return div;
+  }
+
+  function makeBtnSelCell(id, label, options, defaultVal) {
+    const div = document.createElement('div');
+    div.className = 'effect-btnsel-cell';
+    const btns = options.map(o =>
+      `<div class="sel-btn ${o===defaultVal ? 'active' : ''}" data-group="${id}">${o}</div>`
+    ).join('');
+    div.innerHTML = `
+      <div class="k-label">${label}</div>
+      <div class="btn-selector">${btns}</div>
+    `;
+    div.querySelectorAll('.sel-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        div.querySelectorAll(`.sel-btn[data-group="${id}"]`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+    return div;
+  }
+
+  function buildEffectControls(tab) {
+    const grid = document.getElementById('effect-grid');
+    grid.innerHTML = '';
+
+    switch(tab) {
+      case 'chorus':
+        grid.appendChild(makeComboCell('chorus_voices', 'Voices', ['1','2','3','4','5','6','7','8'], '4'));
+        grid.appendChild(makeKnobCell('chorus_delay_time', 'Delay Time', 1, 40, 15, 'ms'));
+        break;
+
+      case 'phaser':
+        grid.appendChild(makeComboCell('phaser_stages', 'Stages', ['2','4','6','8','12','16','24'], '8'));
+        grid.appendChild(makeKnobCell('phaser_center_freq', 'Center Freq', 100, 5000, 800, 'Hz'));
+        grid.appendChild(makeKnobCell('phaser_resonance', 'Resonance', 0, 100, 30, '%'));
+        break;
+
+      case 'resonator':
+        grid.appendChild(makeKnobCell('resonator_tuning', 'Tuning', 20, 5000, 440, 'Hz'));
+        grid.appendChild(makeKnobCell('resonator_decay', 'Decay', 10, 5000, 500, 'ms'));
+        grid.appendChild(makeKnobCell('resonator_brightness', 'Brightness', 0, 100, 50, '%'));
+        break;
+
+      case 'flanger':
+        grid.appendChild(makeKnobCell('flanger_manual', 'Manual', 0.1, 10, 2, 'ms'));
+        grid.appendChild(makeToggleCell('flanger_thru_zero', 'Thru-Zero', false));
+        break;
+
+      case 'ensemble':
+        grid.appendChild(makeComboCell('ensemble_voices', 'Voices', ['2','3','4','5','6','7','8'], '4'));
+        grid.appendChild(makeKnobCell('ensemble_detune', 'Detune', 0, 50, 15, 'cents'));
+        break;
+
+      case 'ring_mod':
+        grid.appendChild(makeKnobCell('ring_carrier_freq', 'Carrier Freq', 20, 5000, 440, 'Hz'));
+        grid.appendChild(makeBtnSelCell('ring_wave', 'Waveform', ['SINE','SQ','SAW'], 'SINE'));
+        break;
+
+      case 'freq_shifter':
+        grid.appendChild(makeKnobCell('freq_shift_amount', 'Shift Amount', -5000, 5000, 0, 'Hz'));
+        grid.appendChild(makeBtnSelCell('freq_dir', 'Direction', ['UP','DOWN','BOTH'], 'BOTH'));
+        break;
+
+      case 'tremolo':
+        grid.appendChild(makeBtnSelCell('tremolo_shape', 'Waveshape', ['SINE','SQ','TRI'], 'SINE'));
+        grid.appendChild(makeKnobCell('tremolo_stereo_phase', 'Stereo Phase', 0, 180, 0, '°'));
+        break;
+
+      case 'rotary':
+        grid.appendChild(makeKnobCell('rotary_horn_speed', 'Horn Speed', 0.01, 10, 5, 'Hz'));
+        grid.appendChild(makeKnobCell('rotary_drum_speed', 'Drum Speed', 0.01, 5, 2, 'Hz'));
+        grid.appendChild(makeKnobCell('rotary_acceleration', 'Acceleration', 0.1, 5, 1, 's'));
+        grid.appendChild(makeKnobCell('rotary_mic_dist', 'Mic Distance', 0, 100, 50, '%'));
+        break;
+
+      case 'comb_filter':
+        grid.appendChild(makeKnobCell('comb_frequency', 'Frequency', 20, 5000, 500, 'Hz'));
+        grid.appendChild(makeToggleCell('comb_polarity', 'Polarity +/−', true));
+        grid.appendChild(makeKnobCell('comb_damping', 'Damping', 0, 100, 30, '%'));
+        break;
+
+      case 'doubler':
+        grid.appendChild(makeKnobCell('doubler_delay', 'Delay', 1, 50, 20, 'ms'));
+        grid.appendChild(makeKnobCell('doubler_pitch_var', 'Pitch Var', 0, 30, 10, 'cents'));
+        grid.appendChild(makeKnobCell('doubler_pan_spread', 'Pan Spread', 0, 100, 70, '%'));
+        break;
+    }
+
+    // Attach drag to newly created knobs
+    grid.querySelectorAll('.knob-ring[data-param]').forEach(ring => {
+      attachKnobDrag(ring);
+    });
+  }
+
+  let activeTab = 'chorus';
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeTab = btn.dataset.tab;
+      const eff = EFFECTS[activeTab];
+      document.getElementById('effect-title').textContent = eff.name;
+      document.getElementById('effect-badge').textContent = eff.badge;
+      document.getElementById('shared-effect-name').textContent = eff.name;
+      buildEffectControls(activeTab);
+    });
+  });
+
+  // Initial effect build
+  buildEffectControls('chorus');
+
+  // ─────────────────────────────────────────────────
+  //  Mixer Strip — 11 channels
+  // ─────────────────────────────────────────────────
+  const MIX_CHANNELS = [
+    'CHORUS','PHASER','RESONTR','FLANGER','ENSEMBLE',
+    'RING MOD','FREQ SHF','TREMOLO','ROTARY','COMB FLT','DOUBLER'
+  ];
+
+  const mixerEl = document.getElementById('mixer-strip');
+
+  MIX_CHANNELS.forEach((name, i) => {
+    const ch = document.createElement('div');
+    ch.className = 'mixer-channel';
+    ch.innerHTML = `
+      <div class="mix-ch-name">${name}</div>
+      <div class="mix-fader-area">
+        <input type="range" class="v-fader" min="0" max="100" value="${i === 0 ? 70 : 0}" data-ch="${i}">
+        <div class="led-meter" data-ch="${i}">
+          ${[...Array(12)].map((_, s) => {
+            const cls = s >= 9 ? 'red' : s >= 7 ? 'yellow' : 'green';
+            return `<div class="meter-seg ${cls}"></div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+    mixerEl.appendChild(ch);
+  });
+
+  // ─────────────────────────────────────────────────
+  //  Mixer meter animation
+  // ─────────────────────────────────────────────────
+  function updateMeter(ch, level) {
+    // level 0-100
+    const segs = document.querySelectorAll(`.led-meter[data-ch="${ch}"] .meter-seg`);
+    const litCount = Math.round((level / 100) * 12);
+    segs.forEach((seg, i) => {
+      seg.classList.toggle('lit', i < litCount);
+    });
+  }
+
+  // Sync fader to meter
+  document.querySelectorAll('.v-fader').forEach(fader => {
+    const ch = parseInt(fader.dataset.ch);
+    updateMeter(ch, parseFloat(fader.value));
+    fader.addEventListener('input', () => {
+      updateMeter(ch, parseFloat(fader.value));
+    });
+  });
+
+  // Subtle meter animation for active channels
+  function animateMeters() {
+    document.querySelectorAll('.v-fader').forEach(fader => {
+      const ch = parseInt(fader.dataset.ch);
+      const base = parseFloat(fader.value);
+      if (base > 0) {
+        const noise = (Math.random() - 0.5) * 12;
+        updateMeter(ch, clamp(base + noise, 0, 100));
+      }
+    });
+    setTimeout(animateMeters, 80 + Math.random() * 40);
+  }
+  animateMeters();
+
+  // ─────────────────────────────────────────────────
+  //  LFO Oscilloscope animation
+  // ─────────────────────────────────────────────────
+  const canvas = document.getElementById('lfo-canvas');
+  const ctx = canvas.getContext('2d');
+  let lfoPhase = 0;
+
+  function resizeCanvas() {
+    const scope = document.getElementById('lfo-scope');
+    canvas.width = scope.offsetWidth;
+    canvas.height = scope.offsetHeight;
+  }
+
+  resizeCanvas();
+
+  function drawLfo() {
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // Get current rate from knob
+    const rateCell = document.querySelector('.knob-cell.sm[data-param="global_lfo_rate"]');
+    let rate = 1.0;
+    if (rateCell) {
+      const ring = rateCell.querySelector('.knob-ring');
+      rate = parseFloat(ring ? ring.dataset.val : rateCell.dataset.val) || 1.0;
+    }
+
+    // Draw waveform glow (wide)
+    ctx.save();
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(255,200,100,0.5)';
+    ctx.strokeStyle = 'rgba(255,200,100,0.25)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let x = 0; x < w; x++) {
+      const t = (x / w) * 2 + lfoPhase;
+      let y = 0;
+      switch(lfoShape) {
+        case 'sine': y = Math.sin(t * Math.PI); break;
+        case 'tri':  y = 1 - Math.abs(((t % 2) + 2) % 2 - 1) * 2; break;
+        case 'saw':  y = (((t % 2) + 2) % 2) / 2 - 0.5; break;  // fixed saw
+        case 'sq':   y = Math.sin(t * Math.PI) >= 0 ? 0.85 : -0.85; break;
+        case 'sh':
+          y = (Math.sin(Math.floor(t) * 12.9898 * 78.233) * 43758.5453) % 1;
+          break;
+        default: y = Math.sin(t * Math.PI);
+      }
+      const px = x;
+      const py = h / 2 - (y * (h * 0.36));
+      if (x === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // Draw waveform core (sharp)
+    ctx.save();
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = 'rgba(255,200,100,0.9)';
+    ctx.strokeStyle = '#ffc864';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let x = 0; x < w; x++) {
+      const t = (x / w) * 2 + lfoPhase;
+      let y = 0;
+      switch(lfoShape) {
+        case 'sine': y = Math.sin(t * Math.PI); break;
+        case 'tri':  y = 1 - Math.abs(((t % 2) + 2) % 2 - 1) * 2; break;
+        case 'saw':  y = (((t % 2) + 2) % 2) / 2 - 0.5; break;
+        case 'sq':   y = Math.sin(t * Math.PI) >= 0 ? 0.85 : -0.85; break;
+        case 'sh':
+          y = (Math.sin(Math.floor(t) * 12.9898 * 78.233) * 43758.5453) % 1;
+          break;
+        default: y = Math.sin(t * Math.PI);
+      }
+      const px = x;
+      const py = h / 2 - (y * (h * 0.36));
+      if (x === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    lfoPhase += (rate / 60) * 0.12;
+    requestAnimationFrame(drawLfo);
+  }
+
+  drawLfo();
+
+</script>
+</body>
+</html>

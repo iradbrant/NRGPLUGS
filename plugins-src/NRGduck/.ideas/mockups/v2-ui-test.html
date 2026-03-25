@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NRGduck</title>
+
+  <script type="module">
+    import * as Juce from "./js/juce/index.js";
+    window.Juce = Juce;
+  </script>
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: default;
+      overflow: hidden;
+      background: #111111;
+      color: #ffc864;
+      font-family: 'Arial Narrow', Arial, sans-serif;
+    }
+
+    :root {
+      --bg-main:         #1a1a1a;
+      --bg-display:      #0d0d10;
+      --accent-primary:  #ffc864;
+      --text-inactive:   #555555;
+      --readout-color:   #44ff44;
+      --separator:       #0a0a0a;
+    }
+
+    /* PLUGIN FRAME */
+    #plugin-frame {
+      width: 700px;
+      height: 440px;
+      position: relative;
+      background: repeating-linear-gradient(0deg, #1a1a1a, #1e1e1e 1px, #1a1a1a 2px);
+      border: 2px solid #0a0a0a;
+      box-shadow: 0 0 0 1px #2a2a2a, inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 40px rgba(0,0,0,0.9);
+      overflow: hidden;
+    }
+
+    /* HEADER BAR */
+    #header {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(180deg, #222222 0%, #1a1a1a 100%);
+      border-bottom: 2px solid #0a0a0a;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 8px rgba(0,0,0,0.5);
+      padding: 0 15px;
+      z-index: 10;
+    }
+
+    #plugin-title {
+      font-family: Impact, 'Arial Black', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #ffc864;
+      text-shadow: 0 0 10px rgba(255,200,100,0.8), 0 0 20px rgba(255,200,100,0.4), 0 0 40px rgba(255,200,100,0.2);
+      flex-shrink: 0;
+      margin-right: 20px;
+    }
+
+    .header-sep {
+      width: 1px;
+      height: 28px;
+      background: linear-gradient(180deg, transparent, #3a3a3a, transparent);
+      margin: 0 18px;
+      flex-shrink: 0;
+    }
+
+    #header-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #header-right {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* LED BUTTON GROUPS */
+    .led-group { display: flex; gap: 0; }
+
+    .led-btn {
+      position: relative;
+      background: linear-gradient(180deg, #222222 0%, #161616 100%);
+      border: 1px solid #0a0a0a;
+      border-right-width: 0;
+      color: var(--text-inactive);
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.4);
+    }
+
+    .led-btn:first-child { border-radius: 2px 0 0 2px; }
+    .led-btn:last-child  { border-radius: 0 2px 2px 0; border-right-width: 1px; }
+
+    .led-btn::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #252525;
+      border: 1px solid #0a0a0a;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+      flex-shrink: 0;
+    }
+
+    .led-btn.active {
+      background: linear-gradient(180deg, #201900 0%, #1a1400 100%);
+      color: #ffc864;
+      box-shadow: inset 0 1px 0 rgba(255,200,100,0.08), inset 0 -1px 0 rgba(0,0,0,0.4), inset 0 0 6px rgba(255,200,100,0.06);
+    }
+
+    .led-btn.active::before {
+      background: #ffc864;
+      box-shadow: 0 0 4px rgba(255,200,100,0.9), 0 0 8px rgba(255,200,100,0.6), 0 0 14px rgba(255,200,100,0.3), inset 0 1px 1px rgba(255,255,255,0.3);
+    }
+
+    #mode-group .led-btn {
+      width: 80px;
+      height: 28px;
+    }
+
+    /* KNOB STYLES */
+    .knob-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .knob-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #ffc864;
+    }
+
+    .knob-face {
+      position: relative;
+      border-radius: 50%;
+      cursor: ns-resize;
+      box-shadow: 0 0 0 2px #0a0a0a, 0 0 0 3px #2a2a2a, inset 0 2px 4px rgba(0,0,0,0.9), inset 0 -1px 2px rgba(255,255,255,0.04), 0 4px 12px rgba(0,0,0,0.8);
+      flex-shrink: 0;
+    }
+
+    .knob-face canvas { display: block; border-radius: 50%; }
+
+    .knob-readout {
+      font-family: 'Courier New', monospace;
+      font-size: 9px;
+      color: #44ff44;
+      letter-spacing: 0.5px;
+      text-align: center;
+      min-width: 42px;
+      text-shadow: 0 0 4px rgba(68,255,68,0.4);
+    }
+
+    /* CURVE DISPLAY */
+    #curve-display {
+      position: absolute;
+      top: 50px; left: 0;
+      width: 700px;
+      height: 140px;
+      background: #0d0d10;
+      border-bottom: 2px solid #0a0a0a;
+      overflow: hidden;
+    }
+
+    #curve-canvas { display: block; width: 700px; height: 140px; }
+
+    #envelope-label {
+      position: absolute;
+      top: 8px; right: 80px;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,200,100,0.45);
+    }
+
+    #time-label {
+      position: absolute;
+      bottom: 7px; left: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 8px;
+      color: rgba(255,200,100,0.2);
+      letter-spacing: 1px;
+    }
+
+    #depth-line-label {
+      position: absolute;
+      bottom: 7px; right: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 8px;
+      color: rgba(68,255,68,0.35);
+      letter-spacing: 0.5px;
+    }
+
+    /* SHAPE GRID — 2 rows x 8 columns of visual curve tiles */
+    #shape-section {
+      position: absolute;
+      top: 190px; left: 0;
+      width: 700px;
+      height: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 2px solid #0a0a0a;
+      background: linear-gradient(180deg, #191919 0%, #1a1a1a 100%);
+      padding: 6px 0;
+    }
+
+    #shape-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 3px;
+      width: 670px;
+      height: 74px;
+    }
+
+    .shape-tile {
+      background: #141414;
+      border: 2px solid #2a2a2a;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: border-color 0.1s;
+    }
+
+    .shape-tile:hover {
+      border-color: #444444;
+    }
+
+    .shape-tile.active {
+      border-color: #ffc864;
+      background: #1e1800;
+      box-shadow: 0 0 6px rgba(255,200,100,0.15), inset 0 0 8px rgba(255,200,100,0.05);
+    }
+
+    .shape-tile canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* CONTROL ROW */
+    #control-row {
+      position: absolute;
+      top: 280px; left: 0;
+      width: 700px;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+      gap: 0;
+    }
+
+    .ctrl-sep {
+      width: 1px; height: 70px;
+      background: linear-gradient(180deg, transparent, #2a2a2a 30%, #2a2a2a 70%, transparent);
+      margin: 0 16px;
+      flex-shrink: 0;
+    }
+
+    #rate-group-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    #rate-label-wrap {
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: #ffc864;
+      margin-bottom: 10px;
+    }
+
+    #rate-group {
+      display: flex;
+      gap: 0;
+      width: 100%;
+    }
+
+    #rate-group .led-btn {
+      flex: 1;
+      height: 50px;
+      font-size: 11px;
+      letter-spacing: 0;
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    #rate-group .led-btn::before {
+      width: 4px; height: 4px;
+    }
+
+    .ctrl-knob-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      flex-shrink: 0;
+    }
+
+    .ctrl-knob-wrap .knob-label { margin-bottom: 8px; }
+    .ctrl-knob-wrap .knob-readout { margin-top: 6px; }
+
+    #control-row::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, #1a1a1a, #1b1b1b 1px, #1a1a1a 2px);
+      z-index: 0;
+    }
+
+    #control-row > * {
+      position: relative;
+      z-index: 1;
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="plugin-frame">
+
+  <!-- HEADER BAR -->
+  <div id="header">
+    <div id="plugin-title">NRGduck</div>
+    <div class="header-sep"></div>
+    <div id="header-center">
+      <div class="led-group" id="mode-group">
+        <button class="led-btn active" data-group="mode" data-value="0">INTERNAL</button>
+        <button class="led-btn" data-group="mode" data-value="1">SIDECHAIN</button>
+        <button class="led-btn" data-group="mode" data-value="2">MIDI</button>
+      </div>
+    </div>
+    <div class="header-sep"></div>
+    <div id="header-right">
+      <div id="mix-unit" style="display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+          <div class="knob-label" style="margin-bottom:2px;">MIX</div>
+          <div class="knob-readout" id="mix-readout" style="margin-top:0;">100%</div>
+        </div>
+        <div class="knob-face" id="mix-knob" data-param="mix" data-value="1.0" data-min="0" data-max="1">
+          <canvas width="36" height="36"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CURVE DISPLAY -->
+  <div id="curve-display">
+    <canvas id="curve-canvas" width="700" height="140"></canvas>
+    <div id="envelope-label">ENVELOPE</div>
+    <div id="time-label">0 ——— 1 CYCLE</div>
+    <div id="depth-line-label"></div>
+  </div>
+
+  <!-- SHAPE GRID (16 visual curve tiles) -->
+  <div id="shape-section">
+    <div id="shape-grid"></div>
+  </div>
+
+  <!-- CONTROL ROW -->
+  <div id="control-row">
+    <div class="ctrl-knob-wrap">
+      <div class="knob-label">DEPTH</div>
+      <div class="knob-face" id="depth-knob" data-param="depth" data-value="0.8" data-min="0" data-max="1">
+        <canvas width="50" height="50"></canvas>
+      </div>
+      <div class="knob-readout" id="depth-readout">80%</div>
+    </div>
+
+    <div class="ctrl-sep"></div>
+
+    <div id="rate-group-wrap">
+      <div id="rate-label-wrap">RATE</div>
+      <div class="led-group" id="rate-group">
+        <button class="led-btn" data-group="rate" data-value="0">1/1</button>
+        <button class="led-btn" data-group="rate" data-value="1">1/2</button>
+        <button class="led-btn active" data-group="rate" data-value="2">1/4</button>
+        <button class="led-btn" data-group="rate" data-value="3">1/8</button>
+        <button class="led-btn" data-group="rate" data-value="4">1/16</button>
+        <button class="led-btn" data-group="rate" data-value="5">1/32</button>
+      </div>
+    </div>
+
+    <div class="ctrl-sep"></div>
+
+    <div class="ctrl-knob-wrap">
+      <div class="knob-label">ATTACK</div>
+      <div class="knob-face" id="attack-knob" data-param="attack" data-value="0.025" data-min="0" data-max="1">
+        <canvas width="50" height="50"></canvas>
+      </div>
+      <div class="knob-readout" id="attack-readout">5ms</div>
+    </div>
+
+    <div class="ctrl-knob-wrap" style="margin-left: 12px;">
+      <div class="knob-label">RELEASE</div>
+      <div class="knob-face" id="release-knob" data-param="release" data-value="0.198" data-min="0" data-max="1">
+        <canvas width="50" height="50"></canvas>
+      </div>
+      <div class="knob-readout" id="release-readout">400ms</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener("contextmenu", (e) => { e.preventDefault(); return false; });
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  const state = {
+    depth: 0.80, rate: 2, attack: 0.025, release: 0.198,
+    shape: 0, mix: 1.00, mode: 0
+  };
+
+  /* FORMATTERS */
+  function formatDepth(n)   { return Math.round(n * 100) + '%'; }
+  function formatAttack(n)  { const ms = n * 200; return ms < 10 ? ms.toFixed(1) + 'ms' : Math.round(ms) + 'ms'; }
+  function formatRelease(n) { return Math.round(10 + n * 1990) + 'ms'; }
+  function formatMix(n)     { return Math.round(n * 100) + '%'; }
+
+  /* ============================================================
+     16 SHAPE CURVES — must match DSP computeShapeGain() exactly
+     Each: phase [0..1] -> gain [0..1]
+     ============================================================ */
+  const shapeFns = [
+    (p) => p * p * p,                                           // 0: Pump Classic
+    (p) => p * p,                                               // 1: Pump Medium
+    (p) => Math.pow(p, 1.3),                                    // 2: Pump Soft
+    (p) => p * p * p * p * p * p,                               // 3: Pump Hard
+    (p) => p * p * (3 - 2 * p),                                 // 4: S-Curve
+    (p) => p,                                                   // 5: Linear
+    (p) => { let t = 1 - p; return 1 - t * t; },               // 6: Log
+    (p) => { let t = 1 - p; return 1 - t * t * t * t; },       // 7: Fast Log
+    (p) => p < 0.25 ? 0 : 1,                                   // 8: Gate Short
+    (p) => p < 0.50 ? 0 : 1,                                   // 9: Gate Medium
+    (p) => p < 0.75 ? 0 : 1,                                   // 10: Gate Long
+    (p) => {                                                     // 11: Soft Gate
+      if (p < 0.35) return 0;
+      if (p < 0.65) return 0.5 - 0.5 * Math.cos(Math.PI * (p - 0.35) / 0.3);
+      return 1;
+    },
+    (p) => Math.sin(Math.PI * p),                               // 12: Half Sine
+    (p) => { let p2 = (p * 2) % 1; return p2 * p2 * p2; },    // 13: Double Pump
+    (p) => {                                                     // 14: Steps
+      if (p < 0.25) return 0;
+      if (p < 0.50) return 0.33;
+      if (p < 0.75) return 0.67;
+      return 1;
+    },
+    (p) => 1 - Math.exp(-5 * p),                                // 15: Expo
+  ];
+
+  function getShapeGain(shapeIdx, phase) {
+    return shapeFns[shapeIdx](phase);
+  }
+
+  function getEnvelopeY(phase) {
+    const raw = getShapeGain(currentShape, phase);
+    const minVol = 1 - state.depth;
+    return minVol + raw * (1 - minVol);
+  }
+
+  /* ============================================================
+     SHAPE GRID — 16 visual tiles with canvas-drawn curves
+     ============================================================ */
+  let currentShape = 0;
+  const shapeGrid = document.getElementById('shape-grid');
+
+  function drawShapeTile(canvas, shapeIdx, isActive) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    const pad = 4;
+    const drawW = w - pad * 2;
+    const drawH = h - pad * 2;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Draw curve
+    const strokeColor = isActive ? '#ffc864' : '#777777';
+    const fillColor = isActive ? 'rgba(255,200,100,0.15)' : 'rgba(120,120,120,0.08)';
+
+    // Fill under curve
+    ctx.beginPath();
+    ctx.moveTo(pad, h - pad);
+    for (let i = 0; i <= 40; i++) {
+      const p = i / 40;
+      const g = shapeFns[shapeIdx](p);
+      const x = pad + p * drawW;
+      const y = (h - pad) - g * drawH;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(pad + drawW, h - pad);
+    ctx.closePath();
+    ctx.fillStyle = fillColor;
+    ctx.fill();
+
+    // Stroke curve
+    ctx.beginPath();
+    for (let i = 0; i <= 40; i++) {
+      const p = i / 40;
+      const g = shapeFns[shapeIdx](p);
+      const x = pad + p * drawW;
+      const y = (h - pad) - g * drawH;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = isActive ? 2 : 1.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  }
+
+  // Build 16 tiles
+  for (let i = 0; i < 16; i++) {
+    const tile = document.createElement('div');
+    tile.className = 'shape-tile' + (i === 0 ? ' active' : '');
+    tile.dataset.shapeIdx = i;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 80;
+    canvas.height = 34;
+    tile.appendChild(canvas);
+
+    tile.addEventListener('click', () => {
+      document.querySelectorAll('.shape-tile').forEach(t => t.classList.remove('active'));
+      tile.classList.add('active');
+      currentShape = i;
+      state.shape = i;
+      redrawAllShapeTiles();
+
+      if (window.__JUCE__ && window.Juce) {
+        const comboState = Juce.getComboBoxState('shape');
+        if (comboState) comboState.setChoiceIndex(i);
+      }
+    });
+
+    shapeGrid.appendChild(tile);
+  }
+
+  function redrawAllShapeTiles() {
+    document.querySelectorAll('.shape-tile').forEach(tile => {
+      const idx = parseInt(tile.dataset.shapeIdx);
+      const isActive = tile.classList.contains('active');
+      const canvas = tile.querySelector('canvas');
+      drawShapeTile(canvas, idx, isActive);
+    });
+  }
+
+  /* ============================================================
+     KNOB RENDERING
+     ============================================================ */
+  function drawKnob(canvas, normValue) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    const cx = w / 2;
+    const cy = h / 2;
+    const r = w / 2 - 2;
+
+    ctx.clearRect(0, 0, w, h);
+
+    const grad = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, 1, cx, cy, r);
+    grad.addColorStop(0,    '#2e2e2e');
+    grad.addColorStop(0.3,  '#252525');
+    grad.addColorStop(0.6,  '#1e1e1e');
+    grad.addColorStop(0.85, '#181818');
+    grad.addColorStop(1,    '#111111');
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    const rimGrad = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
+    rimGrad.addColorStop(0,   'rgba(255,255,255,0.08)');
+    rimGrad.addColorStop(0.4, 'rgba(255,255,255,0.01)');
+    rimGrad.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = rimGrad;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 4, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    const startAngle = Math.PI * 0.75;
+    const endAngle   = Math.PI * 2.25;
+    const angle      = startAngle + normValue * (endAngle - startAngle);
+    const innerR     = r * 0.38;
+    const outerR     = r * 0.82;
+
+    const ix = cx + Math.cos(angle) * innerR;
+    const iy = cy + Math.sin(angle) * innerR;
+    const ox = cx + Math.cos(angle) * outerR;
+    const oy = cy + Math.sin(angle) * outerR;
+
+    ctx.beginPath();
+    ctx.moveTo(ix, iy);
+    ctx.lineTo(ox, oy);
+    ctx.strokeStyle = 'rgba(255,200,100,0.35)';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(ix, iy);
+    ctx.lineTo(ox, oy);
+    ctx.strokeStyle = '#ffc864';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#141414';
+    ctx.fill();
+    ctx.strokeStyle = '#2a2a2a';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  /* ============================================================
+     KNOB INTERACTION
+     ============================================================ */
+  const knobs = document.querySelectorAll('.knob-face');
+  const draggingParams = new Set();
+
+  knobs.forEach(knob => {
+    let dragging = false;
+    let startY = 0;
+    let startVal = 0;
+
+    function onPointerDown(e) {
+      dragging = true;
+      startY   = e.clientY;
+      startVal = parseFloat(knob.dataset.value);
+      draggingParams.add(knob.dataset.param);
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp);
+      e.preventDefault();
+    }
+
+    function onPointerMove(e) {
+      if (!dragging) return;
+      const dy    = startY - e.clientY;
+      const delta = dy / 180;
+      const newVal = Math.max(0, Math.min(1, startVal + delta));
+      knob.dataset.value = newVal;
+      updateKnob(knob.dataset.param, newVal);
+      e.preventDefault();
+    }
+
+    function onPointerUp() {
+      dragging = false;
+      draggingParams.delete(knob.dataset.param);
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+    }
+
+    knob.addEventListener('pointerdown', onPointerDown);
+  });
+
+  function updateKnob(param, normValue) {
+    state[param] = normValue;
+    const canvas = document.querySelector('#' + param + '-knob canvas');
+    if (canvas) drawKnob(canvas, normValue);
+
+    const readout = document.getElementById(param + '-readout');
+    if (readout) {
+      switch (param) {
+        case 'depth':   readout.textContent = formatDepth(normValue);   break;
+        case 'attack':  readout.textContent = formatAttack(normValue);  break;
+        case 'release': readout.textContent = formatRelease(normValue); break;
+        case 'mix':     readout.textContent = formatMix(normValue);     break;
+      }
+    }
+
+    if (window.__JUCE__ && window.Juce) {
+      const sliderState = Juce.getSliderState(param);
+      if (sliderState) sliderState.setNormalisedValue(normValue);
+    }
+  }
+
+  /* ============================================================
+     LED BUTTON GROUPS (mode, rate)
+     ============================================================ */
+  document.querySelectorAll('.led-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.dataset.group;
+      const value = parseInt(btn.dataset.value);
+
+      document.querySelectorAll('.led-btn[data-group="' + group + '"]')
+        .forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      state[group] = value;
+
+      if (window.__JUCE__ && window.Juce) {
+        const comboState = Juce.getComboBoxState(group);
+        if (comboState) comboState.setChoiceIndex(value);
+      }
+    });
+  });
+
+  /* ============================================================
+     CURVE DISPLAY
+     ============================================================ */
+  const curveCanvas = document.getElementById('curve-canvas');
+  const curveCtx    = curveCanvas.getContext('2d');
+  const CW = 700;
+  const CH = 140;
+  const PAD_LEFT   = 28;
+  const PAD_RIGHT  = 28;
+  const PAD_TOP    = 16;
+  const PAD_BOTTOM = 20;
+  const DRAW_W = CW - PAD_LEFT - PAD_RIGHT;
+  const DRAW_H = CH - PAD_TOP - PAD_BOTTOM;
+
+  let animOffset = 0;
+  let currentGainFromDSP = 1.0;
+  let lastFrameTime = 0;
+  let phaseFromDSP = false;
+  let effectiveModeDSP = 0;
+
+  window.updatePhase = function(phase, gain, eMode) {
+    animOffset = phase;
+    currentGainFromDSP = gain;
+    effectiveModeDSP = (eMode !== undefined) ? eMode : 0;
+    phaseFromDSP = true;
+  };
+
+  function drawCurve(timestamp) {
+    const dt = timestamp - lastFrameTime;
+    lastFrameTime = timestamp;
+
+    if (!phaseFromDSP) {
+      animOffset = (animOffset + dt / 600) % 1;
+    }
+
+    curveCtx.clearRect(0, 0, CW, CH);
+    curveCtx.fillStyle = '#0d0d10';
+    curveCtx.fillRect(0, 0, CW, CH);
+
+    // Grid lines
+    [0, 0.25, 0.5, 0.75, 1].forEach(v => {
+      const gy = PAD_TOP + (1 - v) * DRAW_H;
+      curveCtx.beginPath();
+      curveCtx.moveTo(PAD_LEFT, gy);
+      curveCtx.lineTo(CW - PAD_RIGHT, gy);
+      curveCtx.strokeStyle = v === 0 || v === 1 ? 'rgba(255,200,100,0.08)' : 'rgba(255,200,100,0.04)';
+      curveCtx.lineWidth = 1;
+      curveCtx.setLineDash(v === 0 || v === 1 ? [] : [3, 6]);
+      curveCtx.stroke();
+      curveCtx.setLineDash([]);
+    });
+
+    [0.25, 0.5, 0.75].forEach(x => {
+      const gx = PAD_LEFT + x * DRAW_W;
+      curveCtx.beginPath();
+      curveCtx.moveTo(gx, PAD_TOP);
+      curveCtx.lineTo(gx, CH - PAD_BOTTOM);
+      curveCtx.strokeStyle = 'rgba(255,200,100,0.04)';
+      curveCtx.lineWidth = 1;
+      curveCtx.setLineDash([2, 8]);
+      curveCtx.stroke();
+      curveCtx.setLineDash([]);
+    });
+
+    // Depth floor line
+    const minVol  = 1 - state.depth;
+    const minVolY = PAD_TOP + (1 - minVol) * DRAW_H;
+    curveCtx.beginPath();
+    curveCtx.moveTo(PAD_LEFT, minVolY);
+    curveCtx.lineTo(CW - PAD_RIGHT, minVolY);
+    curveCtx.strokeStyle = 'rgba(68,255,68,0.18)';
+    curveCtx.lineWidth = 1;
+    curveCtx.setLineDash([2, 5]);
+    curveCtx.stroke();
+    curveCtx.setLineDash([]);
+
+    document.getElementById('depth-line-label').textContent = 'DEPTH ' + formatDepth(state.depth);
+
+    if (effectiveModeDSP === 1) {
+      // SIDECHAIN MODE
+      const gainY = PAD_TOP + (1 - currentGainFromDSP) * DRAW_H;
+
+      curveCtx.beginPath();
+      curveCtx.moveTo(PAD_LEFT, CH - PAD_BOTTOM);
+      curveCtx.lineTo(CW - PAD_RIGHT, CH - PAD_BOTTOM);
+      curveCtx.lineTo(CW - PAD_RIGHT, gainY);
+      curveCtx.lineTo(PAD_LEFT, gainY);
+      curveCtx.closePath();
+      const scFill = curveCtx.createLinearGradient(0, gainY, 0, CH - PAD_BOTTOM);
+      scFill.addColorStop(0, 'rgba(255,200,100,0.25)');
+      scFill.addColorStop(1, 'rgba(255,200,100,0.05)');
+      curveCtx.fillStyle = scFill;
+      curveCtx.fill();
+
+      curveCtx.beginPath();
+      curveCtx.moveTo(PAD_LEFT, gainY);
+      curveCtx.lineTo(CW - PAD_RIGHT, gainY);
+      curveCtx.strokeStyle = '#ffc864';
+      curveCtx.lineWidth = 2;
+      curveCtx.stroke();
+
+      curveCtx.fillStyle = '#ffc864';
+      curveCtx.font = '10px "Arial Narrow", Arial, sans-serif';
+      curveCtx.textAlign = 'left';
+      curveCtx.fillText('SIDECHAIN  ' + Math.round(currentGainFromDSP * 100) + '%', PAD_LEFT + 4, PAD_TOP + 14);
+
+    } else {
+      // LFO / MIDI MODE — animated envelope curve
+      const STEPS = 240;
+
+      // Fill under curve
+      curveCtx.beginPath();
+      curveCtx.moveTo(PAD_LEFT, CH - PAD_BOTTOM);
+      for (let i = 0; i <= STEPS; i++) {
+        const xNorm   = i / STEPS;
+        const sampleX = (xNorm + animOffset) % 1;
+        const vol = getEnvelopeY(sampleX);
+        curveCtx.lineTo(PAD_LEFT + xNorm * DRAW_W, PAD_TOP + (1 - vol) * DRAW_H);
+      }
+      curveCtx.lineTo(PAD_LEFT + DRAW_W, CH - PAD_BOTTOM);
+      curveCtx.closePath();
+      const fillGrad = curveCtx.createLinearGradient(0, PAD_TOP, 0, CH - PAD_BOTTOM);
+      fillGrad.addColorStop(0,   'rgba(255,200,100,0.18)');
+      fillGrad.addColorStop(0.5, 'rgba(255,200,100,0.08)');
+      fillGrad.addColorStop(1,   'rgba(255,200,100,0.02)');
+      curveCtx.fillStyle = fillGrad;
+      curveCtx.fill();
+
+      // Curve stroke (glow + crisp)
+      curveCtx.beginPath();
+      for (let i = 0; i <= STEPS; i++) {
+        const xNorm   = i / STEPS;
+        const sampleX = (xNorm + animOffset) % 1;
+        const vol = getEnvelopeY(sampleX);
+        const px = PAD_LEFT + xNorm * DRAW_W;
+        const py = PAD_TOP + (1 - vol) * DRAW_H;
+        if (i === 0) curveCtx.moveTo(px, py);
+        else curveCtx.lineTo(px, py);
+      }
+      curveCtx.strokeStyle = 'rgba(255,200,100,0.25)';
+      curveCtx.lineWidth = 5;
+      curveCtx.lineJoin = 'round';
+      curveCtx.lineCap = 'round';
+      curveCtx.stroke();
+
+      curveCtx.strokeStyle = '#ffc864';
+      curveCtx.lineWidth = 1.8;
+      curveCtx.stroke();
+
+      // Phase playhead
+      const phX = PAD_LEFT + ((1 - animOffset) % 1) * DRAW_W;
+      const phGrad = curveCtx.createLinearGradient(phX, PAD_TOP, phX, CH - PAD_BOTTOM);
+      phGrad.addColorStop(0,   'rgba(255,200,100,0)');
+      phGrad.addColorStop(0.5, 'rgba(255,200,100,0.55)');
+      phGrad.addColorStop(1,   'rgba(255,200,100,0)');
+      curveCtx.beginPath();
+      curveCtx.moveTo(phX, PAD_TOP);
+      curveCtx.lineTo(phX, CH - PAD_BOTTOM);
+      curveCtx.strokeStyle = phGrad;
+      curveCtx.lineWidth = 1;
+      curveCtx.stroke();
+
+      // Mode label
+      if (effectiveModeDSP === 2) {
+        curveCtx.fillStyle = 'rgba(255,200,100,0.5)';
+        curveCtx.font = '10px "Arial Narrow", Arial, sans-serif';
+        curveCtx.textAlign = 'left';
+        curveCtx.fillText('MIDI', PAD_LEFT + 4, PAD_TOP + 14);
+      }
+    }
+
+    requestAnimationFrame(drawCurve);
+  }
+
+  /* ============================================================
+     JUCE PARAMETER BINDING
+     ============================================================ */
+  function bindJuceParameters() {
+    ['depth', 'attack', 'release', 'mix'].forEach(param => {
+      const sliderState = Juce.getSliderState(param);
+      const knobEl = document.getElementById(param + '-knob');
+      if (knobEl) {
+        const initVal = sliderState.getNormalisedValue();
+        knobEl.dataset.value = initVal;
+        const canvas = knobEl.querySelector('canvas');
+        if (canvas) drawKnob(canvas, initVal);
+        state[param] = initVal;
+        const readout = document.getElementById(param + '-readout');
+        if (readout) {
+          switch (param) {
+            case 'depth':   readout.textContent = formatDepth(initVal);   break;
+            case 'attack':  readout.textContent = formatAttack(initVal);  break;
+            case 'release': readout.textContent = formatRelease(initVal); break;
+            case 'mix':     readout.textContent = formatMix(initVal);     break;
+          }
+        }
+      }
+      sliderState.valueChangedEvent.addListener(() => {
+        if (draggingParams.has(param)) return;
+        const newNorm = sliderState.getNormalisedValue();
+        updateKnob(param, newNorm);
+      });
+    });
+
+    ['mode', 'rate'].forEach(param => {
+      const comboState = Juce.getComboBoxState(param);
+      const idx = comboState.getChoiceIndex();
+      state[param] = idx;
+      document.querySelectorAll('.led-btn[data-group="' + param + '"]')
+        .forEach(b => b.classList.remove('active'));
+      const activeBtn = document.querySelector(
+        '.led-btn[data-group="' + param + '"][data-value="' + idx + '"]'
+      );
+      if (activeBtn) activeBtn.classList.add('active');
+
+      comboState.valueChangedEvent.addListener(() => {
+        const newIdx = comboState.getChoiceIndex();
+        state[param] = newIdx;
+        document.querySelectorAll('.led-btn[data-group="' + param + '"]')
+          .forEach(b => b.classList.remove('active'));
+        const btn = document.querySelector(
+          '.led-btn[data-group="' + param + '"][data-value="' + newIdx + '"]'
+        );
+        if (btn) btn.classList.add('active');
+      });
+    });
+
+    // Shape — bind to tile grid
+    {
+      const comboState = Juce.getComboBoxState('shape');
+      const idx = comboState.getChoiceIndex();
+      state.shape = idx;
+      currentShape = idx;
+      document.querySelectorAll('.shape-tile').forEach(t => t.classList.remove('active'));
+      const activeTile = document.querySelector('.shape-tile[data-shape-idx="' + idx + '"]');
+      if (activeTile) activeTile.classList.add('active');
+      redrawAllShapeTiles();
+
+      comboState.valueChangedEvent.addListener(() => {
+        const newIdx = comboState.getChoiceIndex();
+        state.shape = newIdx;
+        currentShape = newIdx;
+        document.querySelectorAll('.shape-tile').forEach(t => t.classList.remove('active'));
+        const tile = document.querySelector('.shape-tile[data-shape-idx="' + newIdx + '"]');
+        if (tile) tile.classList.add('active');
+        redrawAllShapeTiles();
+      });
+    }
+  }
+
+  /* ============================================================
+     BOOT
+     ============================================================ */
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.knob-face').forEach(knob => {
+      const canvas = knob.querySelector('canvas');
+      drawKnob(canvas, parseFloat(knob.dataset.value));
+    });
+
+    redrawAllShapeTiles();
+    requestAnimationFrame(drawCurve);
+
+    function tryBindJuce() {
+      if (window.__JUCE__ && window.Juce) {
+        bindJuceParameters();
+      } else {
+        setTimeout(tryBindJuce, 50);
+      }
+    }
+    tryBindJuce();
+  });
+
+</script>
+</body>
+</html>
+<script>
+// ── v2 Simulation: animate without JUCE backend ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Draw animated curve on canvas
+  const canvas = document.getElementById('curve-canvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let phase = 0;
+    function drawSim() {
+      phase += 0.015;
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      // Grid
+      ctx.strokeStyle = 'rgba(255,200,100,0.06)';
+      ctx.lineWidth = 0.5;
+      for (let y = 0; y < h; y += h/5) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+      // Envelope curve
+      ctx.strokeStyle = '#ffc864';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#ffc864';
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const t = ((x/w) * 2 + phase) % 1;
+        const v = 0.1 + 0.8 * (1 - Math.exp(-t * 5));
+        ctx.lineTo(x, h * 0.1 + (1 - v) * h * 0.8);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      requestAnimationFrame(drawSim);
+    }
+    drawSim();
+  }
+
+  // Animate knob readouts
+  const readouts = { 'depth-readout': 80, 'mix-readout': 100 };
+  Object.entries(readouts).forEach(([id, base]) => {
+    const el = document.getElementById(id);
+    if (el) setInterval(() => {
+      const v = base + (Math.random() - 0.5) * 5;
+      el.textContent = Math.round(v) + '%';
+    }, 2000);
+  });
+
+  // Cycle shape buttons
+  const shapeGrid = document.getElementById('shape-grid');
+  if (shapeGrid) {
+    const btns = shapeGrid.querySelectorAll('button, .shape-btn, [data-shape]');
+    let si = 0;
+    if (btns.length > 0) setInterval(() => {
+      btns.forEach(b => b.classList.remove('active'));
+      si = (si + 1) % btns.length;
+      btns[si].classList.add('active');
+    }, 4000);
+  }
+
+  console.log('[NRGduck v2-test] Simulation running');
+});
+</script>

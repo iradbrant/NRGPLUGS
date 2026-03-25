@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NRGmeters5000</title>
+
+  <!--
+    PRODUCTION HTML — NRGmeters5000 v4 (Resizable Layout)
+    =====================================================
+    Copy this file to Source/ui/public/index.html during Stage 3 implementation.
+    The JUCE frontend library must be present at js/juce/index.js.
+
+    This file is served from BinaryData by the C++ resource provider in
+    MainComponent.cpp. All canvas animation and JUCE parameter messaging is
+    handled in the <script> section below.
+
+    Generated: 2026-03-22
+    Updated:   2026-03-24 — Resizable panel layout with drag handles
+    Source: v4-ui.yaml + v4-ui-test.html
+    Window: 1400 x 800 px (base design, now resizable panels)
+    Parameters: 7 (5 combo, 1 slider, 1 toggle)
+  -->
+
+  <!-- JUCE frontend library — served from BinaryData at runtime -->
+  <script type="module">
+    import * as Juce from "./js/juce/index.js";
+    window.Juce = Juce;
+  </script>
+
+  <style>
+    /* ── WEBVIEW REQUIRED ── */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      /* REQUIRED: native application feel */
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: default;
+      overflow: hidden;
+      background: #111111;
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      width: 1400px;
+      height: 800px;
+    }
+
+    /* ── APP SHELL — CSS Grid for resizable layout ── */
+    .app-shell {
+      width: 1400px;
+      height: 800px;
+      background: #111111;
+      display: grid;
+      grid-template-rows: 52px 1fr 5px auto;
+      grid-template-columns: 1fr;
+      position: relative;
+    }
+
+    /* ── HEADER BAR ── */
+    .header-bar {
+      background: #1a1a1a;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 0;
+      flex-shrink: 0;
+      position: relative;
+      min-height: 52px;
+    }
+
+    .app-title {
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: #ffc864;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-right: 28px;
+      flex-shrink: 0;
+      text-shadow: 0 0 12px rgba(255, 200, 100, 0.25);
+    }
+
+    /* Header control groups */
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .ctrl-label {
+      font-size: 9px;
+      color: #999999;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+      white-space: nowrap;
+    }
+
+    /* Dropdowns */
+    select.hdr-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: #222222;
+      color: #ffffff;
+      border: 1px solid #444444;
+      border-radius: 2px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      height: 26px;
+      padding: 0 20px 0 8px;
+      cursor: pointer;
+      outline: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+    }
+
+    select.hdr-select:hover {
+      border-color: #00aa00;
+    }
+
+    select.hdr-select.wide    { width: 220px; }
+    select.hdr-select.medium  { width: 100px; }
+    select.hdr-select.med-wide { width: 110px; }
+    select.hdr-select.narrow  { width: 72px; }
+
+    /* Spectrum analyzer settings sliders */
+    .ctrl-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input[type="range"].ctrl-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 70px;
+      height: 4px;
+      background: #333333;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"].ctrl-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 10px;
+      height: 16px;
+      background: #888888;
+      border-radius: 2px;
+      border: 1px solid #555;
+      cursor: pointer;
+    }
+
+    input[type="range"].ctrl-slider::-webkit-slider-thumb:hover {
+      background: #aaaaaa;
+    }
+
+    .ctrl-readout {
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+      color: #33ff33;
+      width: 40px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* REF LEVEL control */
+    .ref-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .ref-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="range"].ref-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 110px;
+      height: 4px;
+      background: #333333;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"].ref-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 18px;
+      background: #888888;
+      border-radius: 2px;
+      border: 1px solid #555;
+      cursor: pointer;
+    }
+
+    input[type="range"].ref-slider::-webkit-slider-thumb:hover {
+      background: #aaaaaa;
+    }
+
+    .ref-readout {
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      color: #33ff33;
+      width: 52px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* REC button */
+    .header-spacer {
+      flex: 1;
+    }
+
+    .rec-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .rec-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 2px;
+      padding: 0 12px;
+      height: 26px;
+      cursor: pointer;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #888888;
+      letter-spacing: 1px;
+      transition: border-color 0.1s;
+    }
+
+    .rec-btn.active {
+      border-color: #ff3333;
+      color: #ffffff;
+    }
+
+    .rec-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #444444;
+      flex-shrink: 0;
+    }
+
+    .rec-btn.active .rec-dot {
+      background: #ff3333;
+      box-shadow: 0 0 6px #ff3333;
+    }
+
+    /* Mode toggle buttons */
+    .mode-btn {
+      appearance: none;
+      -webkit-appearance: none;
+      background: #222222;
+      color: #888888;
+      border: 1px solid #444444;
+      border-radius: 2px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      height: 26px;
+      padding: 0 10px;
+      cursor: pointer;
+      outline: none;
+      letter-spacing: 0.5px;
+      transition: border-color 0.1s, color 0.1s;
+    }
+
+    .mode-btn:hover {
+      border-color: #00aa00;
+    }
+
+    .mode-btn.active {
+      background: #1a331a;
+      border-color: #00cc00;
+      color: #33ff33;
+    }
+
+    /* ── SPECTRUM PANEL ── */
+    .spectrum-section {
+      background: #111111;
+      border-bottom: 1px solid #2a2a2a;
+      padding: 8px 15px 0 15px;
+      position: relative;
+      overflow: hidden;
+      min-height: 120px;
+    }
+
+    .spectrum-canvas-wrap {
+      width: 100%;
+      height: calc(100% - 8px);
+      background: #0a0a0a;
+      border: 1px solid #1e1e1e;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .spectrum-canvas-wrap canvas {
+      display: block;
+    }
+
+    /* ── HORIZONTAL DRAG HANDLE (between spectrum and bottom) ── */
+    .h-drag-handle {
+      background: #1a1a1a;
+      cursor: row-resize;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .h-drag-handle:hover,
+    .h-drag-handle.dragging {
+      background: #00cc00;
+    }
+
+    .h-drag-handle .grip {
+      width: 40px;
+      height: 1px;
+      background: #444;
+      border-radius: 1px;
+    }
+
+    .h-drag-handle:hover .grip,
+    .h-drag-handle.dragging .grip {
+      background: #111;
+    }
+
+    /* ── BOTTOM ROW ── */
+    .bottom-row {
+      display: flex;
+      flex: 0 0 auto;
+      background: #111111;
+      overflow: hidden;
+      min-height: 100px;
+    }
+
+    /* Panel base */
+    .analysis-panel {
+      display: flex;
+      flex-direction: column;
+      background: #111111;
+      position: relative;
+      overflow: hidden;
+      min-width: 100px;
+    }
+
+    .analysis-panel + .v-drag-handle + .analysis-panel {
+      /* handled by v-drag-handle border */
+    }
+
+    /* Vertical drag handle (between bottom panels) */
+    .v-drag-handle {
+      width: 5px;
+      cursor: col-resize;
+      background: #1a1a1a;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .v-drag-handle:hover,
+    .v-drag-handle.dragging {
+      background: #00cc00;
+    }
+
+    /* Panel section header */
+    .panel-header {
+      height: 22px;
+      background: #161616;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      flex-shrink: 0;
+    }
+
+    .panel-title {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10px;
+      color: #888888;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+
+    /* Canvas areas */
+    .panel-canvas-area {
+      flex: 1;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-canvas-area canvas {
+      display: block;
+    }
+
+    /* ── RESET LAYOUT BUTTON ── */
+    .reset-layout-btn {
+      position: absolute;
+      bottom: 3px;
+      right: 6px;
+      background: none;
+      border: none;
+      color: #444;
+      font-size: 9px;
+      cursor: pointer;
+      padding: 2px 4px;
+      font-family: Arial, sans-serif;
+      z-index: 20;
+    }
+
+    .reset-layout-btn:hover {
+      color: #00cc00;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- Hidden relay elements for controls removed from UI but still bound in C++ -->
+<select id="fft_size" style="display:none"><option selected>4096</option></select>
+<select id="fft_window" style="display:none"><option selected>HANN</option></select>
+<select id="meter_ballistics" style="display:none"><option selected>PEAK</option></select>
+<select id="peak_hold" style="display:none"><option selected>OFF</option></select>
+
+<div class="app-shell" id="app-shell">
+
+  <!-- ── HEADER BAR ── -->
+  <div class="header-bar">
+    <span class="app-title">NRGMETERS5000</span>
+
+    <!-- INPUT DEVICE — bound to audio_device parameter -->
+    <div class="ctrl-group">
+      <span class="ctrl-label">Input Device</span>
+      <select class="hdr-select wide" id="audio_device">
+        <option>Loading devices...</option>
+      </select>
+    </div>
+
+    <!-- REF LEVEL — bound to reference_level parameter -->
+    <div class="ref-group">
+      <span class="ctrl-label">Ref Level</span>
+      <div class="ref-row">
+        <input type="range" class="ref-slider" id="reference_level"
+               min="-24" max="0" step="0.5" value="-18" />
+        <span class="ref-readout" id="ref-readout">-18.0 dBFS</span>
+      </div>
+    </div>
+
+    <!-- DISPLAY RANGE — JS-only spectrum setting -->
+    <div class="ctrl-group">
+      <span class="ctrl-label">Disp Range</span>
+      <select class="hdr-select narrow" id="display_range">
+        <option value="10">10 dB</option>
+        <option value="20">20 dB</option>
+        <option value="30" selected>30 dB</option>
+        <option value="40">40 dB</option>
+        <option value="50">50 dB</option>
+        <option value="60">60 dB</option>
+      </select>
+    </div>
+
+    <!-- DISPLAY RESOLUTION — JS-only spectrum setting -->
+    <div class="ctrl-group">
+      <span class="ctrl-label">Disp Res</span>
+      <select class="hdr-select narrow" id="display_resolution">
+        <option value="0.5" selected>0.5 dB</option>
+        <option value="1">1 dB</option>
+        <option value="2">2 dB</option>
+        <option value="3">3 dB</option>
+      </select>
+    </div>
+
+    <!-- RELEASE TIME — JS-only spectrum setting -->
+    <div class="ctrl-group">
+      <span class="ctrl-label">Release</span>
+      <div class="ctrl-slider-row">
+        <input type="range" class="ctrl-slider" id="release_time"
+               min="0.05" max="2.0" step="0.05" value="0.3" />
+        <span class="ctrl-readout" id="release_readout">0.30s</span>
+      </div>
+    </div>
+
+    <!-- RISE TIME — JS-only spectrum setting -->
+    <div class="ctrl-group">
+      <span class="ctrl-label">Rise</span>
+      <div class="ctrl-slider-row">
+        <input type="range" class="ctrl-slider" id="rise_time"
+               min="1" max="50" step="1" value="7" />
+        <span class="ctrl-readout" id="rise_readout">7ms</span>
+      </div>
+    </div>
+
+    <!-- DUAL MODE TOGGLE BUTTONS -->
+    <div class="ctrl-group" style="margin-left: 8px;">
+      <span class="ctrl-label">Dual Mode</span>
+      <div style="display:flex; gap:4px;">
+        <button class="mode-btn" id="btn-st-mono">ST / MONO</button>
+        <button class="mode-btn" id="btn-st-side">ST / SIDE</button>
+      </div>
+    </div>
+
+    <div class="header-spacer"></div>
+
+    <!-- REC — bound to record_active parameter -->
+    <div class="rec-group">
+      <span class="ctrl-label">Record</span>
+      <div class="rec-btn" id="rec-btn">
+        <span class="rec-dot" id="rec-dot"></span>
+        <span>REC</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SPECTRUM SECTION ── -->
+  <div class="spectrum-section" id="spectrum-section">
+    <div class="spectrum-canvas-wrap">
+      <canvas id="spectrumCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- ── HORIZONTAL DRAG HANDLE ── -->
+  <div class="h-drag-handle" id="h-drag">
+    <span class="grip"></span>
+  </div>
+
+  <!-- ── BOTTOM ROW ── -->
+  <div class="bottom-row" id="bottom-row">
+
+    <!-- GONIOMETER -->
+    <div class="analysis-panel" id="panel-gonio" style="flex: 0 0 350px;">
+      <div class="panel-header">
+        <span class="panel-title">Goniometer / Vectorscope</span>
+      </div>
+      <div class="panel-canvas-area">
+        <canvas id="gonioCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- VERTICAL DRAG HANDLE 1 -->
+    <div class="v-drag-handle" id="v-drag-1"></div>
+
+    <!-- PHASE CORRELATION -->
+    <div class="analysis-panel" id="panel-phase" style="flex: 0 0 350px;">
+      <div class="panel-header">
+        <span class="panel-title">Phase Correlation</span>
+      </div>
+      <div class="panel-canvas-area">
+        <canvas id="phaseCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- VERTICAL DRAG HANDLE 2 -->
+    <div class="v-drag-handle" id="v-drag-2"></div>
+
+    <!-- LEVEL METERS -->
+    <div class="analysis-panel" id="panel-meters" style="flex: 1;">
+      <div class="panel-header">
+        <span class="panel-title">Level Meters / LUFS</span>
+      </div>
+      <div class="panel-canvas-area">
+        <canvas id="metersCanvas"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="reset-layout-btn" id="reset-layout" title="Reset panel layout to default">RESET LAYOUT</button>
+</div>
+
+<script>
+  // ============================================================================
+  // NRGmeters5000 — Production UI Script (Resizable Layout)
+  // ============================================================================
+
+  // ── REQUIRED: Disable context menu for native application feel ──
+  document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    return false;
+  });
+
+  // ============================================================================
+  // LAYOUT PERSISTENCE + DRAG-TO-RESIZE
+  // ============================================================================
+  const LAYOUT_KEY = "nrg5k_layout";
+  const HEADER_H = 52;
+  const HANDLE_H = 5;
+  const SHELL_W = 1400;
+  const SHELL_H = 800;
+  const MIN_PANEL_W = 100;
+  const MIN_SPECTRUM_H = 120;
+  const MIN_BOTTOM_H = 100;
+
+  // Default layout: spectrum gets ~55% of available space
+  const defaultLayout = {
+    spectrumH: 434,
+    gonioW: 350,
+    phaseW: 350
+    // metersW is computed as remainder
+  };
+
+  function loadLayout() {
+    try {
+      const saved = localStorage.getItem(LAYOUT_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return { ...defaultLayout };
+  }
+
+  function saveLayout(layout) {
+    try {
+      localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout));
+    } catch (e) {}
+  }
+
+  const layout = loadLayout();
+
+  const appShell     = document.getElementById("app-shell");
+  const specSection  = document.getElementById("spectrum-section");
+  const hDrag        = document.getElementById("h-drag");
+  const bottomRow    = document.getElementById("bottom-row");
+  const panelGonio   = document.getElementById("panel-gonio");
+  const panelPhase   = document.getElementById("panel-phase");
+  const panelMeters  = document.getElementById("panel-meters");
+  const vDrag1       = document.getElementById("v-drag-1");
+  const vDrag2       = document.getElementById("v-drag-2");
+
+  function applyLayout() {
+    const availH = SHELL_H - HEADER_H - HANDLE_H;
+    const specH = Math.max(MIN_SPECTRUM_H, Math.min(availH - MIN_BOTTOM_H, layout.spectrumH));
+    const bottomH = availH - specH;
+
+    appShell.style.gridTemplateRows = `${HEADER_H}px ${specH}px ${HANDLE_H}px ${bottomH}px`;
+
+    const totalHandleW = 10; // 2 vertical handles at 5px each
+    const availW = SHELL_W - totalHandleW;
+    const gonioW = Math.max(MIN_PANEL_W, Math.min(availW - 2 * MIN_PANEL_W, layout.gonioW));
+    const phaseW = Math.max(MIN_PANEL_W, Math.min(availW - gonioW - MIN_PANEL_W, layout.phaseW));
+    const metersW = availW - gonioW - phaseW;
+
+    panelGonio.style.flex = `0 0 ${gonioW}px`;
+    panelPhase.style.flex = `0 0 ${phaseW}px`;
+    panelMeters.style.flex = `0 0 ${metersW}px`;
+
+    layout.spectrumH = specH;
+    layout.gonioW = gonioW;
+    layout.phaseW = phaseW;
+  }
+
+  applyLayout();
+
+  // ── Horizontal drag (spectrum ↔ bottom) ──
+  let hDragging = false;
+  let hDragStartY = 0;
+  let hDragStartSpecH = 0;
+
+  hDrag.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    hDragging = true;
+    hDragStartY = e.clientY;
+    hDragStartSpecH = layout.spectrumH;
+    hDrag.classList.add("dragging");
+    document.body.style.cursor = "row-resize";
+  });
+
+  // ── Vertical drag 1 (gonio ↔ phase) ──
+  let vDrag1Active = false;
+  let vDrag1StartX = 0;
+  let vDrag1StartGonioW = 0;
+
+  vDrag1.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    vDrag1Active = true;
+    vDrag1StartX = e.clientX;
+    vDrag1StartGonioW = layout.gonioW;
+    vDrag1.classList.add("dragging");
+    document.body.style.cursor = "col-resize";
+  });
+
+  // ── Vertical drag 2 (phase ↔ meters) ──
+  let vDrag2Active = false;
+  let vDrag2StartX = 0;
+  let vDrag2StartPhaseW = 0;
+
+  vDrag2.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    vDrag2Active = true;
+    vDrag2StartX = e.clientX;
+    vDrag2StartPhaseW = layout.phaseW;
+    vDrag2.classList.add("dragging");
+    document.body.style.cursor = "col-resize";
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    // Account for body zoom when calculating delta
+    const zoom = parseFloat(document.body.style.zoom) || 1;
+
+    if (hDragging) {
+      const dy = (e.clientY - hDragStartY) / zoom;
+      layout.spectrumH = hDragStartSpecH + dy;
+      applyLayout();
+    }
+    if (vDrag1Active) {
+      const dx = (e.clientX - vDrag1StartX) / zoom;
+      layout.gonioW = vDrag1StartGonioW + dx;
+      applyLayout();
+    }
+    if (vDrag2Active) {
+      const dx = (e.clientX - vDrag2StartX) / zoom;
+      layout.phaseW = vDrag2StartPhaseW + dx;
+      applyLayout();
+    }
+  });
+
+  document.addEventListener("mouseup", () => {
+    if (hDragging || vDrag1Active || vDrag2Active) {
+      hDragging = false;
+      vDrag1Active = false;
+      vDrag2Active = false;
+      hDrag.classList.remove("dragging");
+      vDrag1.classList.remove("dragging");
+      vDrag2.classList.remove("dragging");
+      document.body.style.cursor = "default";
+      saveLayout(layout);
+    }
+  });
+
+  // ── Reset layout button ──
+  document.getElementById("reset-layout").addEventListener("click", () => {
+    layout.spectrumH = defaultLayout.spectrumH;
+    layout.gonioW = defaultLayout.gonioW;
+    layout.phaseW = defaultLayout.phaseW;
+    applyLayout();
+    saveLayout(layout);
+  });
+
+  // ============================================================================
+  // CANVAS AUTO-SIZING — polled each frame (compatible with all WebKit versions)
+  // ============================================================================
+
+  let gonioFirstFrame = true;
+
+  const specCanvas   = document.getElementById("spectrumCanvas");
+  const specCtx      = specCanvas.getContext("2d");
+  const specWrap     = specCanvas.parentElement;
+
+  const gonioCanvas  = document.getElementById("gonioCanvas");
+  const gonioCtx     = gonioCanvas.getContext("2d");
+  const gonioArea    = gonioCanvas.parentElement;
+
+  const phaseCanvas  = document.getElementById("phaseCanvas");
+  const phaseCtx     = phaseCanvas.getContext("2d");
+  const phaseArea    = phaseCanvas.parentElement;
+
+  const metersCanvas = document.getElementById("metersCanvas");
+  const metersCtx    = metersCanvas.getContext("2d");
+  const metersArea   = metersCanvas.parentElement;
+
+  // Resize a canvas to match its container's client dimensions.
+  // Called once per frame before drawing.
+  function syncCanvasSize(canvas, container) {
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    if (w > 0 && h > 0 && (canvas.width !== w || canvas.height !== h)) {
+      canvas.width = w;
+      canvas.height = h;
+      if (canvas === gonioCanvas) gonioFirstFrame = true;
+      return true;
+    }
+    return false;
+  }
+
+  // ============================================================================
+  // JUCE PARAMETER BINDINGS
+  // ============================================================================
+
+  function initJuceBindings() {
+    if (typeof window.Juce === "undefined" || typeof window.Juce.getComboBoxState !== "function") {
+      setTimeout(initJuceBindings, 50);
+      return;
+    }
+
+    try {
+
+    // ── audio_device combo ──
+    const audioDeviceState = Juce.getComboBoxState("audio_device");
+    const audioDeviceEl = document.getElementById("audio_device");
+    audioDeviceEl.selectedIndex = audioDeviceState.getChoiceIndex();
+    audioDeviceEl.addEventListener("change", () => {
+      audioDeviceState.setChoiceIndex(audioDeviceEl.selectedIndex);
+    });
+    audioDeviceState.valueChangedEvent.addListener(() => {
+      audioDeviceEl.selectedIndex = audioDeviceState.getChoiceIndex();
+    });
+
+    // ── Hidden relay bindings for removed controls ──
+    try { Juce.getComboBoxState("fft_size"); } catch(e) {}
+    try { Juce.getComboBoxState("fft_window"); } catch(e) {}
+    try { Juce.getComboBoxState("meter_ballistics"); } catch(e) {}
+    try { Juce.getComboBoxState("peak_hold"); } catch(e) {}
+
+    // ── reference_level slider ──
+    const refLevelState = Juce.getSliderState("reference_level");
+    const refSliderEl = document.getElementById("reference_level");
+    const refReadoutEl = document.getElementById("ref-readout");
+
+    function normToRefDb(norm) { return -24.0 + norm * 24.0; }
+    function refDbToNorm(db) { return (db + 24.0) / 24.0; }
+    function updateRefReadout(db) { refReadoutEl.textContent = db.toFixed(1) + " dBFS"; }
+
+    const initialRefDb = normToRefDb(refLevelState.getNormalisedValue());
+    refSliderEl.value = String(initialRefDb);
+    updateRefReadout(initialRefDb);
+
+    refSliderEl.addEventListener("input", () => {
+      const db = parseFloat(refSliderEl.value);
+      updateRefReadout(db);
+      refLevelState.setNormalisedValue(refDbToNorm(db));
+    });
+    refLevelState.valueChangedEvent.addListener(() => {
+      const db = normToRefDb(refLevelState.getNormalisedValue());
+      refSliderEl.value = String(db);
+      updateRefReadout(db);
+    });
+
+    // ── record_active toggle ──
+    const recActiveState = Juce.getToggleState("record_active");
+    const recBtnEl = document.getElementById("rec-btn");
+
+    function updateRecUI(active) {
+      recBtnEl.classList.toggle("active", active);
+    }
+    updateRecUI(recActiveState.getValue());
+
+    recBtnEl.addEventListener("click", () => {
+      const newVal = !recActiveState.getValue();
+      recActiveState.setValue(newVal);
+      updateRecUI(newVal);
+    });
+    recActiveState.valueChangedEvent.addListener(() => {
+      updateRecUI(recActiveState.getValue());
+    });
+
+    } catch (e) {
+      console.error("initJuceBindings error (non-fatal):", e);
+    }
+  }
+
+  initJuceBindings();
+
+  // ============================================================================
+  // DUAL MODE TOGGLE BUTTONS
+  // ============================================================================
+  const btnStMono = document.getElementById("btn-st-mono");
+  const btnStSide = document.getElementById("btn-st-side");
+
+  // Dual mode state: null = single, "mono" or "side"
+  let dualMode = null;
+
+  function setDualMode(mode) {
+    dualMode = mode;
+    btnStMono.classList.toggle("active", mode === "mono");
+    btnStSide.classList.toggle("active", mode === "side");
+  }
+
+  btnStMono.addEventListener("click", () => {
+    setDualMode(dualMode === "mono" ? null : "mono");
+  });
+  btnStSide.addEventListener("click", () => {
+    setDualMode(dualMode === "side" ? null : "side");
+  });
+
+  // ============================================================================
+  // ANALYSIS DATA RECEIVERS
+  // ============================================================================
+
+  let liveBandLevels = null;
+  let liveMonoLevels = null;
+  let liveSideLevels = null;
+  let liveMeterLevels = null;
+  let liveLufs = -100;
+  let liveGonioDots = null;
+  let livePhaseValue = null;
+
+  window.nrgUpdateSpectrum = function(bandLevels) {
+    liveBandLevels = bandLevels;
+  };
+
+  window.nrgUpdateSpectrumMono = function(bandLevels) {
+    liveMonoLevels = bandLevels;
+  };
+
+  window.nrgUpdateSpectrumSide = function(bandLevels) {
+    liveSideLevels = bandLevels;
+  };
+
+  window.nrgUpdateMeters = function(levels, lufs) {
+    liveMeterLevels = levels;
+    liveLufs = lufs;
+  };
+
+  window.nrgUpdateGoniometer = function(xValues, yValues) {
+    liveGonioDots = [];
+    for (let i = 0; i < xValues.length; i++) {
+      liveGonioDots.push({ x: xValues[i], y: yValues[i] });
+    }
+  };
+
+  window.nrgUpdatePhase = function(correlationValue) {
+    livePhaseValue = correlationValue;
+  };
+
+  // ============================================================================
+  // CANVAS RENDERING — SPECTRUM ANALYZER (1/3 OCTAVE BLOCK BARS)
+  // ============================================================================
+  // All dimensions are now read from canvas.width / canvas.height each frame.
+
+  const BAND_FREQS = [
+    20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160,
+    200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600,
+    2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000
+  ];
+
+  const BAND_LABELS = [
+    "20", "25", "31", "40", "50", "63", "80", "100", "125", "160",
+    "200", "250", "315", "400", "500", "630", "800", "1k", "1k2", "1k6",
+    "2k", "2k5", "3k1", "4k", "5k", "6k3", "8k", "10k", "12k", "16k", "20k"
+  ];
+
+  const NUM_BANDS = BAND_FREQS.length;
+
+  const DB_MAX = 0;
+
+  const THRESH_YELLOW = -12;
+  const THRESH_RED    = -6;
+
+  const COLOR_GREEN  = "#44ff44";
+  const COLOR_YELLOW = "#ffff00";
+  const COLOR_RED    = "#ff4444";
+  const COLOR_UNLIT  = "#111a11";
+
+  const GRID_FREQS = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+
+  // ── DIGIcheck-style spectrum analyzer settings ──
+  let specDisplayRange = 30;
+  let specDisplayRes   = 0.5;
+  let specReleaseTime  = 0.3;
+  let specRiseTime     = 7;
+
+  const smoothedBandLevels = new Float32Array(NUM_BANDS).fill(-120);
+  const smoothedMonoLevels = new Float32Array(NUM_BANDS).fill(-120);
+  const smoothedSideLevels = new Float32Array(NUM_BANDS).fill(-120);
+
+  const displayRangeEl  = document.getElementById("display_range");
+  const displayResEl    = document.getElementById("display_resolution");
+  const releaseTimeEl   = document.getElementById("release_time");
+  const releaseReadout  = document.getElementById("release_readout");
+  const riseTimeEl      = document.getElementById("rise_time");
+  const riseReadout     = document.getElementById("rise_readout");
+
+  displayRangeEl.addEventListener("change", () => {
+    specDisplayRange = parseFloat(displayRangeEl.value);
+  });
+  displayResEl.addEventListener("change", () => {
+    specDisplayRes = parseFloat(displayResEl.value);
+  });
+  releaseTimeEl.addEventListener("input", () => {
+    specReleaseTime = parseFloat(releaseTimeEl.value);
+    releaseReadout.textContent = specReleaseTime.toFixed(2) + "s";
+  });
+  riseTimeEl.addEventListener("input", () => {
+    specRiseTime = parseFloat(riseTimeEl.value);
+    riseReadout.textContent = specRiseTime + "ms";
+  });
+
+  function getDbMin() { return -specDisplayRange; }
+  function getNumSegs() { return Math.max(2, Math.floor(specDisplayRange / specDisplayRes)); }
+
+  function segmentColor(segDb) {
+    if (segDb > THRESH_RED)    return COLOR_RED;
+    if (segDb > THRESH_YELLOW) return COLOR_YELLOW;
+    return COLOR_GREEN;
+  }
+
+  function smoothBandsInto(rawLevels, smoothedArray) {
+    const fps = 30;
+    const attackCoeff  = 1.0 - Math.exp(-1.0 / (specRiseTime / 1000 * fps));
+    const releaseCoeff = 1.0 - Math.exp(-1.0 / (specReleaseTime * fps));
+
+    for (let i = 0; i < NUM_BANDS; i++) {
+      const newLevel = rawLevels[i];
+      if (newLevel > smoothedArray[i]) {
+        smoothedArray[i] += (newLevel - smoothedArray[i]) * attackCoeff;
+      } else {
+        smoothedArray[i] += (newLevel - smoothedArray[i]) * releaseCoeff;
+      }
+    }
+    return smoothedArray;
+  }
+
+  function smoothBands(rawLevels) {
+    return smoothBandsInto(rawLevels, smoothedBandLevels);
+  }
+
+  // Fallback simulation
+  const simBandLevels   = new Float32Array(NUM_BANDS);
+  const simBandTargets  = new Float32Array(NUM_BANDS);
+  let simTargetTimer = 0;
+
+  for (let i = 0; i < NUM_BANDS; i++) {
+    const f = BAND_FREQS[i];
+    const octavesFrom1k = Math.log2(f / 1000);
+    const pinkDb = -22 + octavesFrom1k * (-3.0) + (Math.random() - 0.5) * 6;
+    simBandLevels[i]  = Math.max(-60, Math.min(DB_MAX, pinkDb));
+    simBandTargets[i] = simBandLevels[i];
+  }
+
+  function animateSim() {
+    simTargetTimer++;
+    if (simTargetTimer > 6) {
+      for (let i = 0; i < NUM_BANDS; i++) {
+        const f = BAND_FREQS[i];
+        const octavesFrom1k = Math.log2(f / 1000);
+        const variation = (Math.random() - 0.5) * 8;
+        simBandTargets[i] = Math.max(-58, Math.min(-3,
+          -22 + octavesFrom1k * (-3.0) + variation));
+      }
+      simTargetTimer = 0;
+    }
+    for (let i = 0; i < NUM_BANDS; i++) {
+      const diff = simBandTargets[i] - simBandLevels[i];
+      simBandLevels[i] += diff * (diff > 0 ? 0.28 : 0.12);
+      simBandLevels[i] += (Math.random() - 0.5) * 0.4;
+      simBandLevels[i] = Math.max(-60, Math.min(DB_MAX, simBandLevels[i]));
+    }
+  }
+
+  // Draw a single spectrum analyzer into a given vertical region
+  // All coordinates are now relative to canvas dimensions.
+  function drawSpectrumRegion(bandLevels, regionTop, regionH, label, overrideDbRange) {
+    const CW = specCanvas.width;
+    const CH = specCanvas.height;
+
+    const AXIS_PAD_LEFT   = 38;
+    const AXIS_PAD_RIGHT  = 38;
+    const PLOT_W = CW - AXIS_PAD_LEFT - AXIS_PAD_RIGHT;
+
+    const dbMin   = overrideDbRange ? -overrideDbRange : getDbMin();
+    const numSegs = getNumSegs();
+
+    const padTop    = 10;
+    const padBottom = (dualMode ? 16 : 34);
+    const plotH     = regionH - padTop - padBottom;
+    const plotTop   = regionTop + padTop;
+
+    const segStep = plotH / numSegs;
+    const segH    = Math.max(1, segStep - 1);
+
+    const BAR_GAP = 3;
+    const BAR_W   = Math.max(2, Math.floor((PLOT_W - (NUM_BANDS - 1) * BAR_GAP) / NUM_BANDS));
+
+    const gridDbStep = specDisplayRange <= 20 ? 5 : 10;
+
+    function localDbToY(db) {
+      const norm = (DB_MAX - db) / (DB_MAX - dbMin);
+      return plotTop + norm * plotH;
+    }
+
+    function localFreqToX(f) {
+      const logMin = Math.log10(BAND_FREQS[0]);
+      const logMax = Math.log10(BAND_FREQS[NUM_BANDS - 1]);
+      return AXIS_PAD_LEFT + ((Math.log10(f) - logMin) / (logMax - logMin)) * PLOT_W;
+    }
+
+    // Horizontal dB grid
+    specCtx.strokeStyle = "#1a2a1a";
+    specCtx.lineWidth = 1;
+    for (let db = dbMin; db <= DB_MAX; db += gridDbStep) {
+      const y = localDbToY(db);
+      specCtx.beginPath();
+      specCtx.moveTo(AXIS_PAD_LEFT, y);
+      specCtx.lineTo(AXIS_PAD_LEFT + PLOT_W, y);
+      specCtx.stroke();
+    }
+
+    // Vertical frequency grid
+    GRID_FREQS.forEach(f => {
+      if (f < BAND_FREQS[0] || f > BAND_FREQS[NUM_BANDS - 1]) return;
+      const x = localFreqToX(f);
+      specCtx.beginPath();
+      specCtx.moveTo(x, plotTop);
+      specCtx.lineTo(x, plotTop + plotH);
+      specCtx.stroke();
+    });
+
+    // Block bars
+    for (let b = 0; b < NUM_BANDS; b++) {
+      const barX = AXIS_PAD_LEFT + b * (BAR_W + BAR_GAP);
+      const barLevel = bandLevels[b];
+
+      for (let s = 0; s < numSegs; s++) {
+        const segDb = dbMin + (s / (numSegs - 1)) * (DB_MAX - dbMin);
+        const segY  = plotTop + plotH - (s + 1) * segStep + (segStep - segH);
+        const isLit = segDb <= barLevel;
+        specCtx.fillStyle = isLit ? segmentColor(segDb) : COLOR_UNLIT;
+        specCtx.fillRect(barX, segY, BAR_W, segH);
+      }
+    }
+
+    // Plot border
+    specCtx.strokeStyle = "#2a2a2a";
+    specCtx.lineWidth = 1;
+    specCtx.strokeRect(AXIS_PAD_LEFT, plotTop, PLOT_W, plotH);
+
+    // dB axis — left
+    specCtx.font = "9px Arial, sans-serif";
+    specCtx.fillStyle = "#666666";
+    specCtx.textAlign = "right";
+    for (let db = DB_MAX; db >= dbMin; db -= gridDbStep) {
+      const y = localDbToY(db);
+      specCtx.fillText(db === 0 ? "0" : String(db), AXIS_PAD_LEFT - 4, y + 3);
+    }
+
+    // dB axis — right
+    specCtx.textAlign = "left";
+    for (let db = DB_MAX; db >= dbMin; db -= gridDbStep) {
+      const y = localDbToY(db);
+      specCtx.fillText(db === 0 ? "0" : String(db), AXIS_PAD_LEFT + PLOT_W + 5, y + 3);
+    }
+
+    // Label
+    if (label) {
+      specCtx.font = "bold 10px Arial, sans-serif";
+      specCtx.fillStyle = "#555555";
+      specCtx.textAlign = "left";
+      specCtx.fillText(label, AXIS_PAD_LEFT + 6, plotTop + 14);
+    }
+
+    // Frequency axis labels
+    if (!dualMode || regionTop + regionH >= CH - 10) {
+      specCtx.font = "9px Arial, sans-serif";
+      specCtx.fillStyle = "#666666";
+      specCtx.textAlign = "center";
+      const freqAxisBaseY = plotTop + plotH + 10;
+      for (let b = 0; b < NUM_BANDS; b++) {
+        const barX = AXIS_PAD_LEFT + b * (BAR_W + BAR_GAP) + BAR_W / 2;
+        const rowOffset = (b % 2 === 0) ? 0 : (dualMode ? 0 : 13);
+        if (dualMode && b % 2 !== 0) continue;
+        specCtx.fillText(BAND_LABELS[b], barX, freqAxisBaseY + rowOffset);
+      }
+    }
+  }
+
+  function drawSpectrum() {
+    const CW = specCanvas.width;
+    const CH = specCanvas.height;
+    if (CW < 10 || CH < 10) return;
+
+    const rawLevels = liveBandLevels || (animateSim(), simBandLevels);
+    const bandLevels = smoothBands(rawLevels);
+
+    specCtx.clearRect(0, 0, CW, CH);
+    specCtx.fillStyle = "#0a0a0a";
+    specCtx.fillRect(0, 0, CW, CH);
+
+    if (dualMode) {
+      const halfH = Math.floor(CH / 2);
+      drawSpectrumRegion(bandLevels, 0, halfH, "STEREO");
+
+      specCtx.strokeStyle = "#444444";
+      specCtx.lineWidth = 1;
+      specCtx.beginPath();
+      specCtx.moveTo(0, halfH);
+      specCtx.lineTo(CW, halfH);
+      specCtx.stroke();
+
+      if (dualMode === "mono") {
+        const monoRaw = liveMonoLevels || new Float32Array(NUM_BANDS).fill(-60);
+        const monoSmoothed = smoothBandsInto(monoRaw, smoothedMonoLevels);
+        drawSpectrumRegion(monoSmoothed, halfH, CH - halfH, "MONO");
+      } else {
+        const sideRaw = liveSideLevels || new Float32Array(NUM_BANDS).fill(-60);
+        const sideSmoothed = smoothBandsInto(sideRaw, smoothedSideLevels);
+        drawSpectrumRegion(sideSmoothed, halfH, CH - halfH, "SIDE", 50);
+      }
+    } else {
+      drawSpectrumRegion(bandLevels, 0, CH, null);
+    }
+  }
+
+  // ============================================================================
+  // CANVAS RENDERING — GONIOMETER (dynamic size)
+  // ============================================================================
+
+  const simGonioTrail = [];
+  let simGonioT = 0;
+
+  function drawGoniometer() {
+    const GW = gonioCanvas.width;
+    const GH = gonioCanvas.height;
+    if (GW < 10 || GH < 10) return;
+
+    const GCX = GW / 2;
+    const GCY = GH / 2 + 4;
+    const GR = Math.min(GW, GH) / 2 - 20;
+
+    if (gonioFirstFrame) {
+      gonioCtx.fillStyle = "#0a0a0a";
+      gonioCtx.fillRect(0, 0, GW, GH);
+      gonioFirstFrame = false;
+    } else {
+      gonioCtx.fillStyle = "rgba(10, 10, 10, 0.12)";
+      gonioCtx.fillRect(0, 0, GW, GH);
+    }
+
+    // Outer circle
+    gonioCtx.beginPath();
+    gonioCtx.arc(GCX, GCY, GR, 0, Math.PI * 2);
+    gonioCtx.strokeStyle = "#333333";
+    gonioCtx.lineWidth = 1;
+    gonioCtx.stroke();
+
+    // Inner reference circles
+    [GR * 0.66, GR * 0.33].forEach(r => {
+      gonioCtx.beginPath();
+      gonioCtx.arc(GCX, GCY, r, 0, Math.PI * 2);
+      gonioCtx.strokeStyle = "#1e1e1e";
+      gonioCtx.lineWidth = 1;
+      gonioCtx.stroke();
+    });
+
+    // Diamond overlay
+    gonioCtx.beginPath();
+    gonioCtx.moveTo(GCX, GCY - GR);
+    gonioCtx.lineTo(GCX + GR, GCY);
+    gonioCtx.lineTo(GCX, GCY + GR);
+    gonioCtx.lineTo(GCX - GR, GCY);
+    gonioCtx.closePath();
+    gonioCtx.strokeStyle = "#333333";
+    gonioCtx.lineWidth = 1;
+    gonioCtx.stroke();
+
+    // M axis (cyan)
+    gonioCtx.beginPath();
+    gonioCtx.moveTo(GCX, GCY - GR);
+    gonioCtx.lineTo(GCX, GCY + GR);
+    gonioCtx.strokeStyle = "#00cccc";
+    gonioCtx.lineWidth = 1;
+    gonioCtx.stroke();
+
+    // S axis
+    gonioCtx.beginPath();
+    gonioCtx.moveTo(GCX - GR, GCY);
+    gonioCtx.lineTo(GCX + GR, GCY);
+    gonioCtx.strokeStyle = "#2a2a2a";
+    gonioCtx.lineWidth = 1;
+    gonioCtx.stroke();
+
+    // Cardinal labels
+    const fontSize = Math.max(9, Math.min(11, GR / 10));
+    gonioCtx.font = `bold ${fontSize}px Arial, sans-serif`;
+    gonioCtx.textAlign = "center";
+    const labelOffset = GR + 14;
+    gonioCtx.fillStyle = "#555555";
+    gonioCtx.fillText("M", GCX, GCY - labelOffset + 4);
+    gonioCtx.fillText("S", GCX, GCY + labelOffset);
+    gonioCtx.fillText("L", GCX - labelOffset, GCY + 4);
+    gonioCtx.fillText("R", GCX + labelOffset, GCY + 4);
+
+    if (liveGonioDots && liveGonioDots.length > 1) {
+      gonioCtx.beginPath();
+      gonioCtx.moveTo(
+        GCX + liveGonioDots[0].x * GR,
+        GCY - liveGonioDots[0].y * GR
+      );
+      for (let i = 1; i < liveGonioDots.length; i++) {
+        gonioCtx.lineTo(
+          GCX + liveGonioDots[i].x * GR,
+          GCY - liveGonioDots[i].y * GR
+        );
+      }
+      gonioCtx.strokeStyle = "rgba(0, 255, 255, 0.85)";
+      gonioCtx.lineWidth = 1;
+      gonioCtx.stroke();
+    } else {
+      // Simulation
+      simGonioT += 0.016;
+      const freqL = 1.0, freqR = 1.003;
+      const amp = 0.6 + 0.3 * Math.sin(simGonioT * 0.13);
+      for (let d = 0; d < 4; d++) {
+        const phase = (simGonioT * 2 * Math.PI * freqL) + (d / 4) * 0.12;
+        const lVal = Math.sin(phase) * amp;
+        const rVal = Math.sin(phase * (freqR / freqL) + 0.4) * amp;
+        const mVal = (lVal + rVal) * 0.707;
+        const sVal = (lVal - rVal) * 0.707;
+        simGonioTrail.push({ x: sVal, y: mVal, age: 0 });
+      }
+      simGonioTrail.forEach(p => p.age++);
+      simGonioTrail.splice(0, simGonioTrail.length - 220);
+
+      simGonioTrail.forEach(p => {
+        const alpha = 1 - (p.age / 55);
+        if (alpha <= 0) return;
+        gonioCtx.beginPath();
+        gonioCtx.arc(
+          GCX + p.x * GR,
+          GCY - p.y * GR,
+          1.5, 0, Math.PI * 2
+        );
+        gonioCtx.fillStyle = "rgba(0, 255, 0, " + (alpha * 0.85) + ")";
+        gonioCtx.fill();
+      });
+    }
+  }
+
+  // ============================================================================
+  // CANVAS RENDERING — PHASE CORRELATION (dynamic size)
+  // ============================================================================
+
+  let simPhaseValue  = 0.683;
+  let simPhaseTarget = 0.683;
+  let simPhaseTimer  = 0;
+
+  function drawPhase() {
+    const PW = phaseCanvas.width;
+    const PH = phaseCanvas.height;
+    if (PW < 10 || PH < 10) return;
+
+    let val;
+    if (livePhaseValue !== null) {
+      val = livePhaseValue;
+    } else {
+      simPhaseTimer++;
+      if (simPhaseTimer > 90) { simPhaseTarget = 0.4 + Math.random() * 0.5; simPhaseTimer = 0; }
+      simPhaseValue += (simPhaseTarget - simPhaseValue) * 0.02;
+      val = simPhaseValue;
+    }
+
+    phaseCtx.clearRect(0, 0, PW, PH);
+    phaseCtx.fillStyle = "#0a0a0a";
+    phaseCtx.fillRect(0, 0, PW, PH);
+
+    const cx = PW / 2;
+
+    // Scale font sizes based on panel width
+    const scaleFactor = Math.min(1, PW / 320);
+    const bigFontSize = Math.max(20, Math.round(40 * scaleFactor));
+    const labelFontSize = Math.max(8, Math.round(10 * scaleFactor));
+    const statusFontSize = Math.max(8, Math.round(11 * scaleFactor));
+
+    // Large numeric readout
+    phaseCtx.font = `bold ${bigFontSize}px 'Courier New', monospace`;
+    phaseCtx.fillStyle = "#33ff33";
+    phaseCtx.textAlign = "center";
+    const readoutY = Math.min(58, PH * 0.22);
+    phaseCtx.fillText((val >= 0 ? "+" : "") + val.toFixed(3), cx, readoutY);
+
+    phaseCtx.font = `${labelFontSize}px Arial, sans-serif`;
+    phaseCtx.fillStyle = "#555555";
+    phaseCtx.fillText("CORRELATION", cx, readoutY + 18);
+
+    // Status text
+    let statusText, statusColor;
+    if (val > 0.7)       { statusText = "MONO COMPATIBLE"; statusColor = "#00cc00"; }
+    else if (val > 0.3)  { statusText = "WIDE STEREO";     statusColor = "#00cc00"; }
+    else if (val > -0.2) { statusText = "DIFFUSE";         statusColor = "#888800"; }
+    else                 { statusText = "OUT OF PHASE";    statusColor = "#cc2200"; }
+
+    phaseCtx.font = `bold ${statusFontSize}px Arial, sans-serif`;
+    phaseCtx.fillStyle = statusColor;
+    phaseCtx.fillText(statusText, cx, readoutY + 36);
+
+    // Correlation bar
+    const BAR_X = 20;
+    const BAR_Y = Math.min(120, PH * 0.46);
+    const BAR_W_PX = PW - 40;
+    const BAR_H = Math.max(14, Math.min(22, PH * 0.08));
+
+    phaseCtx.font = "9px Arial, sans-serif";
+    phaseCtx.fillStyle = "#555555";
+    phaseCtx.textAlign = "center";
+    [-1, -0.5, 0, 0.5, 1].forEach(v => {
+      const x = BAR_X + ((v + 1) / 2) * BAR_W_PX;
+      phaseCtx.fillText(v > 0 ? "+" + v : String(v), x, BAR_Y - 7);
+      phaseCtx.fillStyle = "#333333";
+      phaseCtx.fillRect(x - 0.5, BAR_Y - 4, 1, 5);
+      phaseCtx.fillStyle = "#555555";
+    });
+
+    phaseCtx.fillStyle = "#111111";
+    phaseCtx.strokeStyle = "#2a2a2a";
+    phaseCtx.lineWidth = 1;
+    phaseCtx.fillRect(BAR_X, BAR_Y, BAR_W_PX, BAR_H);
+    phaseCtx.strokeRect(BAR_X, BAR_Y, BAR_W_PX, BAR_H);
+
+    const centerX = BAR_X + BAR_W_PX / 2;
+    phaseCtx.fillStyle = "#333333";
+    phaseCtx.fillRect(centerX - 0.5, BAR_Y, 1, BAR_H);
+
+    const fillNorm = (val + 1) / 2;
+    const fillEnd = BAR_X + fillNorm * BAR_W_PX;
+
+    if (fillEnd > centerX) {
+      const grd = phaseCtx.createLinearGradient(centerX, 0, fillEnd, 0);
+      grd.addColorStop(0, "rgba(0, 120, 0, 0.5)");
+      grd.addColorStop(1, "rgba(0, 204, 0, 0.85)");
+      phaseCtx.fillStyle = grd;
+      phaseCtx.fillRect(centerX, BAR_Y + 1, fillEnd - centerX, BAR_H - 2);
+    } else {
+      const grd = phaseCtx.createLinearGradient(fillEnd, 0, centerX, 0);
+      grd.addColorStop(0, "rgba(200, 30, 0, 0.85)");
+      grd.addColorStop(1, "rgba(80, 0, 0, 0.4)");
+      phaseCtx.fillStyle = grd;
+      phaseCtx.fillRect(fillEnd, BAR_Y + 1, centerX - fillEnd, BAR_H - 2);
+    }
+
+    // Indicator triangle
+    const indicatorX = BAR_X + fillNorm * BAR_W_PX;
+    phaseCtx.beginPath();
+    phaseCtx.moveTo(indicatorX, BAR_Y - 3);
+    phaseCtx.lineTo(indicatorX - 5, BAR_Y - 10);
+    phaseCtx.lineTo(indicatorX + 5, BAR_Y - 10);
+    phaseCtx.closePath();
+    phaseCtx.fillStyle = "#00ff00";
+    phaseCtx.fill();
+  }
+
+  // ============================================================================
+  // CANVAS RENDERING — LEVEL METERS + LUFS (dynamic size)
+  // ============================================================================
+
+  const METER_COUNT = 4;
+  const DB_SCALE     = [6, 0, -6, -12, -18, -24, -30, -36, -42];
+  const DB_METER_MAX = 6;
+  const DB_METER_MIN = -48;
+  const METER_LABELS = ["L", "R", "RMS L", "RMS R"];
+
+  function dbToMeterY(db, meterTop, meterH) {
+    const norm = (DB_METER_MAX - db) / (DB_METER_MAX - DB_METER_MIN);
+    return meterTop + norm * meterH;
+  }
+
+  function linToDb(lin) {
+    if (lin < 1e-10) return -100;
+    return 20.0 * Math.log10(lin);
+  }
+
+  const simMeterLevels = new Float32Array(METER_COUNT).fill(0.3);
+
+  function drawMeters() {
+    const MW = metersCanvas.width;
+    const MH = metersCanvas.height;
+    if (MW < 10 || MH < 10) return;
+
+    let levels, lufs;
+
+    if (liveMeterLevels) {
+      levels = liveMeterLevels;
+      lufs = liveLufs;
+    } else {
+      for (let ch = 0; ch < METER_COUNT; ch++) {
+        const target = 0.3 + 0.25 * Math.sin(Date.now() * 0.001 * (0.3 + ch * 0.1) + ch);
+        simMeterLevels[ch] += (target - simMeterLevels[ch]) * 0.08;
+        simMeterLevels[ch] += (Math.random() - 0.5) * 0.03;
+        simMeterLevels[ch] = Math.max(0, Math.min(1, simMeterLevels[ch]));
+      }
+      levels = simMeterLevels;
+      lufs = -14.2;
+    }
+
+    metersCtx.clearRect(0, 0, MW, MH);
+    metersCtx.fillStyle = "#0a0a0a";
+    metersCtx.fillRect(0, 0, MW, MH);
+
+    // Adaptive layout: LUFS area scales with panel width
+    const LUFS_AREA_W  = Math.max(100, Math.min(220, MW * 0.33));
+    const SCALE_W      = 36;
+    const PAD_LEFT     = 10;
+    const PAD_TOP      = 10;
+    const PAD_BOTTOM   = 50;
+    const METER_AREA_W = MW - LUFS_AREA_W;
+    const PAD_RIGHT    = SCALE_W + 6;
+    const PLOT_AREA_W  = METER_AREA_W - PAD_LEFT - PAD_RIGHT;
+    const PLOT_AREA_H  = MH - PAD_TOP - PAD_BOTTOM;
+    const CH_GAP       = 6;
+    const CH_W         = Math.max(6, Math.floor((PLOT_AREA_W - (METER_COUNT - 1) * CH_GAP) / METER_COUNT));
+
+    const scaleX = METER_AREA_W - SCALE_W;
+    metersCtx.font = "9px 'Courier New', monospace";
+    metersCtx.textAlign = "right";
+
+    DB_SCALE.forEach(db => {
+      const y = dbToMeterY(db, PAD_TOP, PLOT_AREA_H);
+      metersCtx.fillStyle = db > 0 ? "#ff5555" : db > -6 ? "#888800" : "#444444";
+      metersCtx.fillText(db > 0 ? "+" + db : String(db), scaleX - 2, y + 3);
+      metersCtx.strokeStyle = "#1a1a1a";
+      metersCtx.lineWidth = 1;
+      metersCtx.beginPath();
+      metersCtx.moveTo(PAD_LEFT, y);
+      metersCtx.lineTo(PAD_LEFT + PLOT_AREA_W, y);
+      metersCtx.stroke();
+      metersCtx.strokeStyle = "#333333";
+      metersCtx.beginPath();
+      metersCtx.moveTo(PAD_LEFT + PLOT_AREA_W, y);
+      metersCtx.lineTo(PAD_LEFT + PLOT_AREA_W + 4, y);
+      metersCtx.stroke();
+    });
+
+    for (let ch = 0; ch < METER_COUNT; ch++) {
+      const barX   = PAD_LEFT + ch * (CH_W + CH_GAP);
+      const barTop = PAD_TOP;
+      const barH   = PLOT_AREA_H;
+      const levelDB = linToDb(levels[ch]);
+
+      metersCtx.fillStyle = "#0d0d0d";
+      metersCtx.fillRect(barX, barTop, CH_W, barH);
+
+      const fillY = dbToMeterY(levelDB, barTop, barH);
+      const fillH = barTop + barH - fillY;
+
+      if (fillH > 0) {
+        const zeroY = dbToMeterY(0,  barTop, barH);
+        const sixY  = dbToMeterY(-6, barTop, barH);
+
+        if (fillY < zeroY) {
+          metersCtx.fillStyle = "#ff3333";
+          metersCtx.fillRect(barX, fillY, CH_W, zeroY - fillY);
+        }
+        if (fillY < sixY) {
+          const ylTop = Math.max(fillY, zeroY);
+          metersCtx.fillStyle = "#ffff00";
+          metersCtx.fillRect(barX, ylTop, CH_W, sixY - ylTop);
+        }
+        const grTop = Math.max(fillY, sixY);
+        const grH   = barTop + barH - grTop;
+        if (grH > 0) {
+          const isRms = ch >= 2;
+          const grd = metersCtx.createLinearGradient(0, grTop, 0, barTop + barH);
+          if (isRms) {
+            grd.addColorStop(0, "#00aacc");
+            grd.addColorStop(1, "#004455");
+          } else {
+            grd.addColorStop(0, "#00cc00");
+            grd.addColorStop(1, "#005500");
+          }
+          metersCtx.fillStyle = grd;
+          metersCtx.fillRect(barX, grTop, CH_W, grH);
+        }
+      }
+
+      metersCtx.strokeStyle = "#1a1a1a";
+      metersCtx.lineWidth = 1;
+      metersCtx.strokeRect(barX, barTop, CH_W, barH);
+
+      // Channel label
+      const labelY = barTop + barH + 12;
+      metersCtx.font = "bold 10px Arial, sans-serif";
+      metersCtx.fillStyle = ch >= 2 ? "#00aacc" : "#555555";
+      metersCtx.textAlign = "center";
+      metersCtx.fillText(METER_LABELS[ch], barX + CH_W / 2, labelY);
+
+      // dB readout
+      metersCtx.font = "9px 'Courier New', monospace";
+      metersCtx.fillStyle = "#33ff33";
+      metersCtx.fillText(levelDB > -90 ? levelDB.toFixed(1) : "-inf", barX + CH_W / 2, labelY + 14);
+    }
+
+    // ── LUFS readout area ──
+    const lufsX = METER_AREA_W + 10;
+    const lufsAreaW = LUFS_AREA_W - 20;
+    const lufsCenterX = lufsX + lufsAreaW / 2;
+
+    // Scale LUFS font to available width
+    const lufsScale = Math.min(1, LUFS_AREA_W / 220);
+    const lufsTitleSize = Math.max(8, Math.round(10 * lufsScale));
+    const lufsNumberSize = Math.max(20, Math.round(44 * lufsScale));
+    const lufsUnitSize = Math.max(10, Math.round(16 * lufsScale));
+
+    metersCtx.font = `${lufsTitleSize}px Arial, sans-serif`;
+    metersCtx.fillStyle = "#555555";
+    metersCtx.textAlign = "center";
+    metersCtx.fillText("PROGRAM INTEGRATED", lufsCenterX, 30);
+
+    metersCtx.font = `bold ${lufsNumberSize}px 'Courier New', monospace`;
+    metersCtx.fillStyle = "#33ff33";
+    const lufsStr = (lufs > -90) ? lufs.toFixed(1) : "-inf";
+    metersCtx.fillText(lufsStr, lufsCenterX, Math.min(90, 30 + lufsNumberSize + 6));
+
+    metersCtx.font = `bold ${lufsUnitSize}px Arial, sans-serif`;
+    metersCtx.fillStyle = "#888888";
+    metersCtx.fillText("LUFS", lufsCenterX, Math.min(115, 30 + lufsNumberSize + lufsUnitSize + 12));
+
+    // Divider line
+    metersCtx.strokeStyle = "#333333";
+    metersCtx.lineWidth = 1;
+    metersCtx.beginPath();
+    metersCtx.moveTo(METER_AREA_W, 0);
+    metersCtx.lineTo(METER_AREA_W, MH);
+    metersCtx.stroke();
+  }
+
+  // ============================================================================
+  // MAIN ANIMATION LOOP
+  // ============================================================================
+  function animate() {
+    syncCanvasSize(specCanvas, specWrap);
+    syncCanvasSize(gonioCanvas, gonioArea);
+    syncCanvasSize(phaseCanvas, phaseArea);
+    syncCanvasSize(metersCanvas, metersArea);
+    drawSpectrum();
+    drawGoniometer();
+    drawPhase();
+    drawMeters();
+    requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+
+  // ── Scale UI to fit window ──
+  const DESIGN_W = 1400;
+  const DESIGN_H = 800;
+
+  window.nrgResize = function(w, h) {
+    const scale = Math.min(w / DESIGN_W, h / DESIGN_H);
+    document.body.style.zoom = scale;
+  };
+
+</script>
+</body>
+</html>
+<script>
+// ── v5 Simulation: animate without JUCE backend ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Animate spectrum canvas
+  const specCanvas = document.getElementById('spectrumCanvas');
+  if (specCanvas) {
+    const ctx = specCanvas.getContext('2d');
+    let ph = 0;
+    function drawSpec() {
+      ph += 0.03;
+      const w = specCanvas.width, h = specCanvas.height;
+      ctx.clearRect(0, 0, w, h);
+      const BANDS = 31, bw = (w - 32*3) / BANDS;
+      for (let i = 0; i < BANDS; i++) {
+        const f = i/BANDS;
+        const v = Math.max(.05, Math.min(.95, .7-f*.35+Math.random()*.12+Math.sin(ph*2+i*.5)*.1));
+        const x = 3+i*(bw+3), bh = v*h*.85;
+        const g = ctx.createLinearGradient(x, h-bh, x, h);
+        g.addColorStop(0, v>.7?'#ff3333':v>.5?'#ffff44':'#44ff44');
+        g.addColorStop(1, 'rgba(68,255,68,.1)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x, h-bh, bw, bh);
+      }
+      requestAnimationFrame(drawSpec);
+    }
+    drawSpec();
+  }
+
+  // Animate goniometer canvas
+  const gonioCanvas = document.getElementById('gonioCanvas');
+  if (gonioCanvas) {
+    const ctx = gonioCanvas.getContext('2d');
+    let gp = 0;
+    const pts = [];
+    function drawGonio() {
+      gp += 0.04;
+      const w = gonioCanvas.width, h = gonioCanvas.height;
+      ctx.clearRect(0, 0, w, h);
+      // Crosshairs
+      ctx.strokeStyle = 'rgba(68,255,68,.1)'; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke();
+      // Points
+      for (let i = 0; i < 6; i++) {
+        const t = gp + i*.3;
+        const l = Math.sin(t) * .35;
+        const r = l * .85 + Math.sin(t*1.7) * .15;
+        pts.push({x: w/2+(l+r)*w*.35, y: h/2+(l-r)*h*.35, a: 1});
+      }
+      while (pts.length > 500) pts.shift();
+      pts.forEach(p => {
+        p.a *= 0.97;
+        ctx.fillStyle = `rgba(68,255,68,${p.a*.6})`;
+        ctx.fillRect(p.x-1, p.y-1, 2, 2);
+      });
+      requestAnimationFrame(drawGonio);
+    }
+    drawGonio();
+  }
+
+  // Animate phase correlation canvas
+  const phaseCanvas = document.getElementById('phaseCanvas');
+  if (phaseCanvas) {
+    const ctx = phaseCanvas.getContext('2d');
+    let pv = 0.85;
+    function drawPhase() {
+      pv += (Math.random()-.5)*.02;
+      pv = Math.max(-.3, Math.min(1, pv));
+      const w = phaseCanvas.width, h = phaseCanvas.height;
+      ctx.clearRect(0, 0, w, h);
+      const bw = (pv+1)/2 * (w-40);
+      const g = ctx.createLinearGradient(20, 0, w-20, 0);
+      g.addColorStop(0, '#ff4444'); g.addColorStop(.5, '#ffff44'); g.addColorStop(1, '#44ff44');
+      ctx.fillStyle = g;
+      ctx.fillRect(20, h*.35, bw, h*.3);
+      ctx.font = `bold ${Math.round(h*.2)}px "Courier New"`;
+      ctx.fillStyle = '#44ff44'; ctx.textAlign = 'center';
+      ctx.fillText(pv.toFixed(2), w/2, h*.25);
+      requestAnimationFrame(drawPhase);
+    }
+    drawPhase();
+  }
+
+  // Animate level meters canvas
+  const metersCanvas = document.getElementById('metersCanvas');
+  if (metersCanvas) {
+    const ctx = metersCanvas.getContext('2d');
+    const levels = [.6,.58,.55,.2,.3,.25,.15,.1];
+    const labels = ['L','R','1','2','3','4','5','6'];
+    function drawMeters() {
+      const w = metersCanvas.width, h = metersCanvas.height;
+      ctx.clearRect(0, 0, w, h);
+      const mw = (w - 20) / 8;
+      levels.forEach((v, i) => {
+        levels[i] += (Math.random()-.5)*.06;
+        levels[i] = Math.max(.05, Math.min(.92, levels[i]));
+        const x = 10 + i*mw, bh = levels[i] * (h-30);
+        const g = ctx.createLinearGradient(x, h-20-bh, x, h-20);
+        g.addColorStop(0, levels[i]>.8?'#ff3333':levels[i]>.6?'#ffff44':'#44ff44');
+        g.addColorStop(1, 'rgba(68,255,68,.15)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x+2, h-20-bh, mw-6, bh);
+        ctx.fillStyle = '#555'; ctx.font = 'bold 10px "Courier New"';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[i], x+mw/2, h-5);
+      });
+      requestAnimationFrame(drawMeters);
+    }
+    drawMeters();
+  }
+
+  // Update ref level readout
+  const refReadout = document.getElementById('ref-readout');
+  if (refReadout) refReadout.textContent = '-18.0 dBFS';
+
+  console.log('[NRGmeters5000 v5-test] Simulation running');
+});
+</script>
