@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NRGmeters5000 — Desktop Tutorial</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+  .story{width:1920px;height:1080px;position:relative;overflow:hidden;font-family:'Inter',sans-serif;color:#fff;
+    background:linear-gradient(135deg,#0c0c0c 0%,#080808 50%,#0c0c0c 100%);transform-origin:center center}
+  .header{position:absolute;top:0;left:0;width:100%;height:50px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 60px;z-index:50;opacity:0;animation:fsd .8s ease-out .3s forwards}
+  .brand-block{display:flex;align-items:center;gap:16px}
+  .brand{font-size:14px;letter-spacing:8px;color:#228822;text-transform:uppercase;font-weight:600}
+  .name{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:#44ff44;letter-spacing:-1px}
+  .sub{font-size:16px;color:#555;letter-spacing:3px;font-weight:600}
+  .cta-inline{display:flex;align-items:center;gap:16px}
+  .cta-badge{padding:8px 24px;border:1.5px solid #44ff4444;border-radius:30px;font-size:14px;font-weight:700;
+    letter-spacing:3px;text-transform:uppercase;color:#44ff44;background:#44ff4408}
+  .cta-sub{font-size:13px;color:#555;letter-spacing:2px}
+  @keyframes fsd{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="story" id="story">
+  <div class="header">
+    <div class="brand-block">
+      <div class="brand">NRG</div>
+      <div class="name">NRGmeters5000</div>
+      <div class="sub">Professional Audio Analyzer</div>
+    </div>
+    <div class="cta-inline">
+      <div class="cta-badge">Available Now</div>
+      <div class="cta-sub">VST3 / AU / Standalone</div>
+    </div>
+  </div>
+  <div id="zoom-wrapper">
+    <div id="plugin-container">
+      <iframe id="plugin-frame" src="plugins-src/NRGmeters5000/.ideas/mockups/v5-ui-test.html"></iframe>
+    </div>
+  </div>
+</div>
+<script src="desktop-tutorial.js"></script>
+<script>
+  initDesktopTutorial({
+    overviewText: 'NRGmeters5000 — Full Overview',
+    accent: '#44ff44',
+    accentDim: '#228822',
+    pluginWidth: 1400,
+    pluginHeight: 800,
+    uiTop: 70,
+    zoomScale: 2.2,
+    overviewDuration: 4000,
+    stepInterval: 4500,
+    knobs: [
+    {"name":"SPECTRUM","desc":"31-band 1/3 octave FFT analyzer","selector":"#spectrumCanvas","uiX":700,"uiY":250},
+    {"name":"GONIOMETER","desc":"Lissajous stereo phase display","selector":"#gonioCanvas","uiX":175,"uiY":550},
+    {"name":"PHASE CORRELATION","desc":"Stereo correlation -1 to +1","selector":"#phaseCanvas","uiX":525,"uiY":550},
+    {"name":"LEVEL METERS","desc":"8-channel PEAK/VU/PPM meters","selector":"#metersCanvas","uiX":1050,"uiY":550},
+    {"name":"FFT SIZE","desc":"512–16384 samples resolution","selector":"#fft_size","uiX":400,"uiY":30},
+    {"name":"REFERENCE LEVEL","desc":"Calibrate -24 to 0 dBFS","selector":"#reference_level","uiX":700,"uiY":30}
+  ]
+  });
+</script>
+</body>
+</html>

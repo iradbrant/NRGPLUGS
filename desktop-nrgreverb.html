@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NRGreverb — Desktop Tutorial</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+  .story{width:1920px;height:1080px;position:relative;overflow:hidden;font-family:'Inter',sans-serif;color:#fff;
+    background:linear-gradient(135deg,#0c0c0c 0%,#080808 50%,#0c0c0c 100%);transform-origin:center center}
+  .header{position:absolute;top:0;left:0;width:100%;height:50px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 60px;z-index:50;opacity:0;animation:fsd .8s ease-out .3s forwards}
+  .brand-block{display:flex;align-items:center;gap:16px}
+  .brand{font-size:14px;letter-spacing:8px;color:#a07820;text-transform:uppercase;font-weight:600}
+  .name{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:#ffc864;letter-spacing:-1px}
+  .sub{font-size:16px;color:#555;letter-spacing:3px;font-weight:600}
+  .cta-inline{display:flex;align-items:center;gap:16px}
+  .cta-badge{padding:8px 24px;border:1.5px solid #ffc86444;border-radius:30px;font-size:14px;font-weight:700;
+    letter-spacing:3px;text-transform:uppercase;color:#ffc864;background:#ffc86408}
+  .cta-sub{font-size:13px;color:#555;letter-spacing:2px}
+  @keyframes fsd{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="story" id="story">
+  <div class="header">
+    <div class="brand-block">
+      <div class="brand">NRG</div>
+      <div class="name">NRGreverb</div>
+      <div class="sub">Multi-Mode Reverb</div>
+    </div>
+    <div class="cta-inline">
+      <div class="cta-badge">Available Now</div>
+      <div class="cta-sub">VST3 / AU / Standalone</div>
+    </div>
+  </div>
+  <div id="zoom-wrapper">
+    <div id="plugin-container">
+      <iframe id="plugin-frame" src="plugins-src/NRGreverb/.ideas/mockups/v3-ui-test.html"></iframe>
+    </div>
+  </div>
+</div>
+<script src="desktop-tutorial.js"></script>
+<script>
+  initDesktopTutorial({
+    overviewText: 'NRGreverb — Full Overview',
+    accent: '#ffc864',
+    accentDim: '#a07820',
+    pluginWidth: 1000,
+    pluginHeight: 650,
+    uiTop: 70,
+    zoomScale: 2.2,
+    overviewDuration: 4000,
+    stepInterval: 4500,
+    knobs: [
+    {"name":"SIZE","desc":"Room dimensions 0–100%","selector":"#knob-size","uiX":720,"uiY":45},
+    {"name":"DECAY","desc":"Reverb tail 0.1–30 seconds","selector":"#knob-decay","uiX":789,"uiY":45},
+    {"name":"MIX","desc":"Dry/wet blend 0–100%","selector":"#knob-mix","uiX":858,"uiY":45},
+    {"name":"EQ CURVE","desc":"3-band parametric EQ on reverb tail","selector":"#eq-canvas","uiX":500,"uiY":200},
+    {"name":"PRE-DELAY","desc":"Gap before reverb 0–200ms","selector":"#knob-pre-delay","uiX":135,"uiY":430},
+    {"name":"DAMPING","desc":"HF absorption 0–100%","selector":"#knob-damping","uiX":235,"uiY":430},
+    {"name":"ALGORITHM","desc":"Hall, Plate, or Room character","selector":"#algo-group","uiX":250,"uiY":20},
+    {"name":"MODE","desc":"Standard, Shimmer, Gated, or Freeze","selector":"#mode-group","uiX":550,"uiY":20}
+  ]
+  });
+</script>
+</body>
+</html>
