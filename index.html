@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NRG Plugs Co. — Professional Audio Plugins</title>
+<meta name="description" content="Premium VST3/AU audio plugins for music production. Compressors, reverbs, spectral processors, voice effects, and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* NRG Plugin Series palette — matching the actual plugin UIs */
+    --bg: #111111;
+    --surface: #1a1a1a;
+    --surface-raised: #222222;
+    --surface-hover: #2a2a2a;
+    --border: #0a0a0a;
+    --border-light: #2a2a2a;
+    --gold: #ffc864;
+    --gold-dim: #a07820;
+    --gold-bright: #ffe0a0;
+    --gold-bg: rgba(255, 200, 100, 0.06);
+    --gold-border: rgba(255, 200, 100, 0.12);
+    --text: #e6b050;
+    --text-dim: #555555;
+    --text-bright: #ffc864;
+    --green: #44ff44;
+    --radius: 4px;
+    --radius-sm: 2px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background: var(--bg);
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--gold);
+    color: var(--bg);
+  }
+
+  /* ═══════════════════════════════════════
+     BRUSHED METAL TEXTURE — matches plugin UIs
+     ═══════════════════════════════════════ */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 1;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 1px,
+        rgba(255,255,255,0.008) 1px,
+        rgba(255,255,255,0.008) 2px
+      );
+  }
+
+  /* ═══════════════════════════════════════
+     DISCOUNT BANNER
+     ═══════════════════════════════════════ */
+  .discount-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    background: linear-gradient(90deg, #1a1200, #2a1c00, #1a1200);
+    border-bottom: 1px solid var(--gold-border);
+    padding: 10px 24px;
+    text-align: center;
+  }
+  .discount-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .discount-fire {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    color: #ff6b35;
+    letter-spacing: 3px;
+    padding: 2px 12px;
+    background: rgba(255, 107, 53, 0.12);
+    border: 1px solid rgba(255, 107, 53, 0.25);
+    border-radius: 4px;
+  }
+  .discount-text {
+    font-size: 14px;
+    color: var(--text);
+  }
+  .discount-text strong {
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .discount-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--bg);
+    background: var(--gold);
+    padding: 4px 14px;
+    border-radius: 6px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    user-select: all;
+  }
+  .discount-code:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 12px rgba(255, 200, 100, 0.4);
+  }
+
+  /* ═══════════════════════════════════════
+     NAVIGATION
+     ═══════════════════════════════════════ */
+  .nav {
+    position: fixed;
+    top: 42px;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 0 48px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(7, 7, 10, 0.85);
+    backdrop-filter: blur(20px) saturate(1.2);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+  .nav-logo-mark {
+    width: 36px;
+    height: 36px;
+    background: radial-gradient(circle at 35% 35%, #444, #222, #111);
+    border: 2px solid #555;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Impact, 'Arial Black', sans-serif;
+    font-size: 18px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(255,200,100,0.4);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .nav-logo-text {
+    font-family: Impact, 'Arial Black', sans-serif;
+    font-size: 22px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px rgba(255,200,100,0.15);
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta {
+    padding: 8px 20px;
+    background: linear-gradient(180deg, #2c2200, #1e1800);
+    color: var(--gold) !important;
+    border: 1px solid var(--gold) !important;
+    border-radius: 2px;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    letter-spacing: 2px !important;
+    text-transform: uppercase;
+    transition: all 0.2s !important;
+    box-shadow: 0 0 8px rgba(255,200,100,0.15);
+  }
+  .nav-cta:hover {
+    background: var(--gold) !important;
+    color: var(--bg) !important;
+    box-shadow: 0 0 20px rgba(255,200,100,0.4);
+  }
+
+  /* ═══════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════ */
+  .hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 130px 48px 40px;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .hero-bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(180px);
+    animation: orbFloat 20s ease-in-out infinite;
+  }
+  .hero-bg-orb.a { width: 700px; height: 700px; background: #ffc864; top: -200px; left: -200px; opacity: 0.06; }
+  .hero-bg-orb.b { width: 500px; height: 500px; background: #ff8844; bottom: -100px; right: -100px; opacity: 0.04; animation-delay: 7s; }
+  .hero-bg-orb.c { width: 400px; height: 400px; background: #aa66ff; top: 30%; right: 10%; opacity: 0.03; animation-delay: 12s; }
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,200,100,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,200,100,0.02) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black, transparent);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(17,17,17,0.8);
+    border: 1px solid var(--gold-dim);
+    border-radius: 2px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    animation: fadeUp 1s ease-out 0.2s both;
+    text-shadow: 0 0 6px rgba(68,255,68,0.2);
+  }
+  .hero-badge-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--green);
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+  @keyframes dotPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .hero-video-wrap {
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto 16px;
+    animation: fadeUp 1s ease-out 0.4s both;
+  }
+  .hero-video {
+    width: 100%;
+    height: auto;
+    display: block;
+    mix-blend-mode: screen;
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: var(--text-dim);
+    max-width: 560px;
+    margin: 0 auto 24px;
+    animation: fadeUp 1s ease-out 0.6s both;
+    line-height: 1.6;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    animation: fadeUp 1s ease-out 0.8s both;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    border-radius: 2px;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary {
+    background: linear-gradient(180deg, #2c2200, #1e1800);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    box-shadow: 0 0 12px rgba(255,200,100,0.15);
+  }
+  .btn-primary:hover {
+    background: var(--gold);
+    color: var(--bg);
+    box-shadow: 0 0 24px rgba(255,200,100,0.4);
+  }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--gold-dim);
+    border: 1px solid var(--border-light);
+  }
+  .btn-secondary:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 8px rgba(255,200,100,0.1);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    justify-content: center;
+    margin-top: 28px;
+    animation: fadeUp 1s ease-out 1s both;
+  }
+  .hero-stat {
+    text-align: center;
+  }
+  .hero-stat-value {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 2px;
+    line-height: 1;
+    text-shadow: 0 0 10px rgba(68,255,68,0.3);
+  }
+  .hero-stat-label {
+    font-size: 11px;
+    color: var(--gold-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ═══════════════════════════════════════
+     SECTION HEADERS
+     ═══════════════════════════════════════ */
+  .section {
+    padding: 100px 48px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    text-shadow: 0 0 6px rgba(68,255,68,0.2);
+  }
+  .section-title {
+    font-family: Impact, 'Arial Black', sans-serif;
+    font-size: clamp(40px, 5vw, 64px);
+    color: var(--gold);
+    letter-spacing: 4px;
+    line-height: 1;
+    margin-bottom: 16px;
+    text-shadow: 0 0 20px rgba(255,200,100,0.12);
+  }
+  .section-desc {
+    font-size: 17px;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin-bottom: 56px;
+  }
+
+  /* ═══════════════════════════════════════
+     PLUGIN GRID
+     ═══════════════════════════════════════ */
+  .plugins-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 28px;
+  }
+
+  .plugin-card {
+    background: linear-gradient(180deg, var(--surface-raised), var(--surface));
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    position: relative;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 40px rgba(0,0,0,0.5);
+  }
+  .plugin-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(255,200,100,0.15), 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  /* Video preview — scale 1920x1080 desktop content into card */
+  .plugin-video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .plugin-video iframe {
+    width: 1920px;
+    height: 1080px;
+    border: none;
+    pointer-events: none;
+    transform-origin: top left;
+    /* Scale will be set by JS based on actual card width */
+  }
+  .plugin-video-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(7,7,10,0.8) 100%);
+    pointer-events: none;
+  }
+  .plugin-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px 10px;
+    background: rgba(17, 17, 17, 0.85);
+    border: 1px solid var(--gold-dim);
+    border-radius: 2px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  /* Card body */
+  .plugin-body {
+    padding: 24px 28px 28px;
+  }
+  .plugin-name {
+    font-family: Impact, 'Arial Black', sans-serif;
+    font-size: 28px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    line-height: 1;
+    margin-bottom: 4px;
+    text-shadow: 0 0 12px rgba(255,200,100,0.15);
+  }
+  .plugin-subtitle {
+    font-size: 12px;
+    color: var(--gold-dim);
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .plugin-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    min-height: 44px;
+  }
+  .plugin-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .plugin-feature {
+    padding: 3px 8px;
+    background: var(--bg);
+    border: 1px solid var(--border-light);
+    border-radius: 2px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 10px;
+    color: var(--gold-dim);
+    letter-spacing: 0.5px;
+  }
+
+  .plugin-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .plugin-price {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 1px;
+    line-height: 1;
+    text-shadow: 0 0 8px rgba(68,255,68,0.25);
+  }
+  .plugin-price-was {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-dim);
+    text-decoration: line-through;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .btn-buy {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    background: linear-gradient(180deg, #2c2200, #1e1800);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    border-radius: 2px;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 8px rgba(255,200,100,0.12);
+  }
+  .btn-buy:hover {
+    background: var(--gold);
+    color: var(--bg);
+    box-shadow: 0 0 20px rgba(255,200,100,0.4);
+  }
+  .btn-buy svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ═══════════════════════════════════════
+     BUNDLE BANNER
+     ═══════════════════════════════════════ */
+  .bundle {
+    margin: 0 48px 100px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    background: var(--surface);
+    border: 1px solid var(--gold-border);
+    border-radius: var(--radius);
+    padding: 56px 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bundle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,200,100,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .bundle-content { position: relative; z-index: 1; flex: 1; }
+  .bundle-label {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-shadow: 0 0 6px rgba(68,255,68,0.2);
+  }
+  .bundle-title {
+    font-family: Impact, 'Arial Black', sans-serif;
+    font-size: 48px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    line-height: 1;
+    margin-bottom: 12px;
+    text-shadow: 0 0 20px rgba(255,200,100,0.12);
+  }
+  .bundle-desc {
+    font-size: 16px;
+    color: var(--text-dim);
+    max-width: 500px;
+  }
+  .bundle-action {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+  }
+  .bundle-price {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 2px;
+    line-height: 1;
+    text-shadow: 0 0 12px rgba(68,255,68,0.3);
+  }
+  .bundle-price-note {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .bundle-price-note s { color: var(--text-dim); }
+
+  /* ═══════════════════════════════════════
+     FORMATS / COMPATIBILITY
+     ═══════════════════════════════════════ */
+  .formats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    padding: 60px 48px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 80px;
+  }
+  .format {
+    text-align: center;
+  }
+  .format-icon {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 6px;
+    text-shadow: 0 0 8px rgba(68,255,68,0.25);
+  }
+  .format-label {
+    font-size: 11px;
+    color: var(--gold-dim);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* ═══════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════ */
+  .footer {
+    padding: 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .footer-logo {
+    font-family: Impact, 'Arial Black', sans-serif;
+    font-size: 18px;
+    color: var(--gold-dim);
+    letter-spacing: 3px;
+  }
+  .footer-copy {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+  .footer-links a {
+    font-size: 13px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--gold); }
+
+  /* ═══════════════════════════════════════
+     SCROLL ANIMATIONS
+     ═══════════════════════════════════════ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ═══════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════ */
+  @media (max-width: 900px) {
+    .nav { padding: 0 24px; }
+    .nav-links a:not(.nav-cta) { display: none; }
+    .hero { padding: 140px 24px 60px; }
+    .discount-inner { gap: 8px; }
+    .discount-fire { font-size: 13px; }
+    .discount-text { font-size: 12px; }
+    .section { padding: 60px 24px; }
+    .plugins-grid { grid-template-columns: 1fr; }
+    .bundle { flex-direction: column; padding: 40px 32px; margin: 0 24px 60px; text-align: center; }
+    .bundle-action { align-items: center; }
+    .hero-stats { gap: 24px; flex-wrap: wrap; }
+    .formats { flex-wrap: wrap; gap: 24px; }
+    .footer { flex-direction: column; gap: 24px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Launch Discount Banner -->
+<div class="discount-banner">
+  <div class="discount-inner">
+    <span class="discount-fire">LAUNCH SALE</span>
+    <span class="discount-text">Use code</span>
+    <span class="discount-code" id="discount-code" onclick="navigator.clipboard.writeText('NRGNRGNRG');this.textContent='COPIED!';setTimeout(()=>this.textContent='NRGNRGNRG',2000)">NRGNRGNRG</span>
+    <span class="discount-text">at checkout for <strong>40% OFF</strong> everything</span>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav class="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">N</div>
+    <div class="nav-logo-text">NRG PLUGS CO.</div>
+  </a>
+  <div class="nav-links">
+    <a href="#plugins">Plugins</a>
+    <a href="#bundle">Bundle</a>
+    <a href="https://nrgplugs.gumroad.com/l/NRGBUNDLE" class="nav-cta" target="_blank" rel="noopener">Get All Plugins</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-bg-orb a"></div>
+    <div class="hero-bg-orb b"></div>
+    <div class="hero-bg-orb c"></div>
+    <div class="hero-grid"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Professional Audio Tools
+    </div>
+    <div class="hero-video-wrap">
+      <video class="hero-video" autoplay loop muted playsinline>
+        <source src="hero-video-alpha.webm" type="video/webm">
+        <source src="hero-video.mov" type="video/quicktime">
+      </video>
+    </div>
+    <p class="hero-sub">
+      Studio-grade VST3 & AU plugins crafted for producers, engineers, and sound designers. From spectral intelligence to parallel modulation — tools that make your music hit harder.
+    </p>
+    <div class="hero-actions">
+      <a href="#plugins" class="btn btn-primary">Browse Plugins</a>
+      <a href="#bundle" class="btn btn-secondary">Get the Bundle</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-value">10</div>
+        <div class="hero-stat-label">Plugins</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">VST3</div>
+        <div class="hero-stat-label">+ Audio Unit</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">macOS</div>
+        <div class="hero-stat-label">Apple Silicon</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Formats -->
+<div class="formats">
+  <div class="format"><div class="format-icon">VST3</div><div class="format-label">Virtual Studio</div></div>
+  <div class="format"><div class="format-icon">AU</div><div class="format-label">Audio Unit</div></div>
+  <div class="format"><div class="format-icon">ARM</div><div class="format-label">Apple Silicon</div></div>
+  <div class="format"><div class="format-icon">x86</div><div class="format-label">Intel Mac</div></div>
+  <div class="format"><div class="format-icon">APP</div><div class="format-label">Standalone</div></div>
+</div>
+
+<!-- Plugins -->
+<section class="section" id="plugins">
+  <div class="section-label">The Collection</div>
+  <h2 class="section-title">Every Tool You Need</h2>
+  <p class="section-desc">Each plugin is designed from scratch with custom DSP, real-time visualization, and zero-compromise audio quality.</p>
+
+  <div class="plugins-grid" id="plugins-grid">
+    <!-- Cards injected by JS -->
+  </div>
+</section>
+
+<!-- Bundle -->
+<div class="bundle reveal" id="bundle">
+  <div class="bundle-content">
+    <div class="bundle-label">Best Value</div>
+    <h3 class="bundle-title">NRG COMPLETE BUNDLE</h3>
+    <p class="bundle-desc">Get all 10 plugins in one package. Lifetime license, free updates, instant download. Save over 60% compared to buying individually.</p>
+  </div>
+  <div class="bundle-action">
+    <div class="bundle-price">$200</div>
+    <div class="bundle-price-note">Use code <strong style="color:var(--gold)">NRGNRGNRG</strong> for 40% off → <strong style="color:var(--gold)">$120</strong></div>
+    <a href="https://nrgplugs.gumroad.com/l/NRGBUNDLE" class="btn btn-primary" target="_blank" rel="noopener">Get the Bundle</a>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-left">
+    <div class="footer-logo">NRG PLUGS CO.</div>
+    <span class="footer-copy">© 2026 NRG Plugs Co.. All rights reserved.</span>
+  </div>
+  <div class="footer-links">
+    <a href="mailto:support@nrgplugs.com">Support</a>
+    <a href="#">Terms</a>
+    <a href="#">Privacy</a>
+  </div>
+</footer>
+
+<script>
+  // ── Plugin Data ──
+  const plugins = [
+    {
+      slug: 'nrgmodular',
+      name: 'NRG Modular',
+      subtitle: '11-Effect Parallel Multi-FX',
+      desc: 'Strymon meets Eventide. 11 modulation and spectral effects in parallel with global tempo-synced LFO and per-effect phase offsets.',
+      features: ['11 Effects', 'Global LFO', 'Parallel Mixer', 'Tempo Sync', '111 Parameters'],
+      price: '$39+',
+      video: 'desktop-nrgmodular.html',
+      gumroad: 'https://nrgplugs.gumroad.com/l/NRGMODULAR',
+      tag: 'MODULATION',
+    },
+    {
+      slug: 'nrgmaster',
+      name: 'NRG Master',
+      subtitle: '4-Band Multiband Compressor',
+      desc: 'Precision multiband compression with per-band parallel saturation. Tape, Tube, Clip, and Wavefolder modes with real-time spectrum visualization.',
+      features: ['4 Bands', 'LR4 Crossovers', '4 Sat Modes', 'Spectrum FFT', 'M/S Processing'],
+      price: '$19',
+      video: 'desktop-nrgmaster.html',
+      gumroad: 'https://nrgplugs.gumroad.com/l/NRGMASTER',
+      tag: 'DYNAMICS',
+    },
+    {
+      slug: 'nrgspectral',
+      name: 'NRG Spectral',
+      subtitle: 'Intelligent Spectral Compressor',
+      desc: 'Gullfoss-inspired spectral processor. Recover masked detail, tame resonances, and shape your spectrum toward target curves.',
+      features: ['Recover', 'Tame', 'Target Curves', 'M/S Processing', 'Real-time FFT'],
+      price: '$29',
+      video: 'desktop-nrgspectral.html',
+      gumroad: 'https://nrgplugs.gumroad.com/l/NRGSPECTRAL',
+      tag: 'SPECTRAL',
+    },
+    {
+      slug: 'nrgclarity',
+      name: 'NRG Clarity',
+      subtitle: 'Intelligent Spectral Correction',
+      desc: '5-module correction engine — automatically tames resonances, removes mud, reduces harshness, balances spectrum, and fixes stereo.',
+      features: ['Resonance', 'Balance', 'Mud', 'Harshness', 'Stereo', 'Delta Listen'],
+      price: '$39',
+      video: 'desktop-nrgclarity.html',
+      gumroad: 'https://nrgplugs.gumroad.com/l/scnjz',
+      tag: 'SPECTRAL',
+    },
+    {
+      slug: 'nrgreverb',
+      name: 'NRG Reverb',
+      subtitle: 'Multi-Mode Reverb',
+      desc: 'Hall, Plate, and Room algorithms with 3-band parametric EQ, shimmer trails, gated punch, and infinite freeze.',
+      features: ['3 Algorithms', 'Shimmer', 'Freeze', '3-Band EQ', 'Dynamics'],
+      price: '$29',
+      video: 'desktop-nrgreverb.html',
+      gumroad: 'https://nrgplugs.gumroad.com/l/NRGREVERB',
+      tag: 'REVERB',
+    },
+    {
+      slug: 'nrglimit',
+      name: 'NRG Limit',
+      subtitle: 'Precision Limiter',
+      desc: 'Transparent brickwall limiting for mastering and bus processing. Clean, loud, and distortion-free at any level.',
+      features: ['Brickwall', 'Lookahead', 'True Peak', 'Metering', 'Low Latency'],
+      price: '$29',
+      video: 'desktop-nrgmaster.html',
+      gumroad: 'https://nrgplugs.gumroad.com/l/funmmi',
+      tag: 'DYNAMICS',
+    },
+    {
+      slug: 'nrgmeters',
+      name: 'NRG Meters 5000',
+      subtitle: 'Professional Audio Analyzer',
+      desc: 'Standalone metering suite — 31-band spectrum, goniometer, phase correlation, 8-channel meters with system audio capture.',
+      features: ['31-Band FFT', 'Goniometer', 'Phase Meter', '8-Ch Meters', 'System Audio'],
+      price: '$39',
+      video: 'desktop-nrgmeters.html',
+      gumroad: 'https://nrgplugs.gumroad.com/l/NRGMETERS',
+      tag: 'METERING',
+    },
+    {
+      slug: 'nrgboy',
+      name: 'NRG Boy',
+      subtitle: 'Voice Transformer',
+      desc: 'Real-time vocal pitch shifting, formant control, robot vocoder, and multi-voice harmony with scale quantization and MIDI tracking.',
+      features: ['Pitch Shift', 'Formant', 'Robot Mode', 'Harmony', 'MIDI'],
+      price: '$19+',
+      video: 'desktop-nrgboy.html',
+      gumroad: 'https://nrgplugs.gumroad.com/l/NRGBOY',
+      tag: 'VOCAL',
+    },
+    {
+      slug: 'nrgduck',
+      name: 'NRGduck',
+      subtitle: 'Sidechain Volume Ducker',
+      desc: 'Tempo-synced sidechain ducking with 4 curve presets, real sidechain input fallback, and smooth envelope visualization.',
+      features: ['BPM Sync', '4 Shapes', 'Sidechain In', 'Envelope View', 'Auto Detect'],
+      price: '$19+',
+      video: 'desktop-nrgduck.html',
+      gumroad: 'https://nrgplugs.gumroad.com/l/NRGDUCK',
+      tag: 'UTILITY',
+    },
+    {
+      slug: 'nrgimager',
+      name: 'NRG Imager',
+      subtitle: 'Stereo Width Processor',
+      desc: 'Create stereo from mono via micro-detuning, or widen existing stereo with M/S processing. Built-in correlation meter for mono safety.',
+      features: ['Mono→Stereo', 'M/S Widener', 'Haas Delay', 'Low Cut', 'Correlation'],
+      price: '$15',
+      video: 'desktop-nrgimager.html',
+      gumroad: 'https://nrgplugs.gumroad.com/l/NRGIMAGER',
+      tag: 'UTILITY',
+    },
+  ];
+
+  // ── Render Plugin Cards ──
+  const grid = document.getElementById('plugins-grid');
+
+  plugins.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'plugin-card reveal';
+    card.style.transitionDelay = `${i * 0.08}s`;
+    card.innerHTML = `
+      <div class="plugin-video">
+        <iframe src="${p.video}" loading="lazy" title="${p.name} demo"></iframe>
+        <div class="plugin-video-overlay"></div>
+        <div class="plugin-tag">${p.tag}</div>
+      </div>
+      <div class="plugin-body">
+        <div class="plugin-name">${p.name}</div>
+        <div class="plugin-subtitle">${p.subtitle}</div>
+        <div class="plugin-desc">${p.desc}</div>
+        <div class="plugin-features">
+          ${p.features.map(f => `<span class="plugin-feature">${f}</span>`).join('')}
+        </div>
+        <div class="plugin-footer">
+          <div class="plugin-price">${p.price}</div>
+          <a href="${p.gumroad}" class="btn-buy" target="_blank" rel="noopener">
+            Buy Now
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // ── Scale desktop iframes to fit card width ──
+  function scaleVideoIframes() {
+    document.querySelectorAll('.plugin-video').forEach(container => {
+      const iframe = container.querySelector('iframe');
+      if (!iframe) return;
+      const cardW = container.offsetWidth;
+      const scale = cardW / 1920;
+      iframe.style.transform = `scale(${scale})`;
+    });
+  }
+  // Run on load and resize
+  scaleVideoIframes();
+  window.addEventListener('resize', scaleVideoIframes);
+  // Re-run after a moment in case layout shifts
+  setTimeout(scaleVideoIframes, 500);
+  setTimeout(scaleVideoIframes, 2000);
+
+  // ── Scroll Reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── Smooth nav background on scroll ──
+  const nav = document.querySelector('.nav');
+  window.addEventListener('scroll', () => {
+    nav.style.borderBottomColor = window.scrollY > 50 ? 'var(--border-light)' : 'var(--border)';
+  });
+</script>
+</body>
+</html>
