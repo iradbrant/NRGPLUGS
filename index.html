@@ -746,9 +746,10 @@
      ═══════════════════════════════════════ */
   @media (max-width: 900px) {
     body::before { display: none; }
-    .nav { padding: 0 24px; }
+    .discount-banner { position: relative; z-index: 1; }
+    .nav { position: sticky; top: 0; padding: 0 16px; height: 56px; }
     .nav-links a:not(.nav-cta) { display: none; }
-    .hero { padding: 140px 24px 60px; min-height: auto; height: auto; }
+    .hero { padding: 60px 24px; min-height: auto; height: auto; }
     .discount-inner { gap: 8px; }
     .discount-fire { font-size: 13px; }
     .discount-text { font-size: 12px; }
