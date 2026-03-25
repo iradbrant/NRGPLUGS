@@ -58,7 +58,7 @@
     content: '';
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: 1;
     pointer-events: none;
     opacity: 1;
     background:
@@ -745,14 +745,17 @@
      RESPONSIVE
      ═══════════════════════════════════════ */
   @media (max-width: 900px) {
+    body::before { display: none; }
     .nav { padding: 0 24px; }
     .nav-links a:not(.nav-cta) { display: none; }
-    .hero { padding: 140px 24px 60px; }
+    .hero { padding: 140px 24px 60px; min-height: auto; height: auto; }
     .discount-inner { gap: 8px; }
     .discount-fire { font-size: 13px; }
     .discount-text { font-size: 12px; }
     .section { padding: 60px 24px; }
     .plugins-grid { grid-template-columns: 1fr; }
+    .plugin-video iframe { display: none; }
+    .plugin-video { aspect-ratio: auto; height: 0; padding: 0; border: none; }
     .bundle { flex-direction: column; padding: 40px 32px; margin: 0 24px 60px; text-align: center; }
     .bundle-action { align-items: center; }
     .hero-stats { gap: 24px; flex-wrap: wrap; }
