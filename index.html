@@ -454,6 +454,11 @@
     overflow: hidden;
     border-bottom: 1px solid var(--border);
   }
+  .plugin-image-mobile {
+    display: none;
+    width: 100%;
+    height: auto;
+  }
   .plugin-video iframe {
     width: 1920px;
     height: 1080px;
@@ -756,7 +761,8 @@
     .section { padding: 60px 24px; }
     .plugins-grid { grid-template-columns: 1fr; }
     .plugin-video iframe { display: none; }
-    .plugin-video { aspect-ratio: auto; height: 0; padding: 0; border: none; }
+    .plugin-image-mobile { display: block; }
+    .plugin-video { aspect-ratio: auto; overflow: visible; }
     .bundle { flex-direction: column; padding: 40px 32px; margin: 0 24px 60px; text-align: center; }
     .bundle-action { align-items: center; }
     .hero-stats { gap: 24px; flex-wrap: wrap; }
@@ -891,6 +897,7 @@
       features: ['11 Effects', 'Global LFO', 'Parallel Mixer', 'Tempo Sync', '111 Parameters'],
       price: '$39+',
       video: 'desktop-nrgmodular.html',
+      image: 'plugin-images/nrgmodular.png',
       gumroad: 'https://nrgplugs.gumroad.com/l/NRGMODULAR',
       tag: 'MODULATION',
     },
@@ -902,6 +909,7 @@
       features: ['4 Bands', 'LR4 Crossovers', '4 Sat Modes', 'Spectrum FFT', 'M/S Processing'],
       price: '$19',
       video: 'desktop-nrgmaster.html',
+      image: 'plugin-images/nrgmaster.png',
       gumroad: 'https://nrgplugs.gumroad.com/l/NRGMASTER',
       tag: 'DYNAMICS',
     },
@@ -913,6 +921,7 @@
       features: ['Recover', 'Tame', 'Target Curves', 'M/S Processing', 'Real-time FFT'],
       price: '$29',
       video: 'desktop-nrgspectral.html',
+      image: 'plugin-images/nrgspectral.png',
       gumroad: 'https://nrgplugs.gumroad.com/l/NRGSPECTRAL',
       tag: 'SPECTRAL',
     },
@@ -924,6 +933,7 @@
       features: ['Resonance', 'Balance', 'Mud', 'Harshness', 'Stereo', 'Delta Listen'],
       price: '$39',
       video: 'desktop-nrgclarity.html',
+      image: 'plugin-images/nrgclarity.png',
       gumroad: 'https://nrgplugs.gumroad.com/l/scnjz',
       tag: 'SPECTRAL',
     },
@@ -935,6 +945,7 @@
       features: ['3 Algorithms', 'Shimmer', 'Freeze', '3-Band EQ', 'Dynamics'],
       price: '$29',
       video: 'desktop-nrgreverb.html',
+      image: 'plugin-images/nrgreverb.png',
       gumroad: 'https://nrgplugs.gumroad.com/l/NRGREVERB',
       tag: 'REVERB',
     },
@@ -946,6 +957,7 @@
       features: ['Brickwall', 'Lookahead', 'True Peak', 'Metering', 'Low Latency'],
       price: '$29',
       video: 'desktop-nrgmaster.html',
+      image: 'plugin-images/nrgmaster.png',
       gumroad: 'https://nrgplugs.gumroad.com/l/funmmi',
       tag: 'DYNAMICS',
     },
@@ -957,6 +969,7 @@
       features: ['31-Band FFT', 'Goniometer', 'Phase Meter', '8-Ch Meters', 'System Audio'],
       price: '$39',
       video: 'desktop-nrgmeters.html',
+      image: 'plugin-images/nrgmeters5000.png',
       gumroad: 'https://nrgplugs.gumroad.com/l/NRGMETERS',
       tag: 'METERING',
     },
@@ -968,6 +981,7 @@
       features: ['Pitch Shift', 'Formant', 'Robot Mode', 'Harmony', 'MIDI'],
       price: '$19+',
       video: 'desktop-nrgboy.html',
+      image: 'plugin-images/nrgboy.png',
       gumroad: 'https://nrgplugs.gumroad.com/l/NRGBOY',
       tag: 'VOCAL',
     },
@@ -979,6 +993,7 @@
       features: ['BPM Sync', '4 Shapes', 'Sidechain In', 'Envelope View', 'Auto Detect'],
       price: '$19+',
       video: 'desktop-nrgduck.html',
+      image: 'plugin-images/nrgduck.png',
       gumroad: 'https://nrgplugs.gumroad.com/l/NRGDUCK',
       tag: 'UTILITY',
     },
@@ -990,6 +1005,7 @@
       features: ['Mono→Stereo', 'M/S Widener', 'Haas Delay', 'Low Cut', 'Correlation'],
       price: '$15',
       video: 'desktop-nrgimager.html',
+      image: 'plugin-images/nrgimager.png',
       gumroad: 'https://nrgplugs.gumroad.com/l/NRGIMAGER',
       tag: 'UTILITY',
     },
@@ -1005,6 +1021,7 @@
     card.innerHTML = `
       <div class="plugin-video">
         <iframe src="${p.video}" loading="lazy" title="${p.name} demo"></iframe>
+        <img class="plugin-image-mobile" src="${p.image}" alt="${p.name}" loading="lazy">
         <div class="plugin-video-overlay"></div>
         <div class="plugin-tag">${p.tag}</div>
       </div>
